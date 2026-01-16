@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,17 +20,25 @@ public class Client {
     private String lastName;
     private String email;
     private String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name="shopping_cart_id")
+    private ShoppingCart shoppingCart;
+
+    @ManyToOne()
+    @JoinColumn(name="address_id")
     private Address address;
 
     public Client() {
     }
 
-    public Client(String firstName, String lastName, String email, String phoneNumber, Address address) {
+    public Client(String firstName, String lastName, String email, String phoneNumber, Address address, ShoppingCart shoppingCart) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.shoppingCart = shoppingCart;
     }
 
     public Long getId() {
@@ -54,8 +65,8 @@ public class Client {
         return address;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
     public void setFirstName(String firstName) {
@@ -76,5 +87,9 @@ public class Client {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
     }
 }

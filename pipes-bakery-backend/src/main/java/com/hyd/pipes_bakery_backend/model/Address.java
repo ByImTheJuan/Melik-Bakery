@@ -54,10 +54,6 @@ public class Address {
         return country;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setStreet(String street) {
         this.street = street;
     }

@@ -1,12 +1,15 @@
 package com.hyd.pipes_bakery_backend.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,8 +19,11 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "shoppingCart")
     private Client client;
-    private Map<Product, Integer> products;
+
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
+    private Set<OrderItem> items;
 
     public ShoppingCart() {
         
@@ -25,7 +31,7 @@ public class ShoppingCart {
 
     public ShoppingCart(Client client) {
         this.client = client;
-        this.products = new HashMap<>();
+        this.items = new HashSet<>();
     }
 
 
@@ -37,38 +43,27 @@ public class ShoppingCart {
         return client;
     }
 
-    public Map<Product, Integer> getProducts() {
-        return products;
+    public Set<OrderItem> getItems() {
+        return items;
     }
 
-    public void addProduct(Product product) {
-        if(products.get(product) != null) {
-            int quantity = products.get(product);
-            products.put(product, quantity + 1);
-        }
-        else {
-            products.put(product, 1);
-        }
+    public void addItem(OrderItem item) {
+        items.add(item);
     }
 
-    public void removeProduct(Product product) {
-        if(products.get(product) > 1)
-            products.put(product, products.get(product) - 1);
-        else {
-            products.remove(product);
-        }
-            
+    public void removeItem(OrderItem item) {
+        items.remove(item);
     }
 
     public double getTotalPrice() {
         double total = 0;
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            total += entry.getKey().getPrice() * entry.getValue();
+        for (OrderItem item : items) {
+            total += item.getProduct().getPrice() * item.getQuantity();
         }
         return total;
     }
 
     public void clearCart() {
-        products.clear();
+        items.clear();
     }
 }
