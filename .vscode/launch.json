@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PipesBakeryBackendApplication<pipes-bakery-backend>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.hyd.pipes_bakery_backend.PipesBakeryBackendApplication",
+            "projectName": "pipes-bakery-backend",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

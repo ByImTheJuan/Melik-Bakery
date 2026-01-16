@@ -3,13 +3,34 @@ package com.hyd.pipes_bakery_backend.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "shopping_carts")
 public class ShoppingCart {
-    private final Client client;
-    private final Map<Product, Integer> products;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Client client;
+    private Map<Product, Integer> products;
+
+    public ShoppingCart() {
+        
+    }
 
     public ShoppingCart(Client client) {
         this.client = client;
         this.products = new HashMap<>();
+    }
+
+
+    public Long getId() {
+        return id;
     }
 
     public Client getClient() {
@@ -45,5 +66,9 @@ public class ShoppingCart {
             total += entry.getKey().getPrice() * entry.getValue();
         }
         return total;
+    }
+
+    public void clearCart() {
+        products.clear();
     }
 }

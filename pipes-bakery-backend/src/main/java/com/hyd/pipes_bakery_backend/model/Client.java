@@ -1,11 +1,26 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "clients")
 public class Client {
-    private final String firstName;
-    private final String lastName;
-    private final String email;
-    private final String phoneNumber;
-    private final Address address;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phoneNumber;
+    private Address address;
+
+    public Client() {
+    }
 
     public Client(String firstName, String lastName, String email, String phoneNumber, Address address) {
         this.firstName = firstName;
@@ -13,6 +28,10 @@ public class Client {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -33,5 +52,29 @@ public class Client {
 
     public Address getAddress() {
         return address;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }

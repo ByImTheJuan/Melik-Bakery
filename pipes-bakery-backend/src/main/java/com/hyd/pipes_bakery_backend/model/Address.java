@@ -1,20 +1,37 @@
 package com.hyd.pipes_bakery_backend.model;
 
-public class Address {
-    private final String street;
-    private final String additionalInformation;
-    private final String city;
-    private final String state;
-    private final int zipCode;
-    private final String country;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-    public Address(String street, String additionalInformation, String city, String state, int zipCode, String country) {
+@Entity
+@Table(name = "addresses")
+public class Address {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String street;
+    private String additionalInformation;
+    private String city;
+    private int zipCode;
+    private String country;
+
+    public Address() {
+    }
+
+    public Address(String street, String additionalInformation, String city, int zipCode, String country) {
         this.street = street;
         this.additionalInformation = additionalInformation;
         this.city = city;
-        this.state = state;
         this.zipCode = zipCode;
         this.country = country;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getStreet() {
@@ -29,15 +46,35 @@ public class Address {
         return city;
     }
 
-    public String getState() {
-        return state;
-    }
-
     public int getZipCode() {
         return zipCode;
     }
 
     public String getCountry() {
         return country;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public void setAdditionalInformation(String additionalInformation) {
+        this.additionalInformation = additionalInformation;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setZipCode(int zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }
