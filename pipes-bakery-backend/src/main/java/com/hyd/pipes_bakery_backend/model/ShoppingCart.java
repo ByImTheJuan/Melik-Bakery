@@ -66,4 +66,11 @@ public class ShoppingCart {
     public void clearCart() {
         items.clear();
     }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+    public void setItems(Set<OrderItem> items) {
+        this.items = items;
+    }
 }

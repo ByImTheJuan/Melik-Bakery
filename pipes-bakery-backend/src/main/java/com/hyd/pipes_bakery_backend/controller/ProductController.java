@@ -17,6 +17,8 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.service.ProductService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -42,13 +44,13 @@ public class ProductController {
     // POST /api/products
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO product) {
+    public ProductResponseDTO createProduct(@Valid @RequestBody ProductRequestDTO product) {
         return productService.createProduct(product);
     }
 
     // UPDATE
     @PutMapping("/{id}")
-    public ProductResponseDTO updateProduct(@PathVariable Long id, @RequestBody ProductRequestDTO updatedProduct) {
+    public ProductResponseDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO updatedProduct) {
         return productService.updateProduct(id, updatedProduct);
     }
 

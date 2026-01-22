@@ -2,12 +2,11 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 
@@ -30,7 +29,9 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductResponseDTO getProductById(Long id) {
-        return productRepository.findById(id).map(this::toDto).orElse(null);
+        return productRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
+                "Product not found with id " + id
+        ));
     }
 
     @Override
@@ -46,7 +47,7 @@ public class ProductService implements IProductService {
             productRepository.deleteById(id);
 
         else
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Product not found with id " + id);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class ProductService implements IProductService {
                     return productRepository.save(product);
                 })
                 .map(this::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
     }
 
     @Override
