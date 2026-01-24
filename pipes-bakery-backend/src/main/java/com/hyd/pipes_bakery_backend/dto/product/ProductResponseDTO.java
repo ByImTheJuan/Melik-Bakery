@@ -5,12 +5,14 @@ public class ProductResponseDTO {
     private String name;
     private String description;
     private double price;
-    
-    public ProductResponseDTO(Long id, String name, String description, double price) {
+    private String ingredients;
+
+    public ProductResponseDTO(Long id, String name, String description, double price, String ingredients) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.ingredients = ingredients;
     }
 
     public Long getId() {
@@ -28,6 +30,10 @@ public class ProductResponseDTO {
         return price;
     }
 
+    public String getIngredients() {
+        return ingredients;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -42,5 +48,9 @@ public class ProductResponseDTO {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
     }
 }

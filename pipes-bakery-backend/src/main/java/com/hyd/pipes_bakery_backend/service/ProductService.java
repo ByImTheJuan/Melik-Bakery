@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
@@ -28,7 +29,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductResponseDTO getProductById(Long id) {
+    public ProductResponseDTO getProductById(@NonNull Long id) {
         return productRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Product not found with id " + id
         ));
@@ -42,7 +43,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void deleteProduct(Long id) {
+    public void deleteProduct(@NonNull Long id) {
         if(productRepository.existsById(id))
             productRepository.deleteById(id);
 
@@ -51,7 +52,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO updatedProduct) {
+    public ProductResponseDTO updateProduct(@NonNull Long id, ProductRequestDTO updatedProduct) {
         return productRepository.findById(id)
                 .map(product -> {
                     product.setName(updatedProduct.getName());
@@ -64,20 +65,24 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @NonNull
     public ProductResponseDTO toDto(Product product) {
         ProductResponseDTO dto = new ProductResponseDTO(product.getId(), 
                                                         product.getName(), 
                                                         product.getDescription(), 
-                                                        product.getPrice());
+                                                        product.getPrice(),
+                                                        product.getIngredients());
         return dto;
     }
 
     @Override
+    @NonNull
     public Product toEntity(ProductRequestDTO dto) {
         Product product = new Product();
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
+        product.setIngredients(dto.getIngredients());
         return product;
     }
 }

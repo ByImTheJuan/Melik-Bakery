@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
@@ -28,7 +29,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressResponseDTO getAddressById(Long id) {
+    public AddressResponseDTO getAddressById(@NonNull Long id) {
 
         return addressRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Address not found with id " + id
@@ -36,14 +37,14 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressResponseDTO createAddress(AddressRequestDTO dto) {
+    public AddressResponseDTO createAddress(@NonNull AddressRequestDTO dto) {
         Address address = toEntity(dto);
         Address savedAddress = addressRepository.save(address);
         return toDto(savedAddress);
     }
 
     @Override
-    public void deleteAddress(Long id) {
+    public void deleteAddress(@NonNull Long id) {
         if(addressRepository.existsById(id))
             addressRepository.deleteById(id);
 
@@ -52,7 +53,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressResponseDTO updateAddress(Long id, AddressRequestDTO updatedAddress) {
+    public AddressResponseDTO updateAddress(@NonNull Long id, AddressRequestDTO updatedAddress) {
             return addressRepository.findById(id)
                 .map(address -> {
                     address.setStreet(updatedAddress.getStreet());
@@ -69,7 +70,8 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressResponseDTO toDto(Address address) {
+    @NonNull
+    public AddressResponseDTO toDto(@NonNull Address address) {
         AddressResponseDTO dto = new AddressResponseDTO(address.getId(), 
                                                         address.getStreet(), 
                                                         address.getAdditionalInformation(), 
@@ -80,7 +82,8 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public Address toEntity(AddressRequestDTO dto) {
+    @NonNull
+    public Address toEntity(@NonNull AddressRequestDTO dto) {
         Address address = new Address();
         address.setStreet(dto.getStreet());
         address.setAdditionalInformation(dto.getAdditionalInformation());

@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +38,7 @@ public class ShoppingCartController {
 
     // GET /api/shopping-carts/{id}
     @GetMapping("/{id}")
-    public ShoppingCartResponseDTO getShoppingCartById(@PathVariable Long id) {
+    public ShoppingCartResponseDTO getShoppingCartById(@NonNull @PathVariable Long id) {
         return shoppingCartService.getShoppingCartById(id);
     }
 
@@ -50,14 +51,14 @@ public class ShoppingCartController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ShoppingCartResponseDTO updateShoppingCart(@PathVariable Long id, @Valid@RequestBody ShoppingCartRequestDTO updatedShoppingCart) {
+    public ShoppingCartResponseDTO updateShoppingCart(@NonNull @PathVariable Long id, @Valid@RequestBody ShoppingCartRequestDTO updatedShoppingCart) {
         return shoppingCartService.updateShoppingCart(id, updatedShoppingCart);
     }
 
     // DELETE /api/shopping-carts/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteShoppingCart(@PathVariable Long id) {
+    public void deleteShoppingCart(@NonNull @PathVariable Long id) {
         shoppingCartService.deleteShoppingCart(id);
     }
 }

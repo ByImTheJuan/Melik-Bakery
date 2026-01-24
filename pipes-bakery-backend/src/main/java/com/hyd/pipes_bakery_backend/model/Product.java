@@ -21,7 +21,7 @@ public class Product {
 
     public Product() {
     }
-
+    
     public Product(String name, double price, String description, String ingredients) {
         this.name = name;
         this.price = price;
@@ -47,6 +47,10 @@ public class Product {
 
     public double getPrice() {
         return price;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setName(String name) {

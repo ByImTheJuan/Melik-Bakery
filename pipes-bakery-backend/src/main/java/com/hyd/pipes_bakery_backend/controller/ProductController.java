@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +38,7 @@ public class ProductController {
 
     // GET /api/products/{id}
     @GetMapping("/{id}")
-    public ProductResponseDTO getProductById(@PathVariable Long id) {
+    public ProductResponseDTO getProductById(@NonNull @PathVariable Long id) {
         return productService.getProductById(id);
     }
 
@@ -50,14 +51,14 @@ public class ProductController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ProductResponseDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO updatedProduct) {
+    public ProductResponseDTO updateProduct(@NonNull @PathVariable Long id, @Valid @RequestBody ProductRequestDTO updatedProduct) {
         return productService.updateProduct(id, updatedProduct);
     }
 
     // DELETE /api/products/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProduct(@PathVariable Long id) {
+    public void deleteProduct(@NonNull @PathVariable Long id) {
         productService.deleteProduct(id);
     }
 }

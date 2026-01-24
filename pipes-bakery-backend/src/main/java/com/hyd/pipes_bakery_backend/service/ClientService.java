@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
@@ -28,7 +29,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public ClientResponseDTO getClientById(Long id) {
+    public ClientResponseDTO getClientById(@NonNull Long id) {
 
         return clientRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Client not found with id " + id
@@ -43,7 +44,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public void deleteClient(Long id) {
+    public void deleteClient(@NonNull Long id) {
         if(clientRepository.existsById(id))
             clientRepository.deleteById(id);
 
@@ -52,7 +53,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public ClientResponseDTO updateClient(Long id, ClientRequestDTO updatedClient) {
+    public ClientResponseDTO updateClient(@NonNull Long id, ClientRequestDTO updatedClient) {
         return clientRepository.findById(id)
                 .map(client -> {
                     client.setFirstName(updatedClient.getFirstName());
@@ -66,6 +67,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
+    @NonNull
     public ClientResponseDTO toDto(Client client) {
         ClientResponseDTO dto = new ClientResponseDTO(client.getId(), 
                                                         client.getFirstName(),
@@ -76,6 +78,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
+    @NonNull
     public Client toEntity(ClientRequestDTO dto) {
         Client client = new Client();
         client.setFirstName(dto.getFirstName());

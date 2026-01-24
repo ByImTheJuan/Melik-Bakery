@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +38,7 @@ public class ClientController {
 
     // GET /api/clients/{id}
     @GetMapping("/{id}")
-    public ClientResponseDTO getClientById(@PathVariable Long id) {
+    public ClientResponseDTO getClientById(@NonNull @PathVariable Long id) {
         return clientService.getClientById(id);
     }
 
@@ -50,14 +51,14 @@ public class ClientController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ClientResponseDTO updateClient(@PathVariable Long id, @Valid @RequestBody ClientRequestDTO updatedClient) {
+    public ClientResponseDTO updateClient(@NonNull @PathVariable Long id, @Valid @RequestBody ClientRequestDTO updatedClient) {
         return clientService.updateClient(id, updatedClient);
     }
 
     // DELETE /api/clients/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClient(@PathVariable Long id) {
+    public void deleteClient(@NonNull @PathVariable Long id) {
         clientService.deleteClient(id);
     }
 }

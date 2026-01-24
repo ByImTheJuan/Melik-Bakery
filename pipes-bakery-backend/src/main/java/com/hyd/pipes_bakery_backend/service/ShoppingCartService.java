@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartRequestDTO;
@@ -28,7 +29,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO getShoppingCartById(Long id) {
+    public ShoppingCartResponseDTO getShoppingCartById(@NonNull Long id) {
         return shoppingCartRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Shopping Cart not found with id " + id
         ));
@@ -43,7 +44,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public void deleteShoppingCart(Long id) {
+    public void deleteShoppingCart(@NonNull Long id) {
         if(shoppingCartRepository.existsById(id))
             shoppingCartRepository.deleteById(id);
 
@@ -52,7 +53,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO updateShoppingCart(Long id, ShoppingCartRequestDTO updatedShoppingCart) {
+    public ShoppingCartResponseDTO updateShoppingCart(@NonNull Long id, ShoppingCartRequestDTO updatedShoppingCart) {
         return shoppingCartRepository.findById(id)
                 .map(shoppingCart -> {
                     shoppingCart.setClient(updatedShoppingCart.getClient());
@@ -64,6 +65,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
+    @NonNull
     public ShoppingCartResponseDTO toDto(ShoppingCart shoppingCart) {
         ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(shoppingCart.getId(), 
                                                         shoppingCart.getClient(), 
@@ -72,6 +74,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
+    @NonNull
     public ShoppingCart toEntity(ShoppingCartRequestDTO dto) {
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setClient(dto.getClient());

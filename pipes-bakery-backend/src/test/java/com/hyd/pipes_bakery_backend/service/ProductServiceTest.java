@@ -1,0 +1,237 @@
+package com.hyd.pipes_bakery_backend.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
+import com.hyd.pipes_bakery_backend.model.Product;
+import com.hyd.pipes_bakery_backend.repository.ProductRepository;
+
+@ExtendWith(MockitoExtension.class)
+public class ProductServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @InjectMocks
+    private ProductService productService;
+
+    @SuppressWarnings("null")
+    @Test
+    void shouldCreateProductSuccessfully() {
+        // Arrange
+        ProductRequestDTO request = new ProductRequestDTO();
+
+        request.setName("Baguette de masa madre");
+        request.setPrice(5000);
+        request.setDescription("Pan artesanal hecho con ingredientes naturales");
+        request.setIngredients("Agua, harina, masa madre, sal");
+
+        Product savedProduct = new Product();
+        savedProduct.setId(1L);
+        savedProduct.setName("Baguette de masa madre");
+        savedProduct.setPrice(5000);
+        savedProduct.setDescription("Pan artesanal hecho con ingredientes naturales");
+        savedProduct.setIngredients("Agua, harina, masa madre, sal");
+
+        when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
+
+        // Act
+        ProductResponseDTO result = productService.createProduct(request);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Baguette de masa madre");
+        assertThat(result.getPrice()).isEqualTo(5000);
+        assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
+        assertThat(result.getIngredients()).isEqualTo("Agua, harina, masa madre, sal");
+
+        verify(productRepository).save(any(Product.class));
+    }
+
+
+    @Test
+    void shouldGetProductByIdSuccessfully() {
+        
+        // Arrange
+        Long productId = 1L;
+        Product product = new Product();
+        product.setId(productId);
+        product.setName("Croissant");
+        product.setPrice(3000);
+        product.setDescription("Delicioso croissant francés");
+        product.setIngredients("Harina, mantequilla, azúcar, levadura, sal");
+
+        when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(product));
+
+        // Act
+        ProductResponseDTO result = productService.getProductById(productId);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(productId);
+        assertThat(result.getName()).isEqualTo("Croissant");
+        assertThat(result.getPrice()).isEqualTo(3000);
+        assertThat(result.getDescription()).isEqualTo("Delicioso croissant francés");
+        assertThat(result.getIngredients()).isEqualTo("Harina, mantequilla, azúcar, levadura, sal");
+
+        verify(productRepository).findById(productId);
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenProductNotFound() {
+        
+        // Arrange
+        Long productId = 999L;
+
+        when(productRepository.findById(productId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        try {
+            productService.getProductById(productId);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
+            assertThat(e.getMessage()).isEqualTo("Product not found with id " + productId);
+        }
+
+        verify(productRepository).findById(productId);
+    }
+
+
+    @Test
+    void shouldDeleteProductSuccessfully() {
+        
+        // Arrange
+        Long productId = 1L;
+
+        when(productRepository.existsById(productId)).thenReturn(true);
+
+        // Act
+        productService.deleteProduct(productId);
+
+        // Assert
+        verify(productRepository).existsById(productId);
+        verify(productRepository).deleteById(productId);
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonExistentProduct() {
+        
+        // Arrange
+        Long productId = 999L;
+
+        when(productRepository.existsById(productId)).thenReturn(false);
+
+        // Act & Assert
+        try {
+            productService.deleteProduct(productId);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
+            assertThat(e.getMessage()).isEqualTo("Product not found with id " + productId);
+        }
+
+        verify(productRepository).existsById(productId);
+    }
+
+    
+    @SuppressWarnings("null")
+    @Test
+    void shouldUpdateProductSuccessfully() {
+        
+        // Arrange
+        Long productId = 1L;
+        ProductRequestDTO updatedRequest = new ProductRequestDTO();
+        updatedRequest.setName("Pan de chocolate");
+        updatedRequest.setPrice(4000);
+        updatedRequest.setDescription("Delicioso pan relleno de chocolate");
+        updatedRequest.setIngredients("Harina, chocolate, azúcar, mantequilla, levadura, sal");
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("Pan simple");
+        existingProduct.setPrice(2000);
+        existingProduct.setDescription("Pan básico sin relleno");
+        existingProduct.setIngredients("Harina, agua, sal, levadura");
+
+        when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(existingProduct));
+        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        ProductResponseDTO result = productService.updateProduct(productId, updatedRequest);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Pan de chocolate");
+        assertThat(result.getPrice()).isEqualTo(4000);
+        assertThat(result.getDescription()).isEqualTo("Delicioso pan relleno de chocolate");
+        assertThat(result.getIngredients()).isEqualTo("Harina, chocolate, azúcar, mantequilla, levadura, sal");
+
+        verify(productRepository).findById(productId);
+        verify(productRepository).save(any(Product.class));
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonExistentProduct() {
+        
+        // Arrange
+        Long productId = 999L;
+        ProductRequestDTO updatedRequest = new ProductRequestDTO();
+        updatedRequest.setName("Pan inexistente");
+        updatedRequest.setPrice(0);
+        updatedRequest.setDescription("Este pan no existe");
+        updatedRequest.setIngredients("N/A");
+
+        when(productRepository.findById(productId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        try {
+            productService.updateProduct(productId, updatedRequest);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
+            assertThat(e.getMessage()).isEqualTo("Product not found with id " + productId);
+        }
+
+        verify(productRepository).findById(productId);
+    }
+
+    @Test
+    void shouldGetAllProductsSuccessfully() {
+        
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Pan francés");
+        product1.setPrice(2500);
+        product1.setDescription("Clásico pan francés");
+        product1.setIngredients("Harina, agua, sal, levadura");
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Muffin de arándanos");
+        product2.setPrice(3500);
+        product2.setDescription("Muffin suave con arándanos frescos");
+        product2.setIngredients("Harina, arándanos, azúcar, mantequilla, huevos, levadura");
+
+        when(productRepository.findAll()).thenReturn(java.util.List.of(product1, product2));
+
+        // Act
+        java.util.List<ProductResponseDTO> result = productService.getAllProducts();
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(2);
+
+        verify(productRepository).findAll();
+    }
+}

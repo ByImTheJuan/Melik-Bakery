@@ -58,6 +58,10 @@ public class Address {
         this.street = street;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setAdditionalInformation(String additionalInformation) {
         this.additionalInformation = additionalInformation;
     }

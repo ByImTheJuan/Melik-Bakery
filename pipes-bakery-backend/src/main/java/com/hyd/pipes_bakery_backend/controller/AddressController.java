@@ -2,6 +2,8 @@ package com.hyd.pipes_bakery_backend.controller;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,27 +39,27 @@ public class AddressController {
 
     // GET /api/addresses/{id}
     @GetMapping("/{id}")
-    public AddressResponseDTO getAddressById(@PathVariable Long id) {
+    public AddressResponseDTO getAddressById(@NonNull @PathVariable Long id) {
         return addressService.getAddressById(id);
     }
 
     // POST /api/addresses
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AddressResponseDTO createAddress(@Valid @RequestBody AddressRequestDTO address) {
+    public AddressResponseDTO createAddress(@NonNull @Valid @RequestBody AddressRequestDTO address) {
         return addressService.createAddress(address);
     }
 
     // UPDATE
     @PutMapping("/{id}")
-    public AddressResponseDTO updateAddress(@PathVariable Long id, @Valid@RequestBody AddressRequestDTO updatedAddress) {
+    public AddressResponseDTO updateAddress(@NonNull @PathVariable Long id, @Valid@RequestBody AddressRequestDTO updatedAddress) {
         return addressService.updateAddress(id, updatedAddress);
     }
 
     // DELETE /api/addresses/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAddress(@PathVariable Long id) {
+    public void deleteAddress(@NonNull @PathVariable Long id) {
         addressService.deleteAddress(id);
     }
 }
