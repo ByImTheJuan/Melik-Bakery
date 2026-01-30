@@ -24,8 +24,7 @@ public class CartStorage implements ICartStorage {
         ShoppingCart cart = redisTemplate.opsForValue().get(key(clientId));
 
         if (cart == null) {
-            cart = new ShoppingCart();
-            cart.setClientId(clientId);
+            cart = new ShoppingCart(clientId);
         }
 
         return cart;

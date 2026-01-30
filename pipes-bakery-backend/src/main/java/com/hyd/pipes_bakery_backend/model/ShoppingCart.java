@@ -3,15 +3,16 @@ package com.hyd.pipes_bakery_backend.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 public class ShoppingCart {
 
     private Long clientId;
     private Set<OrderItem> items;
 
-    public ShoppingCart() {
-        
-    }
+
+    public ShoppingCart() {}
 
     public ShoppingCart(long clientId) {
         this.clientId = clientId;
@@ -27,6 +28,7 @@ public class ShoppingCart {
         return items;
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return items.isEmpty();
     }
@@ -41,9 +43,11 @@ public class ShoppingCart {
     }
 
     public OrderItem getItemByProductId(long productId) {
-        for (OrderItem item : items) {
-            if (item.getProduct().getId() == productId) {
-                return item;
+        if (!items.isEmpty()) {
+            for (OrderItem item : items) {
+                if (item.getProduct().getId() == productId) {
+                    return item;
+                }
             }
         }
         return null;
@@ -65,10 +69,11 @@ public class ShoppingCart {
         }
     }
 
+    @JsonIgnore
     public double getTotalPrice() {
         double total = 0;
         for (OrderItem item : items) {
-            total += item.getTotalPrice();
+            total += item.calculateTotalPrice();
         }
         return total;
     }

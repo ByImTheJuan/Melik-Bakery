@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -61,7 +63,8 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public double getTotalPrice() {
+    @JsonIgnore
+    public double calculateTotalPrice() {
         return unitPriceAtPurchase * quantity;
     }
 }
