@@ -20,19 +20,17 @@ public class OrderItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "shopping_cart_id")
-    private ShoppingCart shoppingCart;
-
     private int quantity;
+
+    private double unitPriceAtPurchase;
 
     public OrderItem() {
     }
 
-    public OrderItem(Product product, int quantity, ShoppingCart shoppingCart) {
+    public OrderItem(Product product, int quantity) {
         this.product = product;
         this.quantity = quantity;
-        this.shoppingCart = shoppingCart;
+        this.unitPriceAtPurchase = product.getPrice();
     }
 
     public Long getId() {
@@ -47,19 +45,23 @@ public class OrderItem {
         return quantity;
     }
 
-    public ShoppingCart getShoppingCart() {
-        return shoppingCart;
+    public double getUnitPriceAtPurchase() {
+        return unitPriceAtPurchase;
     }
 
     public void setProduct(Product product) {
         this.product = product;
     }
 
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public void setShoppingCart(ShoppingCart shoppingCart) {
-        this.shoppingCart = shoppingCart;
+    public double getTotalPrice() {
+        return unitPriceAtPurchase * quantity;
     }
 }

@@ -1,84 +1,81 @@
 package com.hyd.pipes_bakery_backend.service;
 
-import java.util.List;
-
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.model.OrderItem;
+import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
-import com.hyd.pipes_bakery_backend.repository.ShoppingCartRepository;
+import com.hyd.pipes_bakery_backend.repository.ProductRepository;
+import com.hyd.pipes_bakery_backend.storage.CartStorage;
 
 @Service
 public class ShoppingCartService implements IShoppingCartService {
 
-    private final ShoppingCartRepository shoppingCartRepository;
+    private final CartStorage cartStorage;
+    private final ProductRepository productRepository;
 
-    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository) {
-        this.shoppingCartRepository = shoppingCartRepository;
+    public ShoppingCartService(CartStorage cartStorage,
+                               ProductRepository productRepository) {
+        this.cartStorage = cartStorage;
+        this.productRepository = productRepository;
     }
 
     @Override
-    public List<ShoppingCartResponseDTO> getAllShoppingCarts() {
-        return shoppingCartRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .toList();
+    public ShoppingCartResponseDTO getCartByClientId(Long clientId) {
+        ShoppingCart cart = cartStorage.getCart(clientId);
+        return toDto(cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO getShoppingCartById(@NonNull Long id) {
-        return shoppingCartRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
-                "Shopping Cart not found with id " + id
-        ));
+    public ShoppingCartResponseDTO addItem(Long clientId, @NonNull AddCartItemRequestDTO dto) {
+
+        ShoppingCart cart = cartStorage.getCart(clientId);
+
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        OrderItem item = new OrderItem(product, dto.getQuantity()); // PRECIO CONGELADO AQUÍ
+
+        cart.addItem(item);
+
+        cartStorage.saveCart(clientId, cart);
+
+        return toDto(cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO createShoppingCart(ShoppingCartRequestDTO dto) {
-        ShoppingCart shoppingCart;
-        shoppingCart = toEntity(dto);
-        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
-        return toDto(savedShoppingCart);
+    public ShoppingCartResponseDTO updateItemQuantity(Long clientId, Long productId, int quantity) {
+        ShoppingCart cart = cartStorage.getCart(clientId);
+        cart.updateItemQuantity(productId, quantity);
+        cartStorage.saveCart(clientId, cart);
+        return toDto(cart);
     }
 
     @Override
-    public void deleteShoppingCart(@NonNull Long id) {
-        if(shoppingCartRepository.existsById(id))
-            shoppingCartRepository.deleteById(id);
-
-        else
-            throw new ResourceNotFoundException("Shopping Cart not found with id " + id);
+    public void removeItem(Long clientId, Long productId) {
+        ShoppingCart cart = cartStorage.getCart(clientId);
+        cart.removeItem(productId);
+        cartStorage.saveCart(clientId, cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO updateShoppingCart(@NonNull Long id, ShoppingCartRequestDTO updatedShoppingCart) {
-        return shoppingCartRepository.findById(id)
-                .map(shoppingCart -> {
-                    shoppingCart.setClient(updatedShoppingCart.getClient());
-                    shoppingCart.setItems(updatedShoppingCart.getItems());
-                    return shoppingCartRepository.save(shoppingCart);
-                })
-                .map(this::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping Cart not found with id " + id));
+    public void clearCart(Long clientId) {
+        cartStorage.clearCart(clientId);
     }
 
     @Override
-    @NonNull
-    public ShoppingCartResponseDTO toDto(ShoppingCart shoppingCart) {
-        ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(shoppingCart.getId(), 
-                                                        shoppingCart.getClient(), 
-                                                        shoppingCart.getItems());
+    public double calculateTotal(Long clientId) {
+        ShoppingCart cart = cartStorage.getCart(clientId);
+        return cart.getTotalPrice();
+    }
+
+    // mapper privado
+    private ShoppingCartResponseDTO toDto(ShoppingCart cart) {
+        ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(cart.getClientId(), cart.getItems());
         return dto;
-    }
-
-    @Override
-    @NonNull
-    public ShoppingCart toEntity(ShoppingCartRequestDTO dto) {
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setClient(dto.getClient());
-        shoppingCart.setItems(dto.getItems());
-        return shoppingCart;
     }
 }

@@ -3,62 +3,72 @@ package com.hyd.pipes_bakery_backend.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "shopping_carts")
 public class ShoppingCart {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @OneToOne(mappedBy = "shoppingCart")
-    private Client client;
-
-    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
+    private Long clientId;
     private Set<OrderItem> items;
 
     public ShoppingCart() {
         
     }
 
-    public ShoppingCart(Client client) {
-        this.client = client;
+    public ShoppingCart(long clientId) {
+        this.clientId = clientId;
         this.items = new HashSet<>();
     }
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public Client getClient() {
-        return client;
+    public Long getClientId() {
+        return clientId;
     }
 
     public Set<OrderItem> getItems() {
         return items;
     }
 
-    public void addItem(OrderItem item) {
-        items.add(item);
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 
-    public void removeItem(OrderItem item) {
-        items.remove(item);
+    public void addItem(OrderItem newItem) {
+        OrderItem existingItem = getItemByProductId(newItem.getProduct().getId());
+        if (existingItem != null) {
+            existingItem.increaseQuantity(newItem.getQuantity());
+        } else {
+            items.add(newItem);
+        }
+    }
+
+    public OrderItem getItemByProductId(long productId) {
+        for (OrderItem item : items) {
+            if (item.getProduct().getId() == productId) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public void removeItem(long productId) {
+        OrderItem itemToRemove = getItemByProductId(productId);
+        if (itemToRemove.getQuantity() == 1) {
+            items.remove(itemToRemove);
+        } else {
+            itemToRemove.setQuantity(itemToRemove.getQuantity() - 1);
+        }
+    }
+
+    public void updateItemQuantity(long productId, int quantity) {
+        OrderItem item = getItemByProductId(productId);
+        if (item != null) {
+            item.setQuantity(quantity);
+        }
     }
 
     public double getTotalPrice() {
         double total = 0;
         for (OrderItem item : items) {
-            total += item.getProduct().getPrice() * item.getQuantity();
+            total += item.getTotalPrice();
         }
         return total;
     }
@@ -67,8 +77,8 @@ public class ShoppingCart {
         items.clear();
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
     }
     public void setItems(Set<OrderItem> items) {
         this.items = items;

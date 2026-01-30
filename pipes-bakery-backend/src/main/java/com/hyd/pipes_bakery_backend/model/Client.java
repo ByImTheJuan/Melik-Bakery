@@ -1,12 +1,15 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,24 +24,22 @@ public class Client {
     private String email;
     private String phoneNumber;
 
-    @OneToOne
-    @JoinColumn(name="shopping_cart_id")
-    private ShoppingCart shoppingCart;
-
     @ManyToOne()
     @JoinColumn(name="address_id")
     private Address address;
 
+    @OneToMany(mappedBy = "client")
+    private List<Order> orders = new ArrayList<>();
+
     public Client() {
     }
 
-    public Client(String firstName, String lastName, String email, String phoneNumber, Address address, ShoppingCart shoppingCart) {
+    public Client(String firstName, String lastName, String email, String phoneNumber, Address address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.shoppingCart = shoppingCart;
     }
 
     public Long getId() {
@@ -65,8 +66,8 @@ public class Client {
         return address;
     }
 
-    public ShoppingCart getShoppingCart() {
-        return shoppingCart;
+    public List<Order> getOrders() {
+        return orders;
     }
 
     public void setId(Long id) {
@@ -93,7 +94,11 @@ public class Client {
         this.address = address;
     }
 
-    public void setShoppingCart(ShoppingCart shoppingCart) {
-        this.shoppingCart = shoppingCart;
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public void addOrder(Order order) {
+        this.orders.add(order);
     }
 }

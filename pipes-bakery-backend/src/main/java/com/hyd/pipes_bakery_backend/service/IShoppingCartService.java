@@ -1,26 +1,21 @@
 package com.hyd.pipes_bakery_backend.service;
 
-import java.util.List;
+import org.springframework.lang.NonNull ;
 
-import org.springframework.lang.NonNull;
-
-import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
-import com.hyd.pipes_bakery_backend.model.ShoppingCart;
 
 public interface IShoppingCartService {
 
-    List<ShoppingCartResponseDTO> getAllShoppingCarts();
+    ShoppingCartResponseDTO getCartByClientId(Long clientId);
 
-    ShoppingCartResponseDTO getShoppingCartById(@NonNull Long id);
+    ShoppingCartResponseDTO addItem(Long clientId, @NonNull AddCartItemRequestDTO dto);
 
-    ShoppingCartResponseDTO createShoppingCart(ShoppingCartRequestDTO shoppingCart);
+    ShoppingCartResponseDTO updateItemQuantity(Long clientId, Long productId, int quantity);
 
-    void deleteShoppingCart(@NonNull Long id);
+    void removeItem(Long clientId, Long productId);
 
-    ShoppingCartResponseDTO updateShoppingCart(@NonNull Long id, ShoppingCartRequestDTO updatedShoppingCart);
+    void clearCart(Long clientId);
 
-    ShoppingCartResponseDTO toDto(ShoppingCart shoppingCart);
-
-    ShoppingCart toEntity(ShoppingCartRequestDTO dto);
+    double calculateTotal(Long clientId);
 }
