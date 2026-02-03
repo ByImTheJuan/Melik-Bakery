@@ -8,20 +8,28 @@ import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 import com.hyd.pipes_bakery_backend.dto.orderItem.OrderItemResponseDTO;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
+
 public class OrderResponseDTO {
 
     private Long id;
-    private Long clientId;
+    private String clientFirstName;
+    private String clientLastName;
+    private String clientEmail;
+    private String clientPhoneNumber;
     private List<OrderItemResponseDTO> items;
     private BigDecimal totalAmount;
     private OrderStatus status;
     private LocalDateTime createdAt;
     private AddressSnapshotDTO shippingAddress;
 
-    public OrderResponseDTO(Long id, Long clientId, List<OrderItemResponseDTO> items, BigDecimal totalAmount,
+    public OrderResponseDTO(Long id, String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber,
+            List<OrderItemResponseDTO> items, BigDecimal totalAmount,
             OrderStatus status, LocalDateTime createdAt, AddressSnapshotDTO shippingAddress) {
         this.id = id;
-        this.clientId = clientId;
+        this.clientFirstName = clientFirstName;
+        this.clientLastName = clientLastName;
+        this.clientEmail = clientEmail;
+        this.clientPhoneNumber = clientPhoneNumber;
         this.items = items;
         this.totalAmount = totalAmount;
         this.status = status;
@@ -32,8 +40,17 @@ public class OrderResponseDTO {
     public Long getId() {
         return id;
     }
-    public Long getClientId() {
-        return clientId;
+    public String getClientFirstName() {
+        return clientFirstName;
+    }
+    public String getClientLastName() {
+        return clientLastName;
+    }
+    public String getClientEmail() {
+        return clientEmail;
+    }
+    public String getClientPhoneNumber() {
+        return clientPhoneNumber;
     }
     public List<OrderItemResponseDTO> getItems() {
         return items;
@@ -53,8 +70,17 @@ public class OrderResponseDTO {
     public void setId(Long id) {
         this.id = id;
     }
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
+    public void setClientFirstName(String clientFirstName) {
+        this.clientFirstName = clientFirstName;
+    }
+    public void setClientLastName(String clientLastName) {
+        this.clientLastName = clientLastName;
+    }
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
+    }
+    public void setClientPhoneNumber(String clientPhoneNumber) {
+        this.clientPhoneNumber = clientPhoneNumber;
     }
     public void setItems(List<OrderItemResponseDTO> items) {
         this.items = items;

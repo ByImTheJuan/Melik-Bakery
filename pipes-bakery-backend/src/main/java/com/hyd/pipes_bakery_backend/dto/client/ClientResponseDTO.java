@@ -1,19 +1,25 @@
 package com.hyd.pipes_bakery_backend.dto.client;
 
+import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
+
 public class ClientResponseDTO {
 
     private Long id;
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
     private String phoneNumber;
+    private AddressResponseDTO address;
 
-    public ClientResponseDTO(Long id, String firstName, String lastName, String email, String phoneNumber) {
+    public ClientResponseDTO(Long id, String firstName, String lastName, String email, String password, String phoneNumber, AddressResponseDTO address) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 
     public Long getId() {
@@ -32,8 +38,16 @@ public class ClientResponseDTO {
         return email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    public AddressResponseDTO getAddress() {
+        return address;
     }
 
     public void setId(Long id) {
@@ -54,5 +68,13 @@ public class ClientResponseDTO {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(AddressResponseDTO address) {
+        this.address = address;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

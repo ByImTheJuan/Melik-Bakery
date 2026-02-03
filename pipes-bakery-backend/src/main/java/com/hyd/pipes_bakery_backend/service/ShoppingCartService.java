@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.ShoppingCartMapper;
 import com.hyd.pipes_bakery_backend.model.CartItem;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
@@ -19,6 +20,7 @@ public class ShoppingCartService implements IShoppingCartService {
 
     private final CartStorage cartStorage;
     private final ProductRepository productRepository;
+    private final ShoppingCartMapper shoppingCartMapper = new ShoppingCartMapper();
 
     public ShoppingCartService(CartStorage cartStorage,
                                ProductRepository productRepository) {
@@ -29,7 +31,7 @@ public class ShoppingCartService implements IShoppingCartService {
     @Override
     public ShoppingCartResponseDTO getCartById(Long cartId) {
         ShoppingCart cart = cartStorage.getCart(cartId);
-        return toDto(cart);
+        return shoppingCartMapper.toDto(cart);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ShoppingCartService implements IShoppingCartService {
 
         cartStorage.saveCart(cartId, cart);
 
-        return toDto(cart);
+        return shoppingCartMapper.toDto(cart);
     }
 
     @Override
@@ -54,7 +56,7 @@ public class ShoppingCartService implements IShoppingCartService {
         ShoppingCart cart = cartStorage.getCart(cartId);
         cart.updateItemQuantity(productId, quantity);
         cartStorage.saveCart(cartId, cart);
-        return toDto(cart);
+        return shoppingCartMapper.toDto(cart);
     }
 
     @Override
@@ -73,10 +75,5 @@ public class ShoppingCartService implements IShoppingCartService {
     public BigDecimal calculateTotal(Long cartId) {
         ShoppingCart cart = cartStorage.getCart(cartId);
         return cart.getTotalPrice();
-    }
-
-    private ShoppingCartResponseDTO toDto(ShoppingCart cart) {
-        ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(cart.getcartId(), cart.getItems());
-        return dto;
     }
 }

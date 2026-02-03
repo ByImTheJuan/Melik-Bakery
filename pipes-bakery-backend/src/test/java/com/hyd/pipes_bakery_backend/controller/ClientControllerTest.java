@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
@@ -41,18 +43,39 @@ public class ClientControllerTest {
     void shouldCreateClientSuccessfully() throws Exception {
 
         // Arrange
+        AddressRequestDTO addressRequest = new AddressRequestDTO();
+        addressRequest.setStreet("Calle 123");
+        addressRequest.setAdditionalInformation("Apto 201");
+        addressRequest.setCity("Bogotá");
+        addressRequest.setCountry("Colombia");
+        addressRequest.setZipCode(123456);
+
         ClientRequestDTO request = new ClientRequestDTO();
         request.setFirstName("Felipe");
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
+        request.setAddress(addressRequest);
+
+
+        AddressResponseDTO addressResponse = new AddressResponseDTO(
+                1L,
+                "Calle 123",
+                "Apto 201",
+                "Bogotá",
+                123456,
+                "Colombia"
+        );
 
         ClientResponseDTO response = new ClientResponseDTO(
                 1L,
                 "Felipe",
                 "Hernández",
                 "pipelon@gmail.com",
-                "3053466622"
+                "password123",
+                "3053466622",
+                addressResponse
         );
 
         when(clientService.createClient(any(ClientRequestDTO.class)))
@@ -102,12 +125,23 @@ public class ClientControllerTest {
 
         // Arrange
         Long clientId = 1L;
+
+        AddressResponseDTO addressResponse = new AddressResponseDTO(
+                1L,
+                "Calle 123",
+                "Apto 201",
+                "Bogotá",
+                123456,
+                "Colombia"
+        );
         ClientResponseDTO response = new ClientResponseDTO(
                 clientId,
                 "Baguette",
                 "García",
                 "pipelon@gmail.com",
-                "3053466622"
+                "password123",
+                "3053466622",
+                addressResponse
         );
 
         when(clientService.getClientById(clientId)).thenReturn(response);
@@ -120,6 +154,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Baguette"))
                 .andExpect(jsonPath("$.lastName").value("García"))
                 .andExpect(jsonPath("$.email").value("pipelon@gmail.com"))
+                .andExpect(jsonPath("$.password").value("password123"))
                 .andExpect(jsonPath("$.phoneNumber").value("3053466622"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -158,15 +193,26 @@ public class ClientControllerTest {
         request.setFirstName("Baguette");
         request.setLastName("García");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
 
 
+        AddressResponseDTO addressResponse = new AddressResponseDTO(
+                1L,
+                "Calle 123",
+                "Apto 201",
+                "Bogotá",
+                123456,
+                "Colombia"
+        );
         ClientResponseDTO response = new ClientResponseDTO(
                 clientId,
                 "Felipe",
                 "Hernández",
                 "pipeloncho@gmail.com",
-                "3053466922"
+                "password123",
+                "3053466922",
+                addressResponse
         );
 
         when(clientService.updateClient(anyLong(), any(ClientRequestDTO.class)))
@@ -181,6 +227,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Felipe"))
                 .andExpect(jsonPath("$.lastName").value("Hernández"))
                 .andExpect(jsonPath("$.email").value("pipeloncho@gmail.com"))
+                .andExpect(jsonPath("$.password").value("password123"))
                 .andExpect(jsonPath("$.phoneNumber").value("3053466922"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 

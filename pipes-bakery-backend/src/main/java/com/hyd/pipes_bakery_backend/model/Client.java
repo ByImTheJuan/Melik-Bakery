@@ -20,11 +20,17 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
+    private String password;
 
     private String phoneNumber;
 
@@ -32,17 +38,18 @@ public class Client {
     @JoinColumn(name="address_id")
     private Address address;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany()
     private List<Order> orders = new ArrayList<>();
 
     public Client() {
     }
 
-    public Client(String firstName, String lastName, String email, String phoneNumber, Address address) {
+    public Client(String firstName, String lastName, String email, String phoneNumber, String password, Address address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.password = password;
         this.address = address;
     }
 
@@ -64,6 +71,10 @@ public class Client {
 
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public Address getAddress() {
@@ -92,6 +103,10 @@ public class Client {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setAddress(Address address) {

@@ -12,8 +12,6 @@ public interface IOrderService {
 
     OrderResponseDTO getOrderById(Long orderId);
 
-    List<OrderResponseDTO> getOrdersByClient(Long clientId);
-
     OrderResponseDTO cancelOrder(Long orderId);
 
     OrderResponseDTO updateOrderStatus(Long orderId, OrderStatus status);

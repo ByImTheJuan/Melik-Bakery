@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.model.Address;
 import com.hyd.pipes_bakery_backend.repository.AddressRepository;
 
@@ -15,32 +16,34 @@ import com.hyd.pipes_bakery_backend.repository.AddressRepository;
 public class AddressService implements IAddressService {
 
     private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
-    public AddressService(AddressRepository addressRepository) {
+    public AddressService(AddressRepository addressRepository, AddressMapper addressMapper) {
         this.addressRepository = addressRepository;
+        this.addressMapper = addressMapper;
     }
 
     @Override
     public List<AddressResponseDTO> getAllAddresses() {
         return addressRepository.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(addressMapper::toDto)
                 .toList();
     }
 
     @Override
     public AddressResponseDTO getAddressById(@NonNull Long id) {
 
-        return addressRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
+        return addressRepository.findById(id).map(addressMapper::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Address not found with id " + id
         ));
     }
 
     @Override
     public AddressResponseDTO createAddress(@NonNull AddressRequestDTO dto) {
-        Address address = toEntity(dto);
+        Address address = addressMapper.toEntity(dto);
         Address savedAddress = addressRepository.save(address);
-        return toDto(savedAddress);
+        return addressMapper.toDto(savedAddress);
     }
 
     @Override
@@ -63,33 +66,9 @@ public class AddressService implements IAddressService {
                     address.setZipCode(updatedAddress.getZipCode());
                     return addressRepository.save(address);
                 })
-                .map(this::toDto)
+                .map(addressMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     "Address not found with id " + id
             ));
-    }
-
-    @Override
-    @NonNull
-    public AddressResponseDTO toDto(@NonNull Address address) {
-        AddressResponseDTO dto = new AddressResponseDTO(address.getId(), 
-                                                        address.getStreet(), 
-                                                        address.getAdditionalInformation(), 
-                                                        address.getCity(), 
-                                                        address.getZipCode(), 
-                                                        address.getCountry());
-        return dto;
-    }
-
-    @Override
-    @NonNull
-    public Address toEntity(@NonNull AddressRequestDTO dto) {
-        Address address = new Address();
-        address.setStreet(dto.getStreet());
-        address.setAdditionalInformation(dto.getAdditionalInformation());
-        address.setCity(dto.getCity());
-        address.setCountry(dto.getCountry());
-        address.setZipCode(dto.getZipCode());
-        return address;
     }
 }

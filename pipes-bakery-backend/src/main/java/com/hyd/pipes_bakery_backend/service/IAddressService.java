@@ -6,7 +6,6 @@ import org.springframework.lang.NonNull;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
-import com.hyd.pipes_bakery_backend.model.Address;
 
 public interface IAddressService {
 
@@ -19,8 +18,4 @@ public interface IAddressService {
     void deleteAddress(@NonNull Long id);
 
     AddressResponseDTO updateAddress(@NonNull Long id, AddressRequestDTO updatedAddress);
-
-    AddressResponseDTO toDto(@NonNull Address address);
-
-    Address toEntity(@NonNull AddressRequestDTO dto);
 }

@@ -18,7 +18,6 @@ import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.service.ClientService;
-import com.hyd.pipes_bakery_backend.service.OrderService;
 
 import jakarta.validation.Valid;
 
@@ -27,11 +26,9 @@ import jakarta.validation.Valid;
 public class ClientController {
 
     private final ClientService clientService;
-    private final OrderService orderService;
 
-    public ClientController(ClientService clientService, OrderService orderService) {
+    public ClientController(ClientService clientService) {
         this.clientService = clientService;
-        this.orderService = orderService;
     }
 
     // GET /api/clients
@@ -49,7 +46,7 @@ public class ClientController {
     // GET /api/clients/{id}/orders
     @GetMapping("/{id}/orders")
     public List<OrderResponseDTO> getOrdersByClient(@NonNull @PathVariable Long id) {
-        return orderService.getOrdersByClient(id);
+        return clientService.getAllOrders(id);
     }
 
     // POST /api/clients

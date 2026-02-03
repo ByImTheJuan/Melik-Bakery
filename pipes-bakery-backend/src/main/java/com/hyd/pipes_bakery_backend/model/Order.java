@@ -15,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -28,9 +27,17 @@ public class Order {
     private Long id;
 
     // Quién hizo el pedido
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "client_id")
-    private Client client;
+    @Column(nullable = false)
+    private String clientFirstName;
+
+    @Column(nullable = false)
+    private String clientLastName;
+
+    @Column(nullable = false)
+    private String clientEmail;
+
+    @Column(nullable = false)
+    private String clientPhoneNumber;
 
     // Dirección de envío
     @Embedded
@@ -51,11 +58,17 @@ public class Order {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private String receiverName;
+
     protected Order() {}
 
-    public Order(Client client, AddressSnapshot shippingAddress) {
-        this.client = client;
+    public Order(String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber, AddressSnapshot shippingAddress, String receiverName) {
+        this.clientFirstName = clientFirstName;
+        this.clientLastName = clientLastName;
+        this.clientEmail = clientEmail;
+        this.clientPhoneNumber = clientPhoneNumber;
         this.shippingAddress = shippingAddress;
+        this.receiverName = receiverName;
         this.status = OrderStatus.CREATED;
         this.createdAt = LocalDateTime.now();
         this.totalAmount = new BigDecimal(0);
@@ -65,8 +78,20 @@ public class Order {
         return id;
     }
 
-    public Client getClient() {
-        return client;
+    public String getClientFirstName() {
+        return clientFirstName;
+    }
+
+    public String getClientLastName() {
+        return clientLastName;
+    }
+
+    public String getClientEmail() {
+        return clientEmail;
+    }
+
+    public String getClientPhoneNumber() {
+        return clientPhoneNumber;
     }
 
     public AddressSnapshot getAddress() {
@@ -89,12 +114,28 @@ public class Order {
         return createdAt;
     }
 
+    public String getReceiverName() {
+        return receiverName;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setClientFirstName(String clientFirstName) {
+        this.clientFirstName = clientFirstName;
+    }
+
+    public void setClientLastName(String clientLastName) {
+        this.clientLastName = clientLastName;
+    }
+
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
+    }
+
+    public void setClientPhoneNumber(String clientPhoneNumber) {
+        this.clientPhoneNumber = clientPhoneNumber;
     }
 
     public void setShippingAddress(AddressSnapshot shippingAddress) {
@@ -118,6 +159,10 @@ public class Order {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
 
     public void addItem(OrderItem item) {

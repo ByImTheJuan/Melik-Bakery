@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.ProductMapper;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 
@@ -15,31 +16,33 @@ import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     @Override
     public List<ProductResponseDTO> getAllProducts() {
         return productRepository.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(productMapper::toDto)
                 .toList();
     }
 
     @Override
     public ProductResponseDTO getProductById(@NonNull Long id) {
-        return productRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
+        return productRepository.findById(id).map(productMapper::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Product not found with id " + id
         ));
     }
 
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
-        Product product = toEntity(dto);
+        Product product = productMapper.toEntity(dto);
         Product savedProduct = productRepository.save(product);
-        return toDto(savedProduct);
+        return productMapper.toDto(savedProduct);
     }
 
     @Override
@@ -60,29 +63,7 @@ public class ProductService implements IProductService {
                     product.setDescription(updatedProduct.getDescription());
                     return productRepository.save(product);
                 })
-                .map(this::toDto)
+                .map(productMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
-    }
-
-    @Override
-    @NonNull
-    public ProductResponseDTO toDto(Product product) {
-        ProductResponseDTO dto = new ProductResponseDTO(product.getId(), 
-                                                        product.getName(), 
-                                                        product.getDescription(), 
-                                                        product.getPrice(),
-                                                        product.getIngredients());
-        return dto;
-    }
-
-    @Override
-    @NonNull
-    public Product toEntity(ProductRequestDTO dto) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
-        product.setIngredients(dto.getIngredients());
-        return product;
     }
 }

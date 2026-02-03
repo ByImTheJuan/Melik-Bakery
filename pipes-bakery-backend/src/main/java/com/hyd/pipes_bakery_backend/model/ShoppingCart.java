@@ -21,7 +21,7 @@ public class ShoppingCart {
     }
 
 
-    public Long getcartId() {
+    public Long getCartId() {
         return cartId;
     }
 

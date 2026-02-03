@@ -6,7 +6,7 @@ import org.springframework.lang.NonNull;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
-import com.hyd.pipes_bakery_backend.model.Client;
+import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 
 public interface IClientService {
 
@@ -14,13 +14,11 @@ public interface IClientService {
 
     ClientResponseDTO getClientById(@NonNull Long id);
 
+    List<OrderResponseDTO> getAllOrders(@NonNull Long clientId);
+
     ClientResponseDTO createClient(ClientRequestDTO Client);
 
     void deleteClient(@NonNull Long id);
 
     ClientResponseDTO updateClient(@NonNull Long id, ClientRequestDTO updatedClient);
-
-    ClientResponseDTO toDto(Client Client);
-
-    Client toEntity(ClientRequestDTO dto);
 }

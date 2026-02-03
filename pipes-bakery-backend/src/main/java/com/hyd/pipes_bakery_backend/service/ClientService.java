@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.DuplicateResourceException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.ClientMapper;
+import com.hyd.pipes_bakery_backend.mapper.OrderMapper;
 import com.hyd.pipes_bakery_backend.model.Client;
 import com.hyd.pipes_bakery_backend.repository.ClientRepository;
 
@@ -16,23 +19,27 @@ import com.hyd.pipes_bakery_backend.repository.ClientRepository;
 public class ClientService implements IClientService {
 
     private final ClientRepository clientRepository;
+    private final ClientMapper clientMapper;
+    private final OrderMapper orderMapper;
 
-    public ClientService(ClientRepository clientRepository) {
+    public ClientService(ClientRepository clientRepository, ClientMapper clientMapper, OrderMapper orderMapper) {
         this.clientRepository = clientRepository;
+        this.clientMapper = clientMapper;
+        this.orderMapper = orderMapper;
     }
 
     @Override
     public List<ClientResponseDTO> getAllClients() {
         return clientRepository.findAll()
                     .stream()
-                    .map(this::toDto)
+                    .map(clientMapper::toDto)
                     .toList();
     }
 
     @Override
     public ClientResponseDTO getClientById(@NonNull Long id) {
 
-        return clientRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
+        return clientRepository.findById(id).map(clientMapper::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Client not found with id " + id
         ));
     }   
@@ -43,9 +50,9 @@ public class ClientService implements IClientService {
             throw new DuplicateResourceException("Email already registered");
         }
         
-        Client client = toEntity(dto);
+        Client client = clientMapper.toEntity(dto);
         Client savedClient = clientRepository.save(client);
-        return toDto(savedClient);
+        return clientMapper.toDto(savedClient);
     }
 
     @Override
@@ -67,29 +74,18 @@ public class ClientService implements IClientService {
                     client.setPhoneNumber(updatedClient.getPhoneNumber());
                     return clientRepository.save(client);
                 })
-                .map(this::toDto)
+                .map(clientMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
     }
 
     @Override
-    @NonNull
-    public ClientResponseDTO toDto(Client client) {
-        ClientResponseDTO dto = new ClientResponseDTO(client.getId(), 
-                                                        client.getFirstName(),
-                                                        client.getLastName(), 
-                                                        client.getEmail(), 
-                                                        client.getPhoneNumber());
-        return dto;
-    }
-
-    @Override
-    @NonNull
-    public Client toEntity(ClientRequestDTO dto) {
-        Client client = new Client();
-        client.setFirstName(dto.getFirstName());
-        client.setLastName(dto.getLastName());
-        client.setEmail(dto.getEmail());
-        client.setPhoneNumber(dto.getPhoneNumber());
-        return client;
+    public List<OrderResponseDTO> getAllOrders(@NonNull Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id " + clientId));
+        
+        return client.getOrders()
+                .stream()
+                .map(orderMapper::toDto)
+                .toList();
     }
 }
