@@ -27,15 +27,15 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO getCartByClientId(Long clientId) {
-        ShoppingCart cart = cartStorage.getCart(clientId);
+    public ShoppingCartResponseDTO getCartById(Long cartId) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
         return toDto(cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO addItem(Long clientId, @NonNull AddCartItemRequestDTO dto) {
+    public ShoppingCartResponseDTO addItem(Long cartId, @NonNull AddCartItemRequestDTO dto) {
 
-        ShoppingCart cart = cartStorage.getCart(clientId);
+        ShoppingCart cart = cartStorage.getCart(cartId);
 
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -44,39 +44,39 @@ public class ShoppingCartService implements IShoppingCartService {
 
         cart.addItem(item);
 
-        cartStorage.saveCart(clientId, cart);
+        cartStorage.saveCart(cartId, cart);
 
         return toDto(cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO updateItemQuantity(Long clientId, Long productId, int quantity) {
-        ShoppingCart cart = cartStorage.getCart(clientId);
+    public ShoppingCartResponseDTO updateItemQuantity(Long cartId, Long productId, int quantity) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
         cart.updateItemQuantity(productId, quantity);
-        cartStorage.saveCart(clientId, cart);
+        cartStorage.saveCart(cartId, cart);
         return toDto(cart);
     }
 
     @Override
-    public void removeItem(Long clientId, Long productId) {
-        ShoppingCart cart = cartStorage.getCart(clientId);
+    public void removeItem(Long cartId, Long productId) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
         cart.removeItem(productId);
-        cartStorage.saveCart(clientId, cart);
+        cartStorage.saveCart(cartId, cart);
     }
 
     @Override
-    public void clearCart(Long clientId) {
-        cartStorage.clearCart(clientId);
+    public void clearCart(Long cartId) {
+        cartStorage.clearCart(cartId);
     }
 
     @Override
-    public BigDecimal calculateTotal(Long clientId) {
-        ShoppingCart cart = cartStorage.getCart(clientId);
+    public BigDecimal calculateTotal(Long cartId) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
         return cart.getTotalPrice();
     }
 
     private ShoppingCartResponseDTO toDto(ShoppingCart cart) {
-        ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(cart.getClientId(), cart.getItems());
+        ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(cart.getcartId(), cart.getItems());
         return dto;
     }
 }

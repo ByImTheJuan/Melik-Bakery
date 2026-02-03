@@ -32,46 +32,46 @@ public class ShoppingCartController {
         this.orderService = orderService;
     }
 
-    //GET /api/cart/{clientId}
-    @GetMapping("/{clientId}")
-    public ShoppingCartResponseDTO getCart(@PathVariable Long clientId) {
-        return cartService.getCartByClientId(clientId);
+    //GET /api/cart/{cartId}
+    @GetMapping("/{cartId}")
+    public ShoppingCartResponseDTO getCart(@PathVariable Long cartId) {
+        return cartService.getCartById(cartId);
     }
 
-    //POST /api/cart/{clientId}/items
-    @PostMapping("/{clientId}/items")
+    //POST /api/cart/{cartId}/items
+    @PostMapping("/{cartId}/items")
     @ResponseStatus(HttpStatus.OK)
     public ShoppingCartResponseDTO addItem(
-            @PathVariable Long clientId,
+            @PathVariable Long cartId,
             @NonNull @RequestBody @Valid AddCartItemRequestDTO request) {
 
-        return cartService.addItem(clientId, request);
+        return cartService.addItem(cartId, request);
     }
 
-    //CHECKOUT /api/cart/{clientId}/checkout
-    @PostMapping("/{clientId}/checkout")
+    //CHECKOUT /api/cart/{cartId}/checkout
+    @PostMapping("/{cartId}/checkout")
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponseDTO checkout(
-            @PathVariable Long clientId,
+            @PathVariable Long cartId,
             @RequestBody @Valid CheckoutOrderRequestDTO dto)   {
 
-        return orderService.checkout(clientId, dto);
+        return orderService.checkout(cartId, dto);
     }
 
-    //DELETE /api/cart/{clientId}/items/{productId}
-    @DeleteMapping("/{clientId}/items/{productId}")
+    //DELETE /api/cart/{cartId}/items/{productId}
+    @DeleteMapping("/{cartId}/items/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeItem(
-            @PathVariable Long clientId,
+            @PathVariable Long cartId,
             @PathVariable Long productId) {
 
-        cartService.removeItem(clientId, productId);
+        cartService.removeItem(cartId, productId);
     }
 
-    //DELETE /api/cart/{clientId}
-    @DeleteMapping("/{clientId}")
+    //DELETE /api/cart/{cartId}
+    @DeleteMapping("/{cartId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(@PathVariable Long clientId) {
-        cartService.clearCart(clientId);
+    public void clearCart(@PathVariable Long cartId) {
+        cartService.clearCart(cartId);
     }
 }

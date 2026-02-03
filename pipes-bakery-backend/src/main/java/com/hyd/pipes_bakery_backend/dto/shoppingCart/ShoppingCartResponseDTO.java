@@ -6,23 +6,23 @@ import com.hyd.pipes_bakery_backend.model.CartItem;
 
 public class ShoppingCartResponseDTO {
 
-    private long clientId;
+    private Long cartId;
     private Set<CartItem> items;
 
-    public ShoppingCartResponseDTO(Long clientId, Set<CartItem> items) {
+    public ShoppingCartResponseDTO(Long cartId, Set<CartItem> items) {
 
-        this.clientId = clientId;
+        this.cartId = cartId;
         this.items = items;
     }
 
-    public Long getClientId() {
-        return clientId;
+    public Long getcartId() {
+        return cartId;
     }
     public Set<CartItem> getItems() {
         return items;
     }
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
+    public void setcartId(Long cartId) {
+        this.cartId = cartId;
     }
     public void setItems(Set<CartItem> items) {
         this.items = items;

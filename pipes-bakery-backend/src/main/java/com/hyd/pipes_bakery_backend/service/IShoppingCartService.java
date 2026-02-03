@@ -9,15 +9,15 @@ import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 
 public interface IShoppingCartService {
 
-    ShoppingCartResponseDTO getCartByClientId(Long clientId);
+    ShoppingCartResponseDTO getCartById(Long cartId);
 
-    ShoppingCartResponseDTO addItem(Long clientId, @NonNull AddCartItemRequestDTO dto);
+    ShoppingCartResponseDTO addItem(Long cartId, @NonNull AddCartItemRequestDTO dto);
 
-    ShoppingCartResponseDTO updateItemQuantity(Long clientId, Long productId, int quantity);
+    ShoppingCartResponseDTO updateItemQuantity(Long cartId, Long productId, int quantity);
 
-    void removeItem(Long clientId, Long productId);
+    void removeItem(Long cartId, Long productId);
 
-    void clearCart(Long clientId);
+    void clearCart(Long cartId);
 
-    BigDecimal calculateTotal(Long clientId);
+    BigDecimal calculateTotal(Long cartId);
 }

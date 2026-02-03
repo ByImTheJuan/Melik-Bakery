@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
+import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.orderItem.OrderItemResponseDTO;
@@ -18,7 +19,6 @@ import com.hyd.pipes_bakery_backend.model.OrderItem;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
-import com.hyd.pipes_bakery_backend.repository.ClientRepository;
 import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 import com.hyd.pipes_bakery_backend.storage.CartStorage;
@@ -28,15 +28,12 @@ public class OrderService implements IOrderService{
 
     private final OrderRepository orderRepository;
 
-    private final ClientRepository clientRepository;
-
     private final ProductRepository productRepository;
 
     private final CartStorage cartStorage;
 
-    public OrderService(OrderRepository orderRepository, ClientRepository clientRepository, ProductRepository productRepository, CartStorage cartStorage) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, CartStorage cartStorage) {
         this.orderRepository = orderRepository;
-        this.clientRepository = clientRepository;
         this.productRepository = productRepository;
         this.cartStorage = cartStorage;
     }
@@ -86,17 +83,17 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public OrderResponseDTO checkout(Long clientId, CheckoutOrderRequestDTO request){
+    public OrderResponseDTO checkout(Long cartId, CheckoutOrderRequestDTO request){
 
         validateShippingAddress(request.getShippingAddress());
 
-        ShoppingCart cart = cartStorage.getCart(clientId);
+        ShoppingCart cart = cartStorage.getCart(cartId);
         if(cart.isEmpty())
-            throw new CartIsEmptyException("Cart is empty. Impossible to do checkout");
+            throw new CartIsEmptyException("Cart is empty. Impossible to checkout");
         else {
 
-            Client client = clientRepository.findById(clientId).orElseThrow(() -> new ResourceNotFoundException("Client not found with id " + clientId));
-            Order order = new Order(client, toAddressEntity(request.getShippingAddress()));
+            //Client's Address is null
+            Order order = new Order(toClientEntity(request.getClient()), toAddressEntity(request.getShippingAddress()));
             
             //Transform CartItems into OrderItems
             List<OrderItem> items = cart.getItems().stream()
@@ -119,7 +116,7 @@ public class OrderService implements IOrderService{
             order.setItems(items);
             orderRepository.save(order);
 
-            cartStorage.clearCart(clientId);
+            cartStorage.clearCart(cartId);
 
             return toDto(order);
         }
@@ -167,6 +164,14 @@ public class OrderService implements IOrderService{
         dto.getCity(),
         dto.getZipCode(),
         dto.getCountry());
+    }
+
+    private Client toClientEntity(ClientRequestDTO request){
+        return new Client(request.getFirstName(),
+                            request.getLastName(),
+                            request.getEmail(),
+                            request.getPhoneNumber(),
+                            null);
     }
 
     private void validateShippingAddress(AddressSnapshotDTO address) {

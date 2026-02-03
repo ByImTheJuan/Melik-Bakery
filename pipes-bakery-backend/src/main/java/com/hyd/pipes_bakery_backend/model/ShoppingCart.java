@@ -9,20 +9,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ShoppingCart {
 
-    private Long clientId;
+    private Long cartId;
     private Set<CartItem> items;
 
 
     public ShoppingCart() {}
 
-    public ShoppingCart(long clientId) {
-        this.clientId = clientId;
+    public ShoppingCart(Long cartId) {
+        this.cartId = cartId;
         this.items = new HashSet<>();
     }
 
 
-    public Long getClientId() {
-        return clientId;
+    public Long getcartId() {
+        return cartId;
     }
 
     public Set<CartItem> getItems() {
@@ -83,8 +83,8 @@ public class ShoppingCart {
         items.clear();
     }
 
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
+    public void setcartId(Long cartId) {
+        this.cartId = cartId;
     }
     public void setItems(Set<CartItem> items) {
         this.items = items;
