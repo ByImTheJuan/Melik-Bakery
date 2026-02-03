@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class Order {
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false)
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,7 +58,7 @@ public class Order {
         this.shippingAddress = shippingAddress;
         this.status = OrderStatus.CREATED;
         this.createdAt = LocalDateTime.now();
-        this.totalAmount = 0.0;
+        this.totalAmount = new BigDecimal(0);
     }
 
     public Long getId() {
@@ -76,7 +77,7 @@ public class Order {
         return items;
     }
 
-    public double getTotalAmount() {
+    public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
@@ -102,10 +103,17 @@ public class Order {
 
     public void setItems(List<OrderItem> items) {
         this.items = items;
+        recalculateTotalAmount();
     }
 
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount = totalAmount;
+    private BigDecimal recalculateTotalAmount() {
+        BigDecimal subtotal = new BigDecimal(0);
+        for (OrderItem item : items){
+            subtotal = item.calculateTotalPrice().add(subtotal);
+        }
+
+        this.totalAmount = subtotal;
+        return subtotal;
     }
 
     public void setStatus(OrderStatus status) {
@@ -114,6 +122,6 @@ public class Order {
 
     public void addItem(OrderItem item) {
         items.add(item);
-        this.totalAmount = this.totalAmount + item.getUnitPriceAtPurchase() * item.getQuantity();
+        this.totalAmount = this.totalAmount.add(item.getUnitPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())));
     }
 }

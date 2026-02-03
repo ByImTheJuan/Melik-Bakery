@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 import com.hyd.pipes_bakery_backend.dto.orderItem.OrderItemResponseDTO;
+import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
 public class OrderResponseDTO {
 
@@ -13,12 +14,12 @@ public class OrderResponseDTO {
     private Long clientId;
     private List<OrderItemResponseDTO> items;
     private BigDecimal totalAmount;
-    private String status;
+    private OrderStatus status;
     private LocalDateTime createdAt;
     private AddressSnapshotDTO shippingAddress;
 
     public OrderResponseDTO(Long id, Long clientId, List<OrderItemResponseDTO> items, BigDecimal totalAmount,
-            String status, LocalDateTime createdAt, AddressSnapshotDTO shippingAddress) {
+            OrderStatus status, LocalDateTime createdAt, AddressSnapshotDTO shippingAddress) {
         this.id = id;
         this.clientId = clientId;
         this.items = items;
@@ -40,7 +41,7 @@ public class OrderResponseDTO {
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
     public LocalDateTime getCreatedAt() {
@@ -61,7 +62,7 @@ public class OrderResponseDTO {
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
     public void setCreatedAt(LocalDateTime createdAt) {

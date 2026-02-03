@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.service.ClientService;
+import com.hyd.pipes_bakery_backend.service.OrderService;
 
 import jakarta.validation.Valid;
 
@@ -25,9 +27,11 @@ import jakarta.validation.Valid;
 public class ClientController {
 
     private final ClientService clientService;
+    private final OrderService orderService;
 
-    public ClientController(ClientService clientService) {
+    public ClientController(ClientService clientService, OrderService orderService) {
         this.clientService = clientService;
+        this.orderService = orderService;
     }
 
     // GET /api/clients
@@ -42,6 +46,12 @@ public class ClientController {
         return clientService.getClientById(id);
     }
 
+    // GET /api/clients/{id}/orders
+    @GetMapping("/{id}/orders")
+    public List<OrderResponseDTO> getOrdersByClient(@NonNull @PathVariable Long id) {
+        return orderService.getOrdersByClient(id);
+    }
+
     // POST /api/clients
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,6 +61,7 @@ public class ClientController {
 
     // UPDATE
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ClientResponseDTO updateClient(@NonNull @PathVariable Long id, @Valid @RequestBody ClientRequestDTO updatedClient) {
         return clientService.updateClient(id, updatedClient);
     }

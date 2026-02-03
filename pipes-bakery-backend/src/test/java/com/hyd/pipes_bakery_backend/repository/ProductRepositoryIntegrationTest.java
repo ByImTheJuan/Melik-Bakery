@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.repository;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class ProductRepositoryIntegrationTest {
     void shouldSaveAndFindProduct() {
         Product product = new Product();
         product.setName("Baguette");
-        product.setPrice(3000);
+        product.setPrice(new BigDecimal(3000));
         product.setDescription("Pan artesanal");
         product.setIngredients("Harina, agua, sal");
 

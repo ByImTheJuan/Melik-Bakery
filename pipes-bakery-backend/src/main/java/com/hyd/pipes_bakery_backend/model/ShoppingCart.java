@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ShoppingCart {
 
     private Long clientId;
-    private Set<OrderItem> items;
+    private Set<CartItem> items;
 
 
     public ShoppingCart() {}
@@ -24,7 +25,7 @@ public class ShoppingCart {
         return clientId;
     }
 
-    public Set<OrderItem> getItems() {
+    public Set<CartItem> getItems() {
         return items;
     }
 
@@ -33,8 +34,8 @@ public class ShoppingCart {
         return items.isEmpty();
     }
 
-    public void addItem(OrderItem newItem) {
-        OrderItem existingItem = getItemByProductId(newItem.getProduct().getId());
+    public void addItem(CartItem newItem) {
+        CartItem existingItem = getItemByProductId(newItem.getProductId());
         if (existingItem != null) {
             existingItem.increaseQuantity(newItem.getQuantity());
         } else {
@@ -42,10 +43,10 @@ public class ShoppingCart {
         }
     }
 
-    public OrderItem getItemByProductId(long productId) {
+    public CartItem getItemByProductId(long productId) {
         if (!items.isEmpty()) {
-            for (OrderItem item : items) {
-                if (item.getProduct().getId() == productId) {
+            for (CartItem item : items) {
+                if (item.getProductId() == productId) {
                     return item;
                 }
             }
@@ -54,7 +55,7 @@ public class ShoppingCart {
     }
 
     public void removeItem(long productId) {
-        OrderItem itemToRemove = getItemByProductId(productId);
+        CartItem itemToRemove = getItemByProductId(productId);
         if (itemToRemove.getQuantity() == 1) {
             items.remove(itemToRemove);
         } else {
@@ -63,17 +64,17 @@ public class ShoppingCart {
     }
 
     public void updateItemQuantity(long productId, int quantity) {
-        OrderItem item = getItemByProductId(productId);
+        CartItem item = getItemByProductId(productId);
         if (item != null) {
             item.setQuantity(quantity);
         }
     }
 
     @JsonIgnore
-    public double getTotalPrice() {
-        double total = 0;
-        for (OrderItem item : items) {
-            total += item.calculateTotalPrice();
+    public BigDecimal getTotalPrice() {
+        BigDecimal total = new BigDecimal(0);
+        for (CartItem item : items) {
+            total = item.getTotalPrice().add(total);
         }
         return total;
     }
@@ -85,7 +86,7 @@ public class ShoppingCart {
     public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
-    public void setItems(Set<OrderItem> items) {
+    public void setItems(Set<CartItem> items) {
         this.items = items;
     }
 }

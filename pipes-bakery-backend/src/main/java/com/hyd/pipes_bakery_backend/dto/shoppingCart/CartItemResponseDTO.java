@@ -1,6 +1,6 @@
 package com.hyd.pipes_bakery_backend.dto.shoppingCart;
 
-public class CartItemDTO {
+public class CartItemResponseDTO {
 
     private Long productId;
     private String productName;
@@ -8,7 +8,7 @@ public class CartItemDTO {
     private int quantity;
     private double subtotal;
 
-    public CartItemDTO(Long productId, String productName, double unitPrice, int quantity, double subtotal) {
+    public CartItemResponseDTO(Long productId, String productName, double unitPrice, int quantity, double subtotal) {
         this.productId = productId;
         this.productName = productName;
         this.unitPrice = unitPrice;

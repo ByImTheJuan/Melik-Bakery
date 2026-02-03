@@ -1,12 +1,14 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
-import com.hyd.pipes_bakery_backend.model.OrderItem;
+import com.hyd.pipes_bakery_backend.model.CartItem;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
@@ -38,7 +40,7 @@ public class ShoppingCartService implements IShoppingCartService {
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        OrderItem item = new OrderItem(product, dto.getQuantity()); // PRECIO CONGELADO AQUÍ
+        CartItem item = new CartItem(product.getId(), product.getName(), dto.getQuantity(), product.getPrice()); // PRECIO CONGELADO AQUÍ
 
         cart.addItem(item);
 
@@ -68,12 +70,11 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public double calculateTotal(Long clientId) {
+    public BigDecimal calculateTotal(Long clientId) {
         ShoppingCart cart = cartStorage.getCart(clientId);
         return cart.getTotalPrice();
     }
 
-    // mapper privado
     private ShoppingCartResponseDTO toDto(ShoppingCart cart) {
         ShoppingCartResponseDTO dto = new ShoppingCartResponseDTO(cart.getClientId(), cart.getItems());
         return dto;

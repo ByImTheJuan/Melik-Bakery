@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.controller;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +35,7 @@ public class ProductControllerIntegrationTest {
     void shouldCreateAndRetrieveProduct() throws Exception {
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName("Pan de chocolate");
-        request.setPrice(4000);
+        request.setPrice(new BigDecimal(4000));
         request.setDescription("Relleno de chocolate");
         request.setIngredients("Harina, chocolate");
 

@@ -2,9 +2,8 @@ package com.hyd.pipes_bakery_backend.controller;
 
 import java.util.List;
 
-import org.springframework.lang.NonNull;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +51,7 @@ public class AddressController {
 
     // UPDATE
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public AddressResponseDTO updateAddress(@NonNull @PathVariable Long id, @Valid@RequestBody AddressRequestDTO updatedAddress) {
         return addressService.updateAddress(id, updatedAddress);
     }

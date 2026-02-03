@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.dto.product;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +14,7 @@ public class ProductRequestDTO {
 
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price must be positive")
-    private double price;
+    private BigDecimal price;
 
     @NotBlank(message = "Ingredients are required")
     private String ingredients;
@@ -30,7 +32,7 @@ public class ProductRequestDTO {
         return ingredients;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -42,7 +44,7 @@ public class ProductRequestDTO {
         this.description = description;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
     public void setIngredients(String ingredients) {

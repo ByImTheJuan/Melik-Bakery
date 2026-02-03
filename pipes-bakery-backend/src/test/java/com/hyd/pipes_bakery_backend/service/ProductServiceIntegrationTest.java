@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class ProductServiceIntegrationTest {
     void shouldCreateAndRetrieveProduct() {
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName("Pan de chocolate");
-        request.setPrice(4000);
+        request.setPrice(new BigDecimal(4000));
         request.setDescription("Relleno de chocolate");
         request.setIngredients("Harina, chocolate");
 

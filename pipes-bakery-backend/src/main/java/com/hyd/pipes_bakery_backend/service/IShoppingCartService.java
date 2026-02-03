@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.lang.NonNull ;
 
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
@@ -17,5 +19,5 @@ public interface IShoppingCartService {
 
     void clearCart(Long clientId);
 
-    double calculateTotal(Long clientId);
+    BigDecimal calculateTotal(Long clientId);
 }

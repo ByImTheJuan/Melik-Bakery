@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,14 +17,14 @@ public class Product {
     private Long id;
 
     private String name;
-    private double price;
+    private BigDecimal price;
     private String description;
     private String ingredients;
 
     public Product() {
     }
     
-    public Product(String name, double price, String description, String ingredients) {
+    public Product(String name, BigDecimal price, String description, String ingredients) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -45,7 +47,7 @@ public class Product {
         return ingredients;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -57,7 +59,7 @@ public class Product {
         this.name = name;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

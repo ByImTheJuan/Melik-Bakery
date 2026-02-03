@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.controller;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -43,7 +45,7 @@ public class ProductControllerTest {
         // Arrange
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName("Baguette");
-        request.setPrice(3000);
+        request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients("Harina, agua, sal");
 
@@ -51,7 +53,7 @@ public class ProductControllerTest {
                 1L,
                 "Baguette",
                 "Pan artesanal",
-                3000,
+                new BigDecimal(3000),
                 "Harina, agua, sal"
         );
 
@@ -77,7 +79,7 @@ public class ProductControllerTest {
         // Arrange
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName(""); // Invalid name
-        request.setPrice(-100); // Invalid price
+        request.setPrice(new BigDecimal(-100)); // Invalid price
         request.setDescription("Pan artesanal");
         request.setIngredients("Harina, agua, sal");
 
@@ -104,7 +106,7 @@ public class ProductControllerTest {
                 productId,
                 "Baguette",
                 "Pan artesanal",
-                3000,
+                new BigDecimal(3000),
                 "Harina, agua, sal"
         );
 
@@ -152,7 +154,7 @@ public class ProductControllerTest {
         Long productId = 1L;
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName("Baguette");
-        request.setPrice(3000);
+        request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients("Harina, agua, sal");
 
@@ -160,7 +162,7 @@ public class ProductControllerTest {
                 productId,
                 "Baguette",
                 "Pan artesanal",
-                3000,
+                new BigDecimal(3000),
                 "Harina, agua, sal"
         );
 
@@ -186,7 +188,7 @@ public class ProductControllerTest {
         Long productId = 999L;
         ProductRequestDTO request = new ProductRequestDTO();
         request.setName("Baguette");
-        request.setPrice(3000);
+        request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients("Harina, agua, sal");
 

@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.model;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -24,7 +26,7 @@ public class OrderItem {
 
     private int quantity;
 
-    private double unitPriceAtPurchase;
+    private BigDecimal unitPriceAtPurchase;
 
     public OrderItem() {
     }
@@ -47,7 +49,7 @@ public class OrderItem {
         return quantity;
     }
 
-    public double getUnitPriceAtPurchase() {
+    public BigDecimal getUnitPriceAtPurchase() {
         return unitPriceAtPurchase;
     }
 
@@ -55,16 +57,12 @@ public class OrderItem {
         this.product = product;
     }
 
-    public void increaseQuantity(int quantity) {
-        this.quantity += quantity;
-    }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
     @JsonIgnore
-    public double calculateTotalPrice() {
-        return unitPriceAtPurchase * quantity;
+    public BigDecimal calculateTotalPrice() {
+        return unitPriceAtPurchase.multiply(BigDecimal.valueOf(quantity));
     }
 }

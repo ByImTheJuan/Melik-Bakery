@@ -1,13 +1,15 @@
 package com.hyd.pipes_bakery_backend.dto.product;
 
+import java.math.BigDecimal;
+
 public class ProductResponseDTO {
     private Long id;
     private String name;
     private String description;
-    private double price;
+    private BigDecimal price;
     private String ingredients;
 
-    public ProductResponseDTO(Long id, String name, String description, double price, String ingredients) {
+    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, String ingredients) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,7 +28,7 @@ public class ProductResponseDTO {
         return description;
     }
     
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -46,7 +48,7 @@ public class ProductResponseDTO {
         this.description = description;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

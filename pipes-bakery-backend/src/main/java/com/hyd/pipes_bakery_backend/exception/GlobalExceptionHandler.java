@@ -31,6 +31,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
+    // ADDRESS VALIDATION ERRORS (400)
+    @ExceptionHandler(InvalidAddressException.class)
+    public ResponseEntity<ApiError> handleAddressValidationErrors(InvalidAddressException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
     // RESOURCE NOT FOUND (404)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex) {
@@ -45,6 +59,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
     }
 
+    // ENDPOINT NOT FOUND (404)
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiError> handleNoHandlerFound(NoHandlerFoundException ex) {
 
@@ -55,8 +70,22 @@ public class GlobalExceptionHandler {
                 null
         );
 
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
-}
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    }
+
+    // RESOURCE NOT FOUND (404)
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiError> duplicatedResource(DuplicateResourceException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
 /*
     // GENERIC EXCEPTION (500)
     @ExceptionHandler(Exception.class)

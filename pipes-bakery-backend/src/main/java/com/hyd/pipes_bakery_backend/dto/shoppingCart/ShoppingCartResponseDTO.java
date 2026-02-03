@@ -2,14 +2,14 @@ package com.hyd.pipes_bakery_backend.dto.shoppingCart;
 
 import java.util.Set;
 
-import com.hyd.pipes_bakery_backend.model.OrderItem;
+import com.hyd.pipes_bakery_backend.model.CartItem;
 
 public class ShoppingCartResponseDTO {
 
     private long clientId;
-    private Set<OrderItem> items;
+    private Set<CartItem> items;
 
-    public ShoppingCartResponseDTO(Long clientId, Set<OrderItem> items) {
+    public ShoppingCartResponseDTO(Long clientId, Set<CartItem> items) {
 
         this.clientId = clientId;
         this.items = items;
@@ -18,13 +18,13 @@ public class ShoppingCartResponseDTO {
     public Long getClientId() {
         return clientId;
     }
-    public Set<OrderItem> getItems() {
+    public Set<CartItem> getItems() {
         return items;
     }
     public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
-    public void setItems(Set<OrderItem> items) {
+    public void setItems(Set<CartItem> items) {
         this.items = items;
     }
 }

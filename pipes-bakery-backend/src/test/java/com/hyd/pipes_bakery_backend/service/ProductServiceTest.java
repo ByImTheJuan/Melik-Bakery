@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,14 +33,14 @@ public class ProductServiceTest {
         ProductRequestDTO request = new ProductRequestDTO();
 
         request.setName("Baguette de masa madre");
-        request.setPrice(5000);
+        request.setPrice(new BigDecimal(5000));
         request.setDescription("Pan artesanal hecho con ingredientes naturales");
         request.setIngredients("Agua, harina, masa madre, sal");
 
         Product savedProduct = new Product();
         savedProduct.setId(1L);
         savedProduct.setName("Baguette de masa madre");
-        savedProduct.setPrice(5000);
+        savedProduct.setPrice(new BigDecimal(5000));
         savedProduct.setDescription("Pan artesanal hecho con ingredientes naturales");
         savedProduct.setIngredients("Agua, harina, masa madre, sal");
 
@@ -66,7 +68,7 @@ public class ProductServiceTest {
         Product product = new Product();
         product.setId(productId);
         product.setName("Croissant");
-        product.setPrice(3000);
+        product.setPrice(new BigDecimal(3000));
         product.setDescription("Delicioso croissant francés");
         product.setIngredients("Harina, mantequilla, azúcar, levadura, sal");
 
@@ -152,14 +154,14 @@ public class ProductServiceTest {
         Long productId = 1L;
         ProductRequestDTO updatedRequest = new ProductRequestDTO();
         updatedRequest.setName("Pan de chocolate");
-        updatedRequest.setPrice(4000);
+        updatedRequest.setPrice(new BigDecimal(4000));
         updatedRequest.setDescription("Delicioso pan relleno de chocolate");
         updatedRequest.setIngredients("Harina, chocolate, azúcar, mantequilla, levadura, sal");
 
         Product existingProduct = new Product();
         existingProduct.setId(productId);
         existingProduct.setName("Pan simple");
-        existingProduct.setPrice(2000);
+        existingProduct.setPrice(new BigDecimal(2000));
         existingProduct.setDescription("Pan básico sin relleno");
         existingProduct.setIngredients("Harina, agua, sal, levadura");
 
@@ -188,7 +190,7 @@ public class ProductServiceTest {
         Long productId = 999L;
         ProductRequestDTO updatedRequest = new ProductRequestDTO();
         updatedRequest.setName("Pan inexistente");
-        updatedRequest.setPrice(0);
+        updatedRequest.setPrice(new BigDecimal(0));
         updatedRequest.setDescription("Este pan no existe");
         updatedRequest.setIngredients("N/A");
 
@@ -212,14 +214,14 @@ public class ProductServiceTest {
         Product product1 = new Product();
         product1.setId(1L);
         product1.setName("Pan francés");
-        product1.setPrice(2500);
+        product1.setPrice(new BigDecimal(2500));
         product1.setDescription("Clásico pan francés");
         product1.setIngredients("Harina, agua, sal, levadura");
 
         Product product2 = new Product();
         product2.setId(2L);
         product2.setName("Muffin de arándanos");
-        product2.setPrice(3500);
+        product2.setPrice(new BigDecimal(3500));
         product2.setDescription("Muffin suave con arándanos frescos");
         product2.setIngredients("Harina, arándanos, azúcar, mantequilla, huevos, levadura");
 

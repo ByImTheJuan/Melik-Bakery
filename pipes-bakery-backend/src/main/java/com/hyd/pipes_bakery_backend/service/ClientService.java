@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.DuplicateResourceException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.model.Client;
 import com.hyd.pipes_bakery_backend.repository.ClientRepository;
@@ -34,10 +35,14 @@ public class ClientService implements IClientService {
         return clientRepository.findById(id).map(this::toDto).orElseThrow(() -> new ResourceNotFoundException(
                 "Client not found with id " + id
         ));
-    }
+    }   
 
     @Override
     public ClientResponseDTO createClient(ClientRequestDTO dto) {
+        if(clientRepository.existsByEmail(dto.getEmail())){
+            throw new DuplicateResourceException("Email already registered");
+        }
+        
         Client client = toEntity(dto);
         Client savedClient = clientRepository.save(client);
         return toDto(savedClient);
