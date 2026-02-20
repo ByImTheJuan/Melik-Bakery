@@ -1,0 +1,101 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+      background-color: #e3a554;
+
+}
+
+.home-layout {
+    background-color: #f5e6d3;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    height: 85vh;
+    width: 100vw;
+    @media (max-width: 768px) {
+        .home-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+.hero p {
+  font-size: 1.5rem;
+  color: #5a2d0c;
+}
+
+.hero button {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(45deg, #8b4513, #c68642);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.hero button:hover {
+  background: linear-gradient(45deg, #c68642, #8b4513);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.hero img {
+    height: 500px;
+    margin-bottom: -6rem;
+    margin-top: -3rem;
+}
+
+.carousel {
+    position: relative;
+    width: 100%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 6rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border-color: #8b4513;
+}
+
+.carousel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 40px;
+    border: 2px solid #8b45132d;
+    border-radius: 2px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.008)
+}
+
+.carousel-btn.left {
+  left: 0;
+}
+
+.carousel-btn.right {
+  right: 0;
+}
