@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const images = [
   "/images/homePageCarousel1.jpg",
@@ -21,11 +21,46 @@ export default function PhotoCarousel() {
     );
   }
 
+  // Autoplay
+    const [isHovered, setIsHovered] = useState(false);
+
+    useEffect(() => {
+    if (isHovered) return;
+
+    const interval = setInterval(nextImage, 4000);
+    return () => clearInterval(interval);
+    }, [isHovered]);
+
   return (
     <section className="carousel">
-      <button className="carousel-btn left" onClick={prevImage}>◀</button>
-      <img src={images[currentIndex]} alt="Bakery" />
-      <button className="carousel-btn right" onClick={nextImage}>▶</button>
+        <div className="carousel-inner"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}>
+            <div
+                className="carousel-track"
+                style={{
+                    transform: `translateX(-${currentIndex * 100}%)`
+             }}
+            >
+                {images.map((img, index) => (
+                    <img key={index} src={img} alt="Bakery" />
+                ))}
+            </div>
+            <button className="carousel-btn left" onClick={prevImage}>◀</button>
+
+            <button className="carousel-btn right" onClick={nextImage}>▶</button>
+
+            <div className="carousel-dots">
+                {images.map((_, index) => (
+                    <button
+                        key={index}
+                        className={`dot ${currentIndex === index ? "active" : ""}`}
+                        onClick={() => setCurrentIndex(index)}
+                    />
+                ))}
+            </div>
+            
+        </div>
     </section>
   );
 }

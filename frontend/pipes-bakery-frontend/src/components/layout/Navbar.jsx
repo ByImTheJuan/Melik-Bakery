@@ -2,11 +2,18 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <Link to="/" style={{ marginRight: "1rem" }}>
-        Inicio
-      </Link>
-      <Link to="/products">Productos</Link>
+    <nav className="navbar">
+        <div className="nav-logo">Pipes Bakery
+            <img src="/images/logo.pnga" alt="Pipe's Bakery" /> {/* Asegúrate de que la ruta de la imagen sea correcta */}
+        </div>
+
+        <div className="nav-links">
+            <Link to="/">Inicio</Link>
+            <Link to="/products">Productos</Link>
+            <Link to="/about">Sobre Nosotros</Link>
+            <Link to="/contact">Contacto</Link>
+        </div>
+
     </nav>
   );
 }
