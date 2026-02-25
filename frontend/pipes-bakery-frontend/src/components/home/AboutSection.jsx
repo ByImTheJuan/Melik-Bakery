@@ -1,5 +1,7 @@
 import useInView from "../../hooks/useInView";
 import { useEffect, useRef } from "react";
+import React from "react";
+console.log(React);
 
 export default function AboutSection() {
     const [ref, isVisible] = useInView();
@@ -22,6 +24,7 @@ export default function AboutSection() {
 
     return (
         <section
+            id="about"
             ref={ref}
             className={`about ${isVisible ? "show" : ""}`}
         >

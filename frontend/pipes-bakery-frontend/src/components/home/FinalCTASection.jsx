@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useInView from "../../hooks/useInView";
 
 const images = [
   "/images/homePageCarousel1.jpg",
@@ -10,7 +11,7 @@ const images = [
 export default function FinalCTASection() {
   const [index, setIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(0);
-  //const [ref, isVisible] = useInView();
+  const [ref, isVisible] = useInView();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,30 +26,35 @@ export default function FinalCTASection() {
   }, []);
 
   return (
-    <section className="final-cta">
+    <section className="final-cta-container">
       <div
-        className="final-cta-bg prev"
-        style={{ backgroundImage: `url(${images[prevIndex]})` }}
-      />
+        ref={ref}
+        className={`final-cta ${isVisible ? "show" : ""}`}
+      >
+        <div
+          className="final-cta-bg prev"
+          style={{ backgroundImage: `url(${images[prevIndex]})` }}
+        />
 
-      <div
-        className="final-cta-bg current"
-        style={{ backgroundImage: `url(${images[index]})` }}
-      />
+        <div
+          className="final-cta-bg current"
+          style={{ backgroundImage: `url(${images[index]})` }}
+        />
 
-      <div className="final-cta-overlay" />
+        <div className="final-cta-overlay" />
 
-      <div className="final-cta-content">
-        <h2>
-          Mira nuestra oferta de deliciosos productos frescos
-        </h2>
+        <div className="final-cta-content">
+          <h2>
+            Visita nuestra oferta de deliciosos productos frescos
+          </h2>
 
-        <button
-          className="final-cta-btn"
-          onClick={() => navigate("/products")}
-        >
-          Ver catálogo
-        </button>
+          <button
+            className="final-cta-btn"
+            onClick={() => navigate("/products")}
+          >
+            Ver catálogo de productos
+          </button>
+        </div>
       </div>
     </section>
   );
