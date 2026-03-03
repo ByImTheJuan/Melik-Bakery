@@ -3,10 +3,10 @@ package com.hyd.pipes_bakery_backend.service;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,17 +14,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.ProductMapper;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
 
-    @InjectMocks
+    final private ProductMapper productMapper = new ProductMapper();
+
     private ProductService productService;
+
+    @BeforeEach
+    void setUp() {
+        productService = new ProductService(productRepository, productMapper);
+    }
 
     @SuppressWarnings("null")
     @Test
@@ -52,7 +61,7 @@ public class ProductServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Baguette de masa madre");
-        assertThat(result.getPrice()).isEqualTo(5000);
+        assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(5000));
         assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
         assertThat(result.getIngredients()).isEqualTo("Agua, harina, masa madre, sal");
 
@@ -81,7 +90,7 @@ public class ProductServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(productId);
         assertThat(result.getName()).isEqualTo("Croissant");
-        assertThat(result.getPrice()).isEqualTo(3000);
+        assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
         assertThat(result.getDescription()).isEqualTo("Delicioso croissant francés");
         assertThat(result.getIngredients()).isEqualTo("Harina, mantequilla, azúcar, levadura, sal");
 
@@ -100,7 +109,7 @@ public class ProductServiceTest {
         // Act & Assert
         try {
             productService.getProductById(productId);
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
             assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
             assertThat(e.getMessage()).isEqualTo("Product not found with id " + productId);
         }
@@ -174,7 +183,7 @@ public class ProductServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Pan de chocolate");
-        assertThat(result.getPrice()).isEqualTo(4000);
+        assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(result.getDescription()).isEqualTo("Delicioso pan relleno de chocolate");
         assertThat(result.getIngredients()).isEqualTo("Harina, chocolate, azúcar, mantequilla, levadura, sal");
 

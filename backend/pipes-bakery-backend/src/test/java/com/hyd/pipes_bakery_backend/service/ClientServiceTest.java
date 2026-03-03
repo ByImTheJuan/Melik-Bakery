@@ -12,18 +12,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.ClientMapper;
+import com.hyd.pipes_bakery_backend.mapper.OrderMapper;
 import com.hyd.pipes_bakery_backend.model.Client;
 import com.hyd.pipes_bakery_backend.repository.ClientRepository;
 
-
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 public class ClientServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
 
+    @Mock
+    private ClientMapper clientMapper;
+
+    @Mock
+    private OrderMapper orderMapper;
+
     @InjectMocks
     private ClientService clientService;
+
 
     @SuppressWarnings("null")
     @Test
@@ -43,7 +53,16 @@ public class ClientServiceTest {
         savedClient.setPhoneNumber("3053466622");
         savedClient.setId(1L);
 
+        ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
+                                                                "Felipe", 
+                                                                "Hernández", 
+                                                                "pipelon@gmail.com", 
+                                                                "3053466622",
+                                                                null);
+
         when(clientRepository.save(any(Client.class))).thenReturn(savedClient);
+        when(clientMapper.toDto(savedClient)).thenReturn(responseDto);
+        when(clientMapper.toEntity(request)).thenReturn(savedClient);
 
         // Act
         ClientResponseDTO result = clientService.createClient(request);
@@ -71,6 +90,14 @@ public class ClientServiceTest {
         client.setEmail("pipelon@gmail.com");
         client.setPhoneNumber("3053466622");
 
+        ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
+                                                                "Felipe", 
+                                                                "Hernández", 
+                                                                "pipelon@gmail.com", 
+                                                                "3053466622",
+                                                                null);
+
+        when(clientMapper.toDto(client)).thenReturn(responseDto);
         when(clientRepository.findById(clientId)).thenReturn(java.util.Optional.of(client));
 
         // Act
@@ -96,10 +123,11 @@ public class ClientServiceTest {
 
         when(clientRepository.findById(clientId)).thenReturn(java.util.Optional.empty());
 
+
         // Act & Assert
         try {
             clientService.getClientById(clientId);
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
             assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
             assertThat(e.getMessage()).isEqualTo("Client not found with id " + clientId);
         }
@@ -133,10 +161,11 @@ public class ClientServiceTest {
 
         when(clientRepository.existsById(clientId)).thenReturn(false);
 
+
         // Act & Assert
         try {
             clientService.deleteClient(clientId);
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
             assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
             assertThat(e.getMessage()).isEqualTo("Client not found with id " + clientId);
         }
@@ -164,8 +193,16 @@ public class ClientServiceTest {
         existingClient.setEmail("pan@gmail.com");
         existingClient.setPhoneNumber("3053466922");
 
+        ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
+                                                                "Pan de chocolate", 
+                                                                "Hernández", 
+                                                                "panchocolate@gmail.com", 
+                                                                "3053466622",
+                                                                null);
+
         when(clientRepository.findById(clientId)).thenReturn(java.util.Optional.of(existingClient));
         when(clientRepository.save(any(Client.class))).thenAnswer(i -> i.getArgument(0));
+        when(clientMapper.toDto(any(Client.class))).thenReturn(responseDto);
 
         // Act
         ClientResponseDTO result = clientService.updateClient(clientId, updatedRequest);
@@ -193,6 +230,13 @@ public class ClientServiceTest {
         updatedRequest.setEmail("paninexistente@gmail.com");
         updatedRequest.setPhoneNumber("3053466922");
 
+        ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
+                                                                "Pan de chocolate", 
+                                                                "Hernández", 
+                                                                "panchocolate@gmail.com", 
+                                                                "3053466622",
+                                                                null);
+
         when(clientRepository.findById(clientId)).thenReturn(java.util.Optional.empty());
 
         // Act & Assert
@@ -200,7 +244,7 @@ public class ClientServiceTest {
             clientService.updateClient(clientId, updatedRequest);
         } catch (Exception e) {
             assertThat(e).isInstanceOf(com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException.class);
-            assertThat(e.getMessage()).isEqualTo("Client not found with id " + clientId);
+            assertThat(e.getMessage()).isEqualTo("Client not found");
         }
 
         verify(clientRepository).findById(clientId);
@@ -223,6 +267,21 @@ public class ClientServiceTest {
         client2.setLastName("Hernández");
         client2.setEmail("jd@gmail.com");
         client2.setPhoneNumber("3053466922");
+
+        ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
+                                                                "Felipe", 
+                                                                "Hernández", 
+                                                                "pipelon@gmail.com", 
+                                                                "3053466622",
+                                                                null);
+
+        when(clientMapper.toDto(client1)).thenReturn(responseDto);
+        when(clientMapper.toDto(client2)).thenReturn(new ClientResponseDTO(2L, 
+                                                                "Juande", 
+                                                                "Hernández", 
+                                                                "jd@gmail.com", 
+                                                                "3053466922",
+                                                                null));
 
         when(clientRepository.findAll()).thenReturn(java.util.List.of(client1, client2));
 

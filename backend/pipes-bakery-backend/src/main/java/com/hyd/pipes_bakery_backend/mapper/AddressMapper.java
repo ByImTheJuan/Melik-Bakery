@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.mapper;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
@@ -11,6 +12,7 @@ import com.hyd.pipes_bakery_backend.model.AddressSnapshot;
 @Component
 public class AddressMapper {
 
+    @NonNull
     public AddressResponseDTO toDto(Address address) {
         return new AddressResponseDTO(address.getId(),
                                         address.getStreet(),
@@ -20,6 +22,7 @@ public class AddressMapper {
                                         address.getCountry());
     }
 
+    @NonNull 
     public Address toEntity(AddressRequestDTO dto){
         return new Address(dto.getStreet(),
         dto.getAdditionalInformation(),

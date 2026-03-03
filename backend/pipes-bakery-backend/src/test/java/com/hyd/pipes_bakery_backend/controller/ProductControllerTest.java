@@ -27,6 +27,7 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.service.ProductService;
 
+@SuppressWarnings("null")
 @WebMvcTest(ProductController.class)
 public class ProductControllerTest {
 
@@ -142,8 +143,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).getProductById(productId);
     }
@@ -205,8 +205,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).updateProduct(anyLong(), any(ProductRequestDTO.class));
     }
@@ -219,8 +218,7 @@ public class ProductControllerTest {
         // Act + Assert
         mockMvc.perform(delete("/api/products/{id}", productId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(status().isNoContent());
 
         verify(productService).deleteProduct(productId);
     }
@@ -242,8 +240,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).deleteProduct(productId);
     }

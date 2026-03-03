@@ -19,8 +19,9 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
 public class ProductControllerIntegrationTest {

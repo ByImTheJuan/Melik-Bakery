@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,7 +33,7 @@ public class OrderController {
 
     //GET /api/orders/{orderId}
     @GetMapping("/{orderId}")
-    public OrderResponseDTO getOrderById(@PathVariable Long orderId) {
+    public OrderResponseDTO getOrderById(@NonNull @PathVariable Long orderId) {
         return orderService.getOrderById(orderId);
     }
 
@@ -40,7 +41,7 @@ public class OrderController {
     @PutMapping("/{orderId}")
     @ResponseStatus(HttpStatus.OK)
     public void updateOrderStatus(
-            @PathVariable Long orderId,
+            @NonNull @PathVariable Long orderId,
             @PathVariable OrderStatus status) {
 
         orderService.updateOrderStatus(orderId, status);

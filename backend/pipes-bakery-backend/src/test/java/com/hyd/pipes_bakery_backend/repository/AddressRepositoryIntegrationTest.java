@@ -10,6 +10,7 @@ import com.hyd.pipes_bakery_backend.model.Address;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -25,7 +26,7 @@ public class AddressRepositoryIntegrationTest {
         address.setAdditionalInformation("Apto 201");
         address.setCity("Medellín");
         address.setCountry("Colombia");
-        address.setZipCode(050001);
+        address.setZipCode(250001);
 
         Address saved = addressRepository.save(address);
 
@@ -37,6 +38,6 @@ public class AddressRepositoryIntegrationTest {
         assertThat(found.getAdditionalInformation()).isEqualTo("Apto 201");
         assertThat(found.getCity()).isEqualTo("Medellín");
         assertThat(found.getCountry()).isEqualTo("Colombia");
-        assertThat(found.getZipCode()).isEqualTo("050001");
+        assertThat(found.getZipCode()).isEqualTo(250001);
     }
 }

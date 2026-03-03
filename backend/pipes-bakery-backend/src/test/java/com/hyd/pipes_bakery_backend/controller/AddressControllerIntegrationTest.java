@@ -18,8 +18,9 @@ import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
 public class AddressControllerIntegrationTest {

@@ -61,6 +61,7 @@ public class ProductService implements IProductService {
                     product.setName(updatedProduct.getName());
                     product.setPrice(updatedProduct.getPrice());
                     product.setDescription(updatedProduct.getDescription());
+                    product.setIngredients(updatedProduct.getIngredients());
                     return productRepository.save(product);
                 })
                 .map(productMapper::toDto)

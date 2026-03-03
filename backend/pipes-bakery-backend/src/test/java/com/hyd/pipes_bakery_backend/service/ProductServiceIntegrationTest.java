@@ -13,6 +13,7 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -35,7 +36,7 @@ public class ProductServiceIntegrationTest {
                 productService.getProductById(created.getId());
 
         assertThat(found.getName()).isEqualTo("Pan de chocolate");
-        assertThat(found.getPrice()).isEqualTo(4000);
+        assertThat(found.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(found.getDescription()).isEqualTo("Relleno de chocolate");
         assertThat(found.getIngredients()).isEqualTo("Harina, chocolate");
     }

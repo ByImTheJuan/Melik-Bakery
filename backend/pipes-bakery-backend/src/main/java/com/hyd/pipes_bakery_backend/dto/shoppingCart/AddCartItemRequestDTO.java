@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class AddCartItemRequestDTO {
 
     @NotNull(message = "Product ID is required")
-    private Long productId;
+    private long productId;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
@@ -16,9 +16,8 @@ public class AddCartItemRequestDTO {
 
     public AddCartItemRequestDTO() {
     }
-
-
-    public @NonNull Long getProductId() {
+ 
+    public long getProductId() {
         return productId;
     }
 

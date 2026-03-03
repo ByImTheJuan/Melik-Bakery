@@ -12,6 +12,7 @@ import com.hyd.pipes_bakery_backend.model.Product;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -35,6 +36,6 @@ public class ProductRepositoryIntegrationTest {
         Product found = productRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getName()).isEqualTo("Baguette");
-        assertThat(found.getPrice()).isEqualTo(3000);
+        assertThat(found.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
     }
 }

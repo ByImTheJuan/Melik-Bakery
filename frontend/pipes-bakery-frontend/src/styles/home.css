@@ -1,11 +1,12 @@
 :root {
     --color-primary: #5a2d0c;
     --color-secondary: #c68642;
+    --color-secondary-2:#A87B51;
     --color-bg: #f8f4ef;
     --color-bg-2: #f5e6d3;
     --color-bg-3: #E9C99F;
     --color-accent: #f1e3d3;
-    --color-text: #2c1b12;
+    --color-text: #5a2d0c;
     --color-white: #ffffff;
 }
 
@@ -101,7 +102,7 @@ body {
     bottom: -4px;
     width: 0%;
     height: 2px;
-    background-color: var(--color-secondary);
+    background-color: var(--color-secondary-2);
     transition: width 0.3s ease;
 }
 
@@ -112,12 +113,12 @@ body {
 
 .nav-links button.active,
 .nav-links a.active {
-  color: var(--color-secondary);
+  color: var(--color-secondary-2);
 }
 
 .nav-links button.active,
 .nav-links a.active {
-  color: var(--color-secondary);
+  color: var(--color-secondary-2);
 }
 
 .menu-toggle {
@@ -275,12 +276,12 @@ body {
 
 .hero p {
   font-size: 1.5rem;
-  color: #5a2d0c;
+  color: var(--color-primary);
 }
 
 .hero button {
   padding: 1.1rem 2.2rem;
-  background: var(--color-secondary);
+  background: var(--color-secondary-2);
   color: white;
   border: none;
   border-radius: 25px;
@@ -452,7 +453,7 @@ body {
   display: block;
   width: 60px;
   height: 2px;
-  background-color: var(--color-secondary);
+  background-color: var(--color-secondary-2);
   margin: 0 auto 3rem auto;
   opacity: 0.6;
 }
@@ -500,13 +501,13 @@ body {
     font-weight: 700;
     margin-bottom: 2rem;
     letter-spacing: -0.5px;
-    color: rgba(44, 27, 18, 0.8);
+    color: var(--color-primary);
 }
 
 .about-content p {
     line-height: 1.7;
     margin-bottom: 1.2rem;
-    color: #5a2d0c;
+    color: var(--color-primary);
     text-align: justify;
 }
 
@@ -563,7 +564,7 @@ body {
   display: block;
   width: 60px;
   height: 2px;
-  background-color: var(--color-secondary);
+  background-color: var(--color-secondary-2);
   margin: 0 auto 3rem auto;
   opacity: 0.6;
 }
@@ -647,7 +648,7 @@ body {
   border-radius: 40px;
   border: none;
   cursor: pointer;
-  background: var(--color-secondary);
+  background: var(--color-secondary-2);
   color: white;
   transition: all 0.3s ease;
 }
@@ -710,7 +711,7 @@ body {
   transform: translateX(-50%);
   width: 80px;
   height: 2px;
-  background-color: var(--color-secondary);
+  background-color: var(--color-secondary-2);
   opacity: 0.6;
 }
 
@@ -755,7 +756,7 @@ body {
 }
 
 .footer-icons a:hover {
-  color: var(--color-secondary);
+  color: var(--color-secondary-2);
   transform: translateY(-4px) scale(1.1);
   transition-delay: 0s;
 }

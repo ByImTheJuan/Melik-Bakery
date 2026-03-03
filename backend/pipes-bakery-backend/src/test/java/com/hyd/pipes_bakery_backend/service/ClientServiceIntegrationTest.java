@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -26,6 +28,9 @@ public class ClientServiceIntegrationTest {
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
         request.setPhoneNumber("3053466622");
+
+        AddressRequestDTO address = new AddressRequestDTO();
+        request.setAddress(address);
 
         ClientResponseDTO created = clientService.createClient(request);
 

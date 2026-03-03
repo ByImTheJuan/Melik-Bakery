@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.mapper;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
@@ -17,20 +18,19 @@ public class ClientMapper {
                                                         client.getFirstName(),
                                                         client.getLastName(), 
                                                         client.getEmail(), 
-                                                        client.getPassword(),
                                                         client.getPhoneNumber(),
                                                         addressMapper.toDto(client.getAddress()));
         return dto;
     }
 
 
+    @NonNull
     public Client toEntity(ClientRequestDTO dto) {
         Client client = new Client();
         client.setFirstName(dto.getFirstName());
         client.setLastName(dto.getLastName());
         client.setEmail(dto.getEmail());
         client.setPhoneNumber(dto.getPhoneNumber());
-        client.setPassword(dto.getPassword());
         client.setAddress(addressMapper.toEntity(dto.getAddress()));
         return client;
     }
