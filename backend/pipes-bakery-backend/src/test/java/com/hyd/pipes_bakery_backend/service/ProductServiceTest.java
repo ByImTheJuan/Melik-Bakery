@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,14 +45,16 @@ public class ProductServiceTest {
         request.setName("Baguette de masa madre");
         request.setPrice(new BigDecimal(5000));
         request.setDescription("Pan artesanal hecho con ingredientes naturales");
-        request.setIngredients("Agua, harina, masa madre, sal");
+        request.setIngredients(Arrays.asList("Agua", "harina", "masa madre", "sal"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         Product savedProduct = new Product();
         savedProduct.setId(1L);
         savedProduct.setName("Baguette de masa madre");
         savedProduct.setPrice(new BigDecimal(5000));
         savedProduct.setDescription("Pan artesanal hecho con ingredientes naturales");
-        savedProduct.setIngredients("Agua, harina, masa madre, sal");
+        savedProduct.setIngredients(Arrays.asList("Agua", "harina", "masa madre", "sal"));
+        savedProduct.setImageUrl("https://example.com/images/baguette.jpg");
 
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
@@ -64,6 +67,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(5000));
         assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
         assertThat(result.getIngredients()).isEqualTo("Agua, harina, masa madre, sal");
+        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).save(any(Product.class));
     }
@@ -79,7 +83,8 @@ public class ProductServiceTest {
         product.setName("Croissant");
         product.setPrice(new BigDecimal(3000));
         product.setDescription("Delicioso croissant francés");
-        product.setIngredients("Harina, mantequilla, azúcar, levadura, sal");
+        product.setIngredients(Arrays.asList("Harina", "mantequilla", "azúcar", "levadura", "sal"));
+        product.setImageUrl("https://example.com/images/baguette.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(product));
 
@@ -93,6 +98,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
         assertThat(result.getDescription()).isEqualTo("Delicioso croissant francés");
         assertThat(result.getIngredients()).isEqualTo("Harina, mantequilla, azúcar, levadura, sal");
+        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).findById(productId);
     }
@@ -165,14 +171,16 @@ public class ProductServiceTest {
         updatedRequest.setName("Pan de chocolate");
         updatedRequest.setPrice(new BigDecimal(4000));
         updatedRequest.setDescription("Delicioso pan relleno de chocolate");
-        updatedRequest.setIngredients("Harina, chocolate, azúcar, mantequilla, levadura, sal");
+        updatedRequest.setIngredients(Arrays.asList("Harina", "chocolate", "azúcar", "mantequilla", "levadura", "sal"));
+        updatedRequest.setImageUrl("https://example.com/images/baguette.jpg");
 
         Product existingProduct = new Product();
         existingProduct.setId(productId);
         existingProduct.setName("Pan simple");
         existingProduct.setPrice(new BigDecimal(2000));
         existingProduct.setDescription("Pan básico sin relleno");
-        existingProduct.setIngredients("Harina, agua, sal, levadura");
+        existingProduct.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
+        existingProduct.setImageUrl("https://example.com/images/cake.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(existingProduct));
         when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
@@ -186,6 +194,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(result.getDescription()).isEqualTo("Delicioso pan relleno de chocolate");
         assertThat(result.getIngredients()).isEqualTo("Harina, chocolate, azúcar, mantequilla, levadura, sal");
+        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
@@ -201,7 +210,8 @@ public class ProductServiceTest {
         updatedRequest.setName("Pan inexistente");
         updatedRequest.setPrice(new BigDecimal(0));
         updatedRequest.setDescription("Este pan no existe");
-        updatedRequest.setIngredients("N/A");
+        updatedRequest.setIngredients(Arrays.asList("N/A"));
+        updatedRequest.setImageUrl("https://example.com/images/baguette.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.empty());
 
@@ -225,14 +235,16 @@ public class ProductServiceTest {
         product1.setName("Pan francés");
         product1.setPrice(new BigDecimal(2500));
         product1.setDescription("Clásico pan francés");
-        product1.setIngredients("Harina, agua, sal, levadura");
+        product1.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
+        product1.setImageUrl("https://example.com/images/baguette.jpg");
 
         Product product2 = new Product();
         product2.setId(2L);
         product2.setName("Muffin de arándanos");
         product2.setPrice(new BigDecimal(3500));
         product2.setDescription("Muffin suave con arándanos frescos");
-        product2.setIngredients("Harina, arándanos, azúcar, mantequilla, huevos, levadura");
+        product2.setIngredients(Arrays.asList("Harina", "arándanos", "azúcar", "mantequilla", "huevos", "levadura"));
+        product2.setImageUrl("https://example.com/images/muffin.jpg");
 
         when(productRepository.findAll()).thenReturn(java.util.List.of(product1, product2));
 

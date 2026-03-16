@@ -1,20 +1,23 @@
 package com.hyd.pipes_bakery_backend.dto.product;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ProductResponseDTO {
     private Long id;
     private String name;
     private String description;
     private BigDecimal price;
-    private String ingredients;
+    private List<String> ingredients;
+    private String imageUrl;
 
-    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, String ingredients) {
+    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, List<String> ingredients, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.ingredients = ingredients;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -32,7 +35,7 @@ public class ProductResponseDTO {
         return price;
     }
 
-    public String getIngredients() {
+    public List<String> getIngredients() {
         return ingredients;
     }
 
@@ -52,7 +55,13 @@ public class ProductResponseDTO {
         this.price = price;
     }
 
-    public void setIngredients(String ingredients) {
+    public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

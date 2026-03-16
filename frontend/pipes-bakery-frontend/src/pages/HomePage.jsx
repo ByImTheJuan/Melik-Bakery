@@ -2,7 +2,8 @@ import HeroSection from "../components/home/HeroSection";
 import PhotoCarousel from "../components/home/PhotoCarousel";
 import AboutSection from "../components/home/AboutSection";
 import FinalCTASection from "../components/home/FinalCTASection";
-import Footer from "../components/home/Footer";
+import "../styles/global.css";
+import "../styles/homePage.css";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -35,7 +36,6 @@ export default function HomePage() {
 
       <AboutSection />
       <FinalCTASection />
-      <Footer />
 
     </>
   );
