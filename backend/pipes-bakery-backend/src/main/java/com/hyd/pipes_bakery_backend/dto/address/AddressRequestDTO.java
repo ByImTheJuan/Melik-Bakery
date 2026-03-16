@@ -1,6 +1,9 @@
 package com.hyd.pipes_bakery_backend.dto.address;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class AddressRequestDTO {
@@ -15,8 +18,9 @@ public class AddressRequestDTO {
     @Size(max = 100, message = "City must be at most 100 characters")
     private String city;
 
-    @NotBlank(message = "Zip code is required")
-    @Size(max = 6, min = 6, message = "Zip code must be exactly 6 characters")
+    @NotNull(message = "Zip code is required")
+    @Min(value = 100000, message = "Zip code must be exactly 6 characters")
+    @Max(value = 999999, message = "Zip code must be exactly 6 characters")
     private int zipCode;
 
     @NotBlank(message = "Country is required")

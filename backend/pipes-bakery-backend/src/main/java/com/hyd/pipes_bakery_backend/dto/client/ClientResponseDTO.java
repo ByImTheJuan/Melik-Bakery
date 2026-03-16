@@ -8,16 +8,14 @@ public class ClientResponseDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
     private String phoneNumber;
     private AddressResponseDTO address;
 
-    public ClientResponseDTO(Long id, String firstName, String lastName, String email, String password, String phoneNumber, AddressResponseDTO address) {
+    public ClientResponseDTO(Long id, String firstName, String lastName, String email, String phoneNumber, AddressResponseDTO address) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.password = password;
         this.phoneNumber = phoneNumber;
         this.address = address;
     }
@@ -36,10 +34,6 @@ public class ClientResponseDTO {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public String getPhoneNumber() {
@@ -72,9 +66,5 @@ public class ClientResponseDTO {
 
     public void setAddress(AddressResponseDTO address) {
         this.address = address;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

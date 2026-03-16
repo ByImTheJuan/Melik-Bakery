@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.repository;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import com.hyd.pipes_bakery_backend.model.Product;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -26,7 +28,7 @@ public class ProductRepositoryIntegrationTest {
         product.setName("Baguette");
         product.setPrice(new BigDecimal(3000));
         product.setDescription("Pan artesanal");
-        product.setIngredients("Harina, agua, sal");
+        product.setIngredients(Arrays.asList("Harina", "agua", "sal"));
 
         Product saved = productRepository.save(product);
 
@@ -35,6 +37,6 @@ public class ProductRepositoryIntegrationTest {
         Product found = productRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getName()).isEqualTo("Baguette");
-        assertThat(found.getPrice()).isEqualTo(3000);
+        assertThat(found.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
     }
 }

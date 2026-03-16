@@ -23,10 +23,6 @@ public class ClientRequestDTO {
     @Email(message = "Email should be valid")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
-    private String password;
-
     @Size(max = 15, message = "Phone number must be at most 15 characters")
     private String phoneNumber;
 
@@ -56,10 +52,6 @@ public class ClientRequestDTO {
         return address;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -78,9 +70,5 @@ public class ClientRequestDTO {
 
     public void setAddress(AddressRequestDTO address) {
         this.address = address;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

@@ -1,0 +1,39 @@
+:root {
+    --color-primary: #5a2d0c;
+    --color-secondary: #c68642;
+    --color-secondary-2:#A87B51;
+    --color-bg: #f8f4ef;
+    --color-bg-2: #f5e6d3;
+    --color-bg-3: #E9C99F;
+    --color-accent: #f1e3d3;
+    --color-text: #5a2d0c;
+    --color-white: #ffffff;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+
+body {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+    font-family: "tahoma";
+    color: var(--color-text);
+}

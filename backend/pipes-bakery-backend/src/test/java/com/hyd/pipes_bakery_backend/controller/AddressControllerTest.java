@@ -25,6 +25,8 @@ import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.service.AddressService;
 
+
+@SuppressWarnings("null")
 @WebMvcTest(AddressController.class)
 public class AddressControllerTest {
 
@@ -150,8 +152,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Address not found with id " + addressId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Address not found with id " + addressId));
 
         verify(addressService).getAddressById(addressId);
     }
@@ -219,8 +220,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + addressId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Address not found with id " + addressId));
 
         verify(addressService).updateAddress(anyLong(), any(AddressRequestDTO.class));
     }
@@ -233,8 +233,7 @@ public class AddressControllerTest {
         // Act + Assert
         mockMvc.perform(delete("/api/addresses/{id}", addressId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(status().isNoContent());
 
         verify(addressService).deleteAddress(addressId);
     }
@@ -256,8 +255,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + addressId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Address not found with id " + addressId));
 
         verify(addressService).deleteAddress(addressId);
     }

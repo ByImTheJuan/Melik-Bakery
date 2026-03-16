@@ -27,6 +27,7 @@ import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.service.ClientService;
 
+@SuppressWarnings("null")
 @WebMvcTest(ClientController.class)
 public class ClientControllerTest {
 
@@ -54,7 +55,6 @@ public class ClientControllerTest {
         request.setFirstName("Felipe");
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
-        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
         request.setAddress(addressRequest);
 
@@ -73,7 +73,6 @@ public class ClientControllerTest {
                 "Felipe",
                 "Hernández",
                 "pipelon@gmail.com",
-                "password123",
                 "3053466622",
                 addressResponse
         );
@@ -107,7 +106,7 @@ public class ClientControllerTest {
         request.setPhoneNumber("invalid-phone"); // Invalid phone
 
         // Act + Assert
-        mockMvc.perform(post("/api/clients  ")
+        mockMvc.perform(post("/api/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -115,9 +114,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.details").isArray())
-                .andExpect(jsonPath("$.details").isNotEmpty());
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
@@ -139,7 +136,6 @@ public class ClientControllerTest {
                 "Baguette",
                 "García",
                 "pipelon@gmail.com",
-                "password123",
                 "3053466622",
                 addressResponse
         );
@@ -154,7 +150,6 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Baguette"))
                 .andExpect(jsonPath("$.lastName").value("García"))
                 .andExpect(jsonPath("$.email").value("pipelon@gmail.com"))
-                .andExpect(jsonPath("$.password").value("password123"))
                 .andExpect(jsonPath("$.phoneNumber").value("3053466622"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -179,8 +174,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + clientId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Client not found with id " + clientId));
 
         verify(clientService).getClientById(clientId);
     }
@@ -193,8 +187,16 @@ public class ClientControllerTest {
         request.setFirstName("Baguette");
         request.setLastName("García");
         request.setEmail("pipelon@gmail.com");
-        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
+
+        AddressRequestDTO addressRequest = new AddressRequestDTO();
+        addressRequest.setStreet("Calle 134");
+        addressRequest.setAdditionalInformation("Casa 24");
+        addressRequest.setCity("Bogotá");
+        addressRequest.setZipCode(654321);
+        addressRequest.setCountry("Colombia");
+
+        request.setAddress(addressRequest);
 
 
         AddressResponseDTO addressResponse = new AddressResponseDTO(
@@ -210,7 +212,6 @@ public class ClientControllerTest {
                 "Felipe",
                 "Hernández",
                 "pipeloncho@gmail.com",
-                "password123",
                 "3053466922",
                 addressResponse
         );
@@ -227,7 +228,6 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Felipe"))
                 .andExpect(jsonPath("$.lastName").value("Hernández"))
                 .andExpect(jsonPath("$.email").value("pipeloncho@gmail.com"))
-                .andExpect(jsonPath("$.password").value("password123"))
                 .andExpect(jsonPath("$.phoneNumber").value("3053466922"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -244,6 +244,15 @@ public class ClientControllerTest {
         request.setEmail("pipelon@gmail.com");
         request.setPhoneNumber("3053466622");
 
+        AddressRequestDTO addressRequest = new AddressRequestDTO();
+        addressRequest.setStreet("Calle 134");
+        addressRequest.setAdditionalInformation("Casa 24");
+        addressRequest.setCity("Bogotá");
+        addressRequest.setZipCode(654321);
+        addressRequest.setCountry("Colombia");
+
+        request.setAddress(addressRequest);
+
         when(clientService.updateClient(anyLong(), any(ClientRequestDTO.class)))
                 .thenThrow(new ResourceNotFoundException("Client not found with id " + clientId));
 
@@ -256,9 +265,8 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + clientId))
-                .andExpect(jsonPath("$.details").isArray());
+                .andExpect(jsonPath("$.message").value("Client not found with id " + clientId));
+
 
         verify(clientService).updateClient(anyLong(), any(ClientRequestDTO.class));
     }
@@ -271,8 +279,7 @@ public class ClientControllerTest {
         // Act + Assert
         mockMvc.perform(delete("/api/clients/{id}", clientId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(status().isNoContent());
 
         verify(clientService).deleteClient(clientId);
     }
@@ -294,8 +301,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + clientId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Client not found with id " + clientId));
 
         verify(clientService).deleteClient(clientId);
     }

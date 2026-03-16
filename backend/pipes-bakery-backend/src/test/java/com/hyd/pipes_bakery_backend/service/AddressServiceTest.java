@@ -1,10 +1,10 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
+import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.model.Address;
 import com.hyd.pipes_bakery_backend.repository.AddressRepository;
 
@@ -22,9 +23,15 @@ public class AddressServiceTest {
     @Mock
     private AddressRepository addressRepository;
 
-    @InjectMocks
+    private final AddressMapper addressMapper = new AddressMapper();
+
     private AddressService addressService;
 
+    @BeforeEach
+        void setUp() {
+            addressService = new AddressService(addressRepository, addressMapper);
+        }
+    
     @SuppressWarnings("null")
     @Test
     void shouldCreateAddressSuccessfully() {

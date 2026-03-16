@@ -1,62 +1,35 @@
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useActiveSection  from "../../hooks/useActiveSection";
+import useScrollState from "../../hooks/useScrollState";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState("hero");
+  const isHome = location.pathname === "/";
+  const activeSection = useActiveSection(isHome ? ["hero", "about", "contact"] : []);
+  const scrolled = useScrollState(25);
+
 
   const goToSection = (sectionId) => {
     navigate("/", { state: { scrollTo: sectionId } });
     setMenuOpen(false);
   };
 
-  useEffect(() => {
-    const sections = ["hero", "about", "contact"];
+  const goToFooter = () => {
+    const footer = document.getElementById("contact");
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      {
-        threshold: 0.6, // importante
-        rootMargin: "-80px 0px 0px 0px" // para compensar la altura del navbar
-      }
-    );
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+    }
+  };
     
-const handleHomeClick = () => {
-    navigate("/");
-    window.scrollTo({top: 0, behavior: "smooth"});
-};
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 25) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const handleHomeClick = () => {
+      navigate("/");
+      window.scrollTo({top: 0, behavior: "smooth"});
+  };
 
   return (
     <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
@@ -67,23 +40,28 @@ const handleHomeClick = () => {
         <div className="nav-right">
           <div className={`nav-links ${menuOpen ? "open" : ""}`}>
             <button 
-              className={activeSection === "hero" ? "active" : ""}
+              className={isHome && activeSection === "hero" ? "active" : ""}
               onClick={handleHomeClick}
             >
               Inicio
             </button>
 
-            <Link to="/products">Productos</Link>
+            <Link 
+              to="/products"
+              className={location.pathname.startsWith("/products") ? "active" : ""}
+            >
+              Productos
+            </Link>
             
             <button 
-              className={activeSection === "about" ? "active" : ""}
+              className={isHome && activeSection === "about" ? "active" : ""}
               onClick={() => goToSection("about")}>
                 Quiénes somos
             </button>
 
               <button 
-                className={activeSection === "contact" ? "active" : ""}
-                onClick={() => goToSection("contact")}>
+                className={isHome && activeSection === "contact" ? "active" : ""}
+                onClick={() => goToFooter()}>
                   Contacto
               </button>
           </div>

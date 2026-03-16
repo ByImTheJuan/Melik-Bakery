@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +53,7 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public OrderResponseDTO getOrderById(Long orderId) {
+    public OrderResponseDTO getOrderById(@NonNull Long orderId) {
         
         return orderMapper.toDto(orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException(
                 "Order not found with id " + orderId
@@ -61,13 +62,13 @@ public class OrderService implements IOrderService{
 
     //Cancelling an order just changes its state
     @Override
-    public OrderResponseDTO cancelOrder(Long orderId) {
+    public OrderResponseDTO cancelOrder(@NonNull Long orderId) {
         
         return updateOrderStatus(orderId, OrderStatus.CANCELLED);
     }
 
     @Override
-    public OrderResponseDTO updateOrderStatus(Long orderId, OrderStatus status) {
+    public OrderResponseDTO updateOrderStatus(@NonNull Long orderId, OrderStatus status) {
         
         return orderRepository.findById(orderId)
                 .map(order -> {

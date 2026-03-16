@@ -11,6 +11,7 @@ import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

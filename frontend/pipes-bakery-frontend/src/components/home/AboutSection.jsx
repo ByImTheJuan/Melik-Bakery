@@ -1,7 +1,6 @@
 import useInView from "../../hooks/useInView";
 import { useEffect, useRef } from "react";
-import React from "react";
-console.log(React);
+
 
 export default function AboutSection() {
     const [ref, isVisible] = useInView();
@@ -37,14 +36,30 @@ export default function AboutSection() {
                 <div className={`about-content ${isVisible ? "show" : ""}`}>
                     <h2>Quiénes somos</h2>
                     <p>
-                        En Pipe’s Bakery creemos en el valor de lo artesanal.
-                        Cada pieza de pan es elaborada a mano, respetando los
-                        tiempos tradicionales de fermentación y utilizando
-                        ingredientes naturales de la más alta calidad.
+                        <b>Nuestra historia:</b><br />
+                        En catalán, Melic significa ombligo; sin embargo, también puede significar raíces o centro de algo. 
+                        Melik Bakery nace como un tributo a mis raíces catalanas, tomándolas como origen para compartir mis 
+                        creaciones con el público.
                     </p>
                     <p>
-                        Nuestra pasión es llevar a tu mesa el sabor auténtico
-                        de la panadería clásica, con un toque contemporáneo.
+                        Mi pasión por la cocina se desarrolló en casa, cuando horneaba ocasionalmente tortas con mi padre. 
+                        Lo que empezó como un gesto de amor hacia mis seres queridos, se transformó en un camino con el 
+                        proposito de mejorar técnicamente mis preparaciones.
+                    </p>
+                    <p>
+                        En la búsqueda del perfeccionamiento de mis productos, tomé diplomados y cursos en distintos espacios. 
+                        Asimismo, emprendí un viaje a Bruselas, donde hice una pasantía en una clásica Boulangerie et 
+                        Patisserie con un enfoque moderno.
+                    </p>
+                    <p>
+                        <b>Nuestra Filosofía:</b><br />
+                        En Melik, creemos en la Autenticidad. Cada producto que sale de nuestra cocina es el resultado de 
+                        procesos honestos y una selección minuciosa de materias primas de alta calidad. Estos dos aspectos, 
+                        nos posicionan como una marca que vende productos artesanales. No buscamos solo cocinar productos 
+                        deliciosos, sino ser el centro de tus celebraciones.
+                    </p>
+                    <p>
+                        <b>Bienvenidos al origen. Bienvenidos a Melik.</b>
                     </p>
                 </div>
 

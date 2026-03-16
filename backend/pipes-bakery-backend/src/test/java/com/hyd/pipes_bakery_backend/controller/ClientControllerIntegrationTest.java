@@ -14,12 +14,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
 public class ClientControllerIntegrationTest {
@@ -37,6 +39,15 @@ public class ClientControllerIntegrationTest {
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
         request.setPhoneNumber("3053466622");
+
+        AddressRequestDTO addressRequest = new AddressRequestDTO();
+        addressRequest.setStreet("Calle 134");
+        addressRequest.setAdditionalInformation("Casa 24");
+        addressRequest.setCity("Bogotá");
+        addressRequest.setZipCode(654321);
+        addressRequest.setCountry("Colombia");
+
+        request.setAddress(addressRequest);
 
         mockMvc.perform(post("/api/clients")
                 .contentType(MediaType.APPLICATION_JSON)

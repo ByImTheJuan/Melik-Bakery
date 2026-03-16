@@ -10,6 +10,7 @@ import com.hyd.pipes_bakery_backend.model.Client;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

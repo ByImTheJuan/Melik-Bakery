@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.controller;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,9 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 
 import jakarta.transaction.Transactional;
 
+@SuppressWarnings("null")
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
 public class ProductControllerIntegrationTest {
@@ -37,7 +39,8 @@ public class ProductControllerIntegrationTest {
         request.setName("Pan de chocolate");
         request.setPrice(new BigDecimal(4000));
         request.setDescription("Relleno de chocolate");
-        request.setIngredients("Harina, chocolate");
+        request.setIngredients(Arrays.asList("Harina", "chocolate"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,6 +53,7 @@ public class ProductControllerIntegrationTest {
             .andExpect(jsonPath("$.name").value("Pan de chocolate"))
             .andExpect(jsonPath("$.price").value(4000))
             .andExpect(jsonPath("$.description").value("Relleno de chocolate"))
-            .andExpect(jsonPath("$.ingredients").value("Harina, chocolate"));
+            .andExpect(jsonPath("$.ingredients").value("Harina, chocolate"))
+            .andExpect(jsonPath("$.imageUrl").value("https://example.com/images/baguette.jpg"));
     }
 }

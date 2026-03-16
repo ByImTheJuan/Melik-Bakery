@@ -1,9 +1,11 @@
 package com.hyd.pipes_bakery_backend.dto.product;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public class ProductRequestDTO {
@@ -16,9 +18,12 @@ public class ProductRequestDTO {
     @Min(value = 0, message = "Price must be positive")
     private BigDecimal price;
 
-    @NotBlank(message = "Ingredients are required")
-    private String ingredients;
-    
+    @NotNull
+    @NotEmpty(message = "Ingredients list cannot be empty")
+    private List<@NotBlank(message = "Elements in ingredients list cannot be blank") String> ingredients;
+
+    @NotBlank(message = "Image URL is required")
+    private String imageUrl;
 
     public String getName() {
         return name;
@@ -28,7 +33,7 @@ public class ProductRequestDTO {
         return description;
     }
 
-    public String getIngredients() {
+    public List<String> getIngredients() {
         return ingredients;
     }
 
@@ -47,7 +52,13 @@ public class ProductRequestDTO {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-    public void setIngredients(String ingredients) {
+    public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

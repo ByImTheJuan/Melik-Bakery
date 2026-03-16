@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.controller;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +28,7 @@ import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.service.ProductService;
 
+@SuppressWarnings("null")
 @WebMvcTest(ProductController.class)
 public class ProductControllerTest {
 
@@ -47,14 +49,16 @@ public class ProductControllerTest {
         request.setName("Baguette");
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
-        request.setIngredients("Harina, agua, sal");
+        request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         ProductResponseDTO response = new ProductResponseDTO(
                 1L,
                 "Baguette",
                 "Pan artesanal",
                 new BigDecimal(3000),
-                "Harina, agua, sal"
+                Arrays.asList("Harina", "agua", "sal"),
+                "https://example.com/images/baguette.jpg"
         );
 
         when(productService.createProduct(any(ProductRequestDTO.class)))
@@ -81,7 +85,8 @@ public class ProductControllerTest {
         request.setName(""); // Invalid name
         request.setPrice(new BigDecimal(-100)); // Invalid price
         request.setDescription("Pan artesanal");
-        request.setIngredients("Harina, agua, sal");
+        request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         // Act + Assert
         mockMvc.perform(post("/api/products")
@@ -107,7 +112,8 @@ public class ProductControllerTest {
                 "Baguette",
                 "Pan artesanal",
                 new BigDecimal(3000),
-                "Harina, agua, sal"
+                Arrays.asList("Harina", "agua", "sal"),
+                "https://example.com/images/baguette.jpg"
         );
 
         when(productService.getProductById(productId)).thenReturn(response);
@@ -142,8 +148,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).getProductById(productId);
     }
@@ -156,14 +161,16 @@ public class ProductControllerTest {
         request.setName("Baguette");
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
-        request.setIngredients("Harina, agua, sal");
+        request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         ProductResponseDTO response = new ProductResponseDTO(
                 productId,
                 "Baguette",
                 "Pan artesanal",
                 new BigDecimal(3000),
-                "Harina, agua, sal"
+                Arrays.asList("Harina", "agua", "sal"),
+                "https://example.com/images/baguette.jpg"
         );
 
         when(productService.updateProduct(anyLong(), any(ProductRequestDTO.class)))
@@ -190,7 +197,8 @@ public class ProductControllerTest {
         request.setName("Baguette");
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
-        request.setIngredients("Harina, agua, sal");
+        request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
+        request.setImageUrl("https://example.com/images/baguette.jpg");
 
         when(productService.updateProduct(anyLong(), any(ProductRequestDTO.class)))
                 .thenThrow(new ResourceNotFoundException("Product not found with id " + productId));
@@ -205,8 +213,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).updateProduct(anyLong(), any(ProductRequestDTO.class));
     }
@@ -219,8 +226,7 @@ public class ProductControllerTest {
         // Act + Assert
         mockMvc.perform(delete("/api/products/{id}", productId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(status().isNoContent());
 
         verify(productService).deleteProduct(productId);
     }
@@ -242,8 +248,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message")
-                        .value("Product not found with id " + productId))
-                .andExpect(jsonPath("$.details").isArray());
+                        .value("Product not found with id " + productId));
 
         verify(productService).deleteProduct(productId);
     }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class CartItem {
 
-    private Long productId;
+    private long productId;
 
     private String productName;
 
@@ -23,7 +23,7 @@ public class CartItem {
         this.unitPrice = unitPrice;
     }
 
-    public Long getProductId() {
+    public long getProductId() {
         return productId;
     }
     public String getProductName() {

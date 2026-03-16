@@ -1,11 +1,17 @@
 package com.hyd.pipes_bakery_backend.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,16 +25,23 @@ public class Product {
     private String name;
     private BigDecimal price;
     private String description;
-    private String ingredients;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "product_ingredients", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "ingredient")
+    private List<String> ingredients;
+    
+    private String imageUrl;
 
     public Product() {
     }
     
-    public Product(String name, BigDecimal price, String description, String ingredients) {
+    public Product(String name, BigDecimal price, String description, List<String> ingredients, String imageUrl) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.ingredients = ingredients;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -43,7 +56,7 @@ public class Product {
         return description;
     }
 
-    public String getIngredients() {
+    public List<String> getIngredients() {
         return ingredients;
     }
 
@@ -67,7 +80,19 @@ public class Product {
         this.description = description;
     }   
 
-    public void setIngredients(String ingredients) {
+    public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getIngredientsAsString() {
+        return String.join(", ", ingredients);
     }
 }
