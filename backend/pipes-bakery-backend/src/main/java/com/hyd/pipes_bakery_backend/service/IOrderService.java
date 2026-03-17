@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.lang.NonNull;
 
@@ -18,5 +19,5 @@ public interface IOrderService {
 
     OrderResponseDTO updateOrderStatus(@NonNull Long orderId, OrderStatus status);
 
-    OrderResponseDTO checkout(Long clientId, CheckoutOrderRequestDTO request);
+    OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request);
 }

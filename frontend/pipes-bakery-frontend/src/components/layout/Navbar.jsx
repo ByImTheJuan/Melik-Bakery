@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useCart } from "../../context/CartContext";
+import { FaShoppingCart } from "react-icons/fa";
 import useActiveSection  from "../../hooks/useActiveSection";
 import useScrollState from "../../hooks/useScrollState";
 
@@ -11,6 +13,8 @@ export default function Navbar() {
   const isHome = location.pathname === "/";
   const activeSection = useActiveSection(isHome ? ["hero", "about", "contact"] : []);
   const scrolled = useScrollState(25);
+  const { cart } = useCart();
+  const totalItems = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
 
   const goToSection = (sectionId) => {
@@ -59,11 +63,21 @@ export default function Navbar() {
                 Quiénes somos
             </button>
 
-              <button 
-                className={isHome && activeSection === "contact" ? "active" : ""}
-                onClick={() => goToFooter()}>
-                  Contacto
-              </button>
+            <button 
+              className={isHome && activeSection === "contact" ? "active" : ""}
+              onClick={() => goToFooter()}>
+                Contacto
+            </button>
+
+            <div className="cart-button">
+              <FaShoppingCart />
+              
+              {totalItems > 0 && (
+                <span className="cart-badge">
+                  {totalItems}
+                </span>
+              )}
+            </div>
           </div>
           
           <button

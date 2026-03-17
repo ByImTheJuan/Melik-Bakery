@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.springframework.lang.NonNull ;
 
@@ -9,15 +10,17 @@ import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 
 public interface IShoppingCartService {
 
-    ShoppingCartResponseDTO getCartById(Long cartId);
+    ShoppingCartResponseDTO getCartById(UUID cartId);
 
-    ShoppingCartResponseDTO addItem(Long cartId, @NonNull AddCartItemRequestDTO dto);
+    ShoppingCartResponseDTO createCart();
 
-    ShoppingCartResponseDTO updateItemQuantity(Long cartId, Long productId, int quantity);
+    ShoppingCartResponseDTO addItem(UUID cartId, @NonNull AddCartItemRequestDTO dto);
 
-    void removeItem(Long cartId, Long productId);
+    ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, int quantity);
 
-    void clearCart(Long cartId);
+    void removeItem(UUID cartId, Long productId);
 
-    BigDecimal calculateTotal(Long cartId);
+    void clearCart(UUID cartId);
+
+    BigDecimal calculateTotal(UUID cartId);
 }

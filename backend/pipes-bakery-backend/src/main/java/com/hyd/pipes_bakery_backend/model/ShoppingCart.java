@@ -3,25 +3,26 @@ package com.hyd.pipes_bakery_backend.model;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 public class ShoppingCart {
 
-    private Long cartId;
+    private UUID cartId;
     private Set<CartItem> items;
 
 
     public ShoppingCart() {}
 
-    public ShoppingCart(Long cartId) {
+    public ShoppingCart(UUID cartId) {
         this.cartId = cartId;
         this.items = new HashSet<>();
     }
 
 
-    public Long getCartId() {
+    public UUID getCartId() {
         return cartId;
     }
 
@@ -83,7 +84,7 @@ public class ShoppingCart {
         items.clear();
     }
 
-    public void setcartId(Long cartId) {
+    public void setcartId(UUID cartId) {
         this.cartId = cartId;
     }
     public void setItems(Set<CartItem> items) {

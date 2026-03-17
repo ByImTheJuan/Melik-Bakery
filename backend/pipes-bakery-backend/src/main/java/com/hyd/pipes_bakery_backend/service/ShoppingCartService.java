@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,19 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO getCartById(Long cartId) {
+    public ShoppingCartResponseDTO getCartById(UUID cartId) {
         ShoppingCart cart = cartStorage.getCart(cartId);
         return shoppingCartMapper.toDto(cart);
     }
 
     @Override
-    public ShoppingCartResponseDTO addItem(Long cartId, @NonNull AddCartItemRequestDTO dto) {
+    public ShoppingCartResponseDTO createCart() {
+        ShoppingCart cart = cartStorage.createCart();
+        return shoppingCartMapper.toDto(cart);
+    }
+
+    @Override
+    public ShoppingCartResponseDTO addItem(UUID cartId, @NonNull AddCartItemRequestDTO dto) {
 
         ShoppingCart cart = cartStorage.getCart(cartId);
 
@@ -52,7 +59,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO updateItemQuantity(Long cartId, Long productId, int quantity) {
+    public ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, int quantity) {
         ShoppingCart cart = cartStorage.getCart(cartId);
         cart.updateItemQuantity(productId, quantity);
         cartStorage.saveCart(cartId, cart);
@@ -60,19 +67,19 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public void removeItem(Long cartId, Long productId) {
+    public void removeItem(UUID cartId, Long productId) {
         ShoppingCart cart = cartStorage.getCart(cartId);
         cart.removeItem(productId);
         cartStorage.saveCart(cartId, cart);
     }
 
     @Override
-    public void clearCart(Long cartId) {
+    public void clearCart(UUID cartId) {
         cartStorage.clearCart(cartId);
     }
 
     @Override
-    public BigDecimal calculateTotal(Long cartId) {
+    public BigDecimal calculateTotal(UUID cartId) {
         ShoppingCart cart = cartStorage.getCart(cartId);
         return cart.getTotalPrice();
     }

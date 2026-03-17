@@ -1,0 +1,73 @@
+import { createContext, useContext, useEffect, useState } from "react";
+
+import { getCart, addItem } from "../services/cartService";
+import { ensureCartId } from "../services/cartStorage";
+
+
+const CartContext = createContext();
+
+
+export function CartProvider({ children }) {
+  const [cartId, setCartId] = useState(null);
+  const [cart, setCart] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+
+  // Inicializar carrito
+  useEffect(() => {
+    async function init() {
+      try {
+        const id = await ensureCartId();
+        setCartId(id);
+
+        const data = await getCart(id);
+        setCart(data);
+      } catch (err) {
+        console.error("Error initializing cart", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    init();
+  }, []);
+
+
+  // Recargar carrito
+  async function loadCart() {
+    if (!cartId) return;
+
+    const data = await getCart(cartId);
+    setCart(data);
+  }
+
+
+  // Añadir item
+  async function addToCart(productId, quantity) {
+    if (!cartId) return;
+
+    const data = await addItem(cartId, productId, quantity);
+    setCart(data);
+  }
+
+
+  const value = {
+    cartId,
+    cart,
+    loading,
+    loadCart,
+    addToCart,
+  };
+
+
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+
+export function useCart() {
+  return useContext(CartContext);
+}

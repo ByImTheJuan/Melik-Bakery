@@ -3,6 +3,7 @@ import { useProduct } from "../hooks/useProduct";
 import { formatCOP } from "../utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAddToCart } from "../hooks/useAddToCart";
 import "../styles/global.css";
 import "../styles/productDetailPage.css";
 
@@ -11,6 +12,7 @@ function ProductDetailPage() {
   const { product, status, errorMessage } = useProduct(id);
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useAddToCart();
 
   const increaseQty = () => {
     setQuantity((prev) => prev + 1);
@@ -94,7 +96,7 @@ function ProductDetailPage() {
               <input className="qty-value" type="number" inputMode="numeric" min="1" value={quantity} onChange={handleChange} onKeyDown={handleKeyDown}/>
               <button className="qty-btn" onClick={increaseQty}>+</button>
             </div>
-            <button className="product-details-button">Añadir al carrito</button>
+            <button className="product-details-button" onClick={() => addToCart(product.id, quantity)}>Añadir al carrito</button>
           </div>
         </div>
       </div>
