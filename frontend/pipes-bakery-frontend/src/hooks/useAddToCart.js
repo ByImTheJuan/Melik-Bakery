@@ -1,4 +1,5 @@
 import { useCart } from "../context/CartContext";
+import { toast } from "react-toastify";
 
 
 export function useAddToCart() {
@@ -11,10 +12,11 @@ export function useAddToCart() {
     try {
 
       await addToCart(productId, quantity);
+      toast.success("Producto añadido al carrito");
 
     } catch (err) {
 
-      console.error("Error adding to cart", err);
+      toast.error("Error al añadir producto al carrito");
 
     }
 

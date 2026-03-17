@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { getCart, addItem } from "../services/cartService";
+import { getCart, addItem, removeItem,  updateItemQuantity } from "../services/cartService";
 import { ensureCartId } from "../services/cartStorage";
+
 
 
 const CartContext = createContext();
@@ -50,6 +51,23 @@ export function CartProvider({ children }) {
     setCart(data);
   }
 
+  // Eliminar item
+  async function removeFromCart(productId) {
+
+    if (!cartId) return;
+
+    await removeItem(cartId, productId);
+
+    loadCart();
+  }
+
+  // Actualizar cantidad de item
+  async function updateQuantity(productId, quantity) {
+    if (!cartId) return;
+
+    const data = await updateItemQuantity(cartId, productId, quantity);
+    setCart(data);
+  }
 
   const value = {
     cartId,
@@ -57,6 +75,8 @@ export function CartProvider({ children }) {
     loading,
     loadCart,
     addToCart,
+    removeFromCart,
+    updateQuantity,
   };
 
 

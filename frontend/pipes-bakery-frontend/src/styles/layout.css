@@ -6,6 +6,8 @@
 
 .layout main {
   flex: 1;
+  min-height: calc(100vh - 5rem);
+  padding-bottom: 2rem;
 }
 
 /*-----------------------------------------NAVBAR-----------------------------------------------------------------------------*/
@@ -68,7 +70,8 @@
 }
 
 .nav-links a::after,
-.nav-links button::after {
+.nav-links button::after,
+.cart-button::after {
     content: "";
     position: absolute;
     left: 0;
@@ -80,17 +83,14 @@
 }
 
 .nav-links a:hover::after,
-.nav-links button:hover::after {
+.nav-links button:hover::after,
+.cart-button:hover::after {
     width: 100%;
 }
 
 .nav-links button.active,
-.nav-links a.active {
-  color: var(--color-secondary-2);
-}
-
-.nav-links button.active,
-.nav-links a.active {
+.nav-links a.active,
+.cart-button.active {
   color: var(--color-secondary-2);
 }
 
@@ -175,21 +175,46 @@
   display: flex;
   position: relative;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 1.1rem;
+  height: 100%;
+}
+
+.cart-button svg {
+  position: block;
 }
 
 .cart-badge {
   position: absolute;
   top: -8px;
   right: -12px;
-
   background: var(--color-secondary-2);
   color: white;
-
   font-size: 12px;
+  font-weight: 600;
   border-radius: 50%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
   padding: 2px 6px;
+  animation: badgePop 0.3s ease;
+}
+
+.pop {
+  animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.6);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 
@@ -290,6 +315,10 @@
 }
 
 @media (max-width: 768px) {
+  .layout main {
+    min-height: calc(100vh - 5rem);
+  }
+  
   .footer-icons {
     gap: 1.5rem;
     font-size: 1.6rem;

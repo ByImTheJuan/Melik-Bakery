@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +18,7 @@ import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.shoppingCart.UpdateCartItemQuantityRequestDTO;
 import com.hyd.pipes_bakery_backend.service.OrderService;
 import com.hyd.pipes_bakery_backend.service.ShoppingCartService;
 
@@ -56,6 +58,18 @@ public class ShoppingCartController {
 
         return cartService.addItem(cartId, request);
     }
+
+    //PUT /api/cart/{cartId}/items/{productId}
+    @PutMapping("/{cartId}/items/{productId}") 
+    @ResponseStatus(HttpStatus.OK)
+    public ShoppingCartResponseDTO updateItemQuantity(
+            @PathVariable UUID cartId,
+            @PathVariable Long productId,
+            @RequestBody UpdateCartItemQuantityRequestDTO quantity) {
+
+        return cartService.updateItemQuantity(cartId, productId, quantity);
+    }
+
 
     //CHECKOUT /api/cart/{cartId}/checkout
     @PostMapping("/{cartId}/checkout")

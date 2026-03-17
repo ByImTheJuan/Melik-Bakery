@@ -24,6 +24,14 @@ export async function removeItem(cartId, productId) {
   return await response.data;
 }
 
+export async function updateItemQuantity(cartId, productId, quantity) {
+  const response = await apiClient.put(`/cart/${cartId}/items/${productId}`, {
+    productId,
+    quantity
+  });
+  return await response.data;
+}
+
 export async function clearCart(cartId) {
   const response = await apiClient.delete(`/cart/${cartId}`);
   return await response.data;

@@ -28,7 +28,12 @@
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
+
+  .products-container {
+    padding: 0.5rem 2rem 10rem 2rem;
+  }
+
   .products-grid {
     grid-template-columns: 1fr 1fr;
     gap: 5%;

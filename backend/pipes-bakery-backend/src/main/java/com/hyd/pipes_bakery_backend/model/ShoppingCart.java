@@ -1,24 +1,25 @@
 package com.hyd.pipes_bakery_backend.model;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 
 
 public class ShoppingCart {
 
     private UUID cartId;
-    private Set<CartItem> items;
+    private List<CartItem> items;
 
 
     public ShoppingCart() {}
 
     public ShoppingCart(UUID cartId) {
         this.cartId = cartId;
-        this.items = new HashSet<>();
+        this.items = new ArrayList<>();
     }
 
 
@@ -26,7 +27,7 @@ public class ShoppingCart {
         return cartId;
     }
 
-    public Set<CartItem> getItems() {
+    public List<CartItem> getItems() {
         return items;
     }
 
@@ -57,10 +58,10 @@ public class ShoppingCart {
 
     public void removeItem(long productId) {
         CartItem itemToRemove = getItemByProductId(productId);
-        if (itemToRemove.getQuantity() == 1) {
+        if (itemToRemove != null) {
             items.remove(itemToRemove);
         } else {
-            itemToRemove.setQuantity(itemToRemove.getQuantity() - 1);
+            throw new ResourceNotFoundException("CartItem with productId " + productId + " not found in cart");
         }
     }
 
@@ -87,7 +88,7 @@ public class ShoppingCart {
     public void setcartId(UUID cartId) {
         this.cartId = cartId;
     }
-    public void setItems(Set<CartItem> items) {
+    public void setItems(List<CartItem> items) {
         this.items = items;
     }
 }

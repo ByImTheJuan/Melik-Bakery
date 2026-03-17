@@ -18,7 +18,11 @@ function ProductCard({ product }) {
           <span className="product-price">${formatCOP(product.price)}</span>
         </div>
         <p className="product-description">{product.description}</p>
-        <button className="product-button" onClick={() => addToCart(product.id, 1)}>Añadir al carrito</button>
+        <button className="product-button" onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          addToCart(product.id, 1);
+        }}>Añadir al carrito</button>
       </div>
     </Link>
   );

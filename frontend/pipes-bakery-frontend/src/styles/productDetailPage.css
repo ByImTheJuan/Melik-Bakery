@@ -13,7 +13,7 @@ main {
 
 .product-details-page {
   max-width: 1100px;
-  margin: 2rem auto;
+  margin: 2rem auto 4rem;
 }
 
 .product-details-container {
@@ -202,7 +202,7 @@ main {
   }
   
 .product-details-button {
-  margin-top: auto; /* 👈 empuja el botón abajo */
+  margin-top: auto; /* empuja el botón abajo */
 
   flex: 1;
   padding: 1rem;
@@ -239,6 +239,10 @@ main {
 ========================= */
 
 @media (max-width: 900px) {
+
+  .product-details-page {
+    margin: 2rem 1rem 0;
+  }
 
   .product-details-container {
     flex-direction: column;
