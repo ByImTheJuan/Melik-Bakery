@@ -96,7 +96,12 @@ function ProductDetailPage() {
               <input className="qty-value" type="number" inputMode="numeric" min="1" value={quantity} onChange={handleChange} onKeyDown={handleKeyDown}/>
               <button className="qty-btn" onClick={increaseQty}>+</button>
             </div>
-            <button className="product-details-button" onClick={() => addToCart(product.id, quantity)}>Añadir al carrito</button>
+            <button className="product-details-button" 
+              onClick={() => {
+              addToCart(product.id, quantity);
+              navigate("/products")}}>
+                Añadir al carrito
+            </button>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull ;
 
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.shoppingCart.UpdateCartItemQuantityRequestDTO;
 
 public interface IShoppingCartService {
 
@@ -16,7 +17,7 @@ public interface IShoppingCartService {
 
     ShoppingCartResponseDTO addItem(UUID cartId, @NonNull AddCartItemRequestDTO dto);
 
-    ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, int quantity);
+    ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, UpdateCartItemQuantityRequestDTO quantity);
 
     void removeItem(UUID cartId, Long productId);
 

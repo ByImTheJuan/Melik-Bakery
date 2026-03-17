@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.shoppingCart.UpdateCartItemQuantityRequestDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.ShoppingCartMapper;
 import com.hyd.pipes_bakery_backend.model.CartItem;
@@ -49,7 +50,7 @@ public class ShoppingCartService implements IShoppingCartService {
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        CartItem item = new CartItem(product.getId(), product.getName(), dto.getQuantity(), product.getPrice()); // PRECIO CONGELADO AQUÍ
+        CartItem item = new CartItem(product.getId(), product.getName(), dto.getQuantity(), product.getPrice(), product.getImageUrl()); // PRECIO CONGELADO AQUÍ
 
         cart.addItem(item);
 
@@ -59,9 +60,9 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, int quantity) {
+    public ShoppingCartResponseDTO updateItemQuantity(UUID cartId, Long productId, UpdateCartItemQuantityRequestDTO dto) {
         ShoppingCart cart = cartStorage.getCart(cartId);
-        cart.updateItemQuantity(productId, quantity);
+        cart.updateItemQuantity(productId, dto.getQuantity());
         cartStorage.saveCart(cartId, cart);
         return shoppingCartMapper.toDto(cart);
     }
