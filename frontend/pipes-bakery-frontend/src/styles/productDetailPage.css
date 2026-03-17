@@ -193,7 +193,6 @@ main {
     font-weight: 600;
     border: none;
     outline: none;
-    background: var(--color-bg);
   }
   
   .qty-value::-webkit-outer-spin-button,

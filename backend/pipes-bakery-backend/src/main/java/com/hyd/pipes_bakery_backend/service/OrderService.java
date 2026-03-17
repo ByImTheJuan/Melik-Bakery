@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class OrderService implements IOrderService{
 
     @Transactional
     @Override
-    public OrderResponseDTO checkout(Long cartId, CheckoutOrderRequestDTO request){
+    public OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request){
 
         validateShippingAddress(request.getShippingAddress());
 

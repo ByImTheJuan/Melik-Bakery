@@ -1,5 +1,7 @@
 package com.hyd.pipes_bakery_backend.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,9 +34,16 @@ public class ShoppingCartController {
         this.orderService = orderService;
     }
 
+    //POST /api/cart
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ShoppingCartResponseDTO createCart() {
+        return cartService.createCart();
+    }
+
     //GET /api/cart/{cartId}
     @GetMapping("/{cartId}")
-    public ShoppingCartResponseDTO getCart(@PathVariable Long cartId) {
+    public ShoppingCartResponseDTO getCart(@PathVariable UUID cartId) {
         return cartService.getCartById(cartId);
     }
 
@@ -42,7 +51,7 @@ public class ShoppingCartController {
     @PostMapping("/{cartId}/items")
     @ResponseStatus(HttpStatus.OK)
     public ShoppingCartResponseDTO addItem(
-            @PathVariable Long cartId,
+            @PathVariable UUID cartId,
             @NonNull @RequestBody @Valid AddCartItemRequestDTO request) {
 
         return cartService.addItem(cartId, request);
@@ -52,7 +61,7 @@ public class ShoppingCartController {
     @PostMapping("/{cartId}/checkout")
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponseDTO checkout(
-            @PathVariable Long cartId,
+            @PathVariable UUID cartId,
             @RequestBody @Valid CheckoutOrderRequestDTO dto)   {
 
         return orderService.checkout(cartId, dto);
@@ -62,7 +71,7 @@ public class ShoppingCartController {
     @DeleteMapping("/{cartId}/items/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeItem(
-            @PathVariable Long cartId,
+            @PathVariable UUID cartId,
             @PathVariable Long productId) {
 
         cartService.removeItem(cartId, productId);
@@ -71,7 +80,7 @@ public class ShoppingCartController {
     //DELETE /api/cart/{cartId}
     @DeleteMapping("/{cartId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(@PathVariable Long cartId) {
+    public void clearCart(@PathVariable UUID cartId) {
         cartService.clearCart(cartId);
     }
 }

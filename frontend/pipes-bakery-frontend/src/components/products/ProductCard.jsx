@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import "../../styles/global.css";
+import { useAddToCart } from "../../hooks/useAddToCart";
 import { formatCOP } from "../../utils/formatPrice";
 
 
 function ProductCard({ product }) {
+  const { addToCart } = useAddToCart();
+
   return (
     <Link to={`/products/${product.id}`} className="product-card">
       <div className="product-image">
@@ -15,7 +18,7 @@ function ProductCard({ product }) {
           <span className="product-price">${formatCOP(product.price)}</span>
         </div>
         <p className="product-description">{product.description}</p>
-        <button className="product-button">Añadir al carrito</button>
+        <button className="product-button" onClick={() => addToCart(product.id, 1)}>Añadir al carrito</button>
       </div>
     </Link>
   );
