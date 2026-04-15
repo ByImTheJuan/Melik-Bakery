@@ -53,7 +53,9 @@ public class ProductControllerIntegrationTest {
             .andExpect(jsonPath("$.name").value("Pan de chocolate"))
             .andExpect(jsonPath("$.price").value(4000))
             .andExpect(jsonPath("$.description").value("Relleno de chocolate"))
-            .andExpect(jsonPath("$.ingredients").value("Harina, chocolate"))
+            .andExpect(jsonPath("$.ingredients").isArray())
+            .andExpect(jsonPath("$.ingredients[0]").value("Harina"))
+            .andExpect(jsonPath("$.ingredients[1]").value("chocolate"))
             .andExpect(jsonPath("$.imageUrl").value("https://example.com/images/baguette.jpg"));
     }
 }

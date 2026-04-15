@@ -41,6 +41,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
         Product product = productMapper.toEntity(dto);
+        System.out.println(product.getIngredients());
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
@@ -62,6 +63,7 @@ public class ProductService implements IProductService {
                     product.setPrice(updatedProduct.getPrice());
                     product.setDescription(updatedProduct.getDescription());
                     product.setIngredients(updatedProduct.getIngredients());
+                    product.setImageUrl(updatedProduct.getImageUrl());
                     return productRepository.save(product);
                 })
                 .map(productMapper::toDto)
