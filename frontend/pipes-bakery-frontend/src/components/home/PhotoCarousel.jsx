@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 
 const images = [
   "/images/homePageCarousel1.jpg",
-  "/images/homePageCarousel2.jpg",
-  "/images/homePageCarousel3.jpg"
+  "/images/homePageCarousel2.png",
+  "/images/homePageCarousel3.jfif",
+  "/images/homePageCarousel4.png",
+  "/images/homePageCarousel5.jpeg"
 ];
 
 export default function PhotoCarousel() {

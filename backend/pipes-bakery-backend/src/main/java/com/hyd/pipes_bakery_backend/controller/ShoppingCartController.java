@@ -40,6 +40,7 @@ public class ShoppingCartController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShoppingCartResponseDTO createCart() {
+        System.out.println("Creating new cart (controller)...");
         return cartService.createCart();
     }
 

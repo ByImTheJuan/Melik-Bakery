@@ -66,7 +66,7 @@ public class ProductServiceTest {
         assertThat(result.getName()).isEqualTo("Baguette de masa madre");
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(5000));
         assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
-        assertThat(result.getIngredients()).isEqualTo("Agua, harina, masa madre, sal");
+        assertThat(result.getIngredients()).containsExactly("Agua", "harina", "masa madre", "sal");
         assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).save(any(Product.class));
@@ -97,7 +97,7 @@ public class ProductServiceTest {
         assertThat(result.getName()).isEqualTo("Croissant");
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
         assertThat(result.getDescription()).isEqualTo("Delicioso croissant francés");
-        assertThat(result.getIngredients()).isEqualTo("Harina, mantequilla, azúcar, levadura, sal");
+        assertThat(result.getIngredients()).containsExactly("Harina", "mantequilla", "azúcar", "levadura", "sal");
         assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).findById(productId);
@@ -193,7 +193,7 @@ public class ProductServiceTest {
         assertThat(result.getName()).isEqualTo("Pan de chocolate");
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(result.getDescription()).isEqualTo("Delicioso pan relleno de chocolate");
-        assertThat(result.getIngredients()).isEqualTo("Harina, chocolate, azúcar, mantequilla, levadura, sal");
+        assertThat(result.getIngredients()).containsExactly("Harina", "chocolate", "azúcar", "mantequilla", "levadura", "sal");
         assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
 
         verify(productRepository).findById(productId);

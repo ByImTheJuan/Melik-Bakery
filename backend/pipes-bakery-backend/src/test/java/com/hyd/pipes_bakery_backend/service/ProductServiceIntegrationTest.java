@@ -40,7 +40,7 @@ public class ProductServiceIntegrationTest {
         assertThat(found.getName()).isEqualTo("Pan de chocolate");
         assertThat(found.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(found.getDescription()).isEqualTo("Relleno de chocolate");
-        assertThat(found.getIngredients()).isEqualTo(Arrays.asList("Harina", "agua", "sal"));
+        assertThat(found.getIngredients()).containsExactly("Harina", "agua", "sal");
         assertThat(found.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
     }
 }
