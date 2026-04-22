@@ -19,10 +19,11 @@ export function CartProvider({ children }) {
     async function init() {
       try {
         const id = await ensureCartId();
-        setCartId(id);
-
         const data = await getCart(id);
+
+        setCartId(id);
         setCart(data);
+
       } catch (err) {
         console.error("Error initializing cart", err);
       } finally {
