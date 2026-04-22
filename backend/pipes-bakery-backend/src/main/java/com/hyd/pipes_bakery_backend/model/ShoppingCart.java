@@ -13,6 +13,9 @@ public class ShoppingCart {
 
     private UUID cartId;
     private List<CartItem> items;
+    private final BigDecimal shippingCost = new BigDecimal("10000");
+    private BigDecimal itemsTotal;
+    private BigDecimal totalPrice;
 
 
     public ShoppingCart() {}
@@ -20,6 +23,7 @@ public class ShoppingCart {
     public ShoppingCart(UUID cartId) {
         this.cartId = cartId;
         this.items = new ArrayList<>();
+        recalculateTotals();
     }
 
 
@@ -43,6 +47,7 @@ public class ShoppingCart {
         } else {
             items.add(newItem);
         }
+        recalculateTotals();
     }
 
     public CartItem getItemByProductId(long productId) {
@@ -63,6 +68,7 @@ public class ShoppingCart {
         } else {
             throw new ResourceNotFoundException("CartItem with productId " + productId + " not found in cart");
         }
+        recalculateTotals();
     }
 
     public void updateItemQuantity(long productId, int quantity) {
@@ -70,19 +76,12 @@ public class ShoppingCart {
         if (item != null) {
             item.setQuantity(quantity);
         }
-    }
-
-    @JsonIgnore
-    public BigDecimal getTotalPrice() {
-        BigDecimal total = new BigDecimal(0);
-        for (CartItem item : items) {
-            total = item.getTotalPrice().add(total);
-        }
-        return total;
+        recalculateTotals();
     }
 
     public void clearCart() {
         items.clear();
+        recalculateTotals();
     }
 
     public void setcartId(UUID cartId) {
@@ -90,5 +89,44 @@ public class ShoppingCart {
     }
     public void setItems(List<CartItem> items) {
         this.items = items;
+        recalculateTotals();
+    }
+
+    public BigDecimal getShippingCost() {
+        return shippingCost;
+    }
+
+    public BigDecimal getItemsTotal() {
+        return itemsTotal;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    private void recalculateTotals() {
+        this.itemsTotal = calculateItemsTotal();
+        this.totalPrice = calculateTotalPrice();
+    }
+
+    private BigDecimal calculateItemsTotal() {
+        BigDecimal total = BigDecimal.ZERO;
+
+        if (items == null || items.isEmpty()) {
+            return total;
+        }
+
+        for (CartItem item : items) {
+            if (item != null) {
+                total = total.add(item.getTotalPrice());
+            }
+        }
+
+        return total;
+    }
+
+    private BigDecimal calculateTotalPrice() {
+        return getItemsTotal().add(getShippingCost());
     }
 }
+

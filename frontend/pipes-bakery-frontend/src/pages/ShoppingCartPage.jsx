@@ -1,5 +1,6 @@
 import { useCart } from "../context/CartContext";
 import { formatCOP } from "../utils/formatPrice";
+import { useNavigate } from "react-router-dom";
 import CartItemCard from "../components/shoppingCart/CartItemCard";
 
 import "../styles/global.css";
@@ -7,6 +8,7 @@ import "../styles/shoppingCartPage.css";
 
 function ShoppingCartPage() {
 
+  const navigate = useNavigate();
   const { cart, loading } = useCart();
   const total =
     cart?.items?.reduce(
@@ -64,8 +66,9 @@ function ShoppingCartPage() {
         Total: ${formatCOP(total)}
         </div>
 
-        <button className="cart-checkout-button">
-        Proceder al pago
+        <button className="cart-checkout-button"
+            onClick={() => navigate(`/checkout/${cart?.cartId}`)}>
+        Proceder al checkout
         </button>
 
       </div>

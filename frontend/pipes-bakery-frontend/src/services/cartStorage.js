@@ -1,4 +1,4 @@
-import { createCart } from "./cartService";
+import { createCart, getCart } from "./cartService";
 
 const CART_ID_KEY = "cartId";
 
@@ -21,7 +21,13 @@ export async function ensureCartId() {
   let cartId = getCartId();
 
   if (cartId) {
-    return cartId;
+    const existingCart = await getCart(cartId);
+
+    if (existingCart) {
+      return cartId;
+    }
+
+    clearCartId();
   }
 
   const cart = await createCart();
