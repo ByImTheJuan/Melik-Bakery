@@ -4,20 +4,23 @@ package com.hyd.pipes_bakery_backend.dto.order;
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class CheckoutOrderRequestDTO {
 
-    @NotNull(message = "Client First Name is required")
+    @NotBlank(message = "Client first name is required")
     private String clientFirstName;
 
-    @NotNull(message = "Client Last Name is required")
+    @NotBlank(message = "Client last name is required")
     private String clientLastName;
 
-    @NotNull(message = "Client Email is required")
+    @NotBlank(message = "Client email is required")
+    @Email(message = "Client email must be valid")
     private String clientEmail;
 
-    @NotNull(message = "Client Phone Number is required")
+    @NotBlank(message = "Client phone number is required")
     private String clientPhoneNumber;
 
     @NotNull(message = "Shipping address is required")

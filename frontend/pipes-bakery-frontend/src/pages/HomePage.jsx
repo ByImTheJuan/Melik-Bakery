@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import HeroSection from "../components/home/HeroSection";
 import PhotoCarousel from "../components/home/PhotoCarousel";
@@ -12,6 +13,7 @@ import "../styles/homePage.css";
 export default function HomePage() {
   const location = useLocation();
   const navigate = useNavigate();
+  useDocumentTitle("Inicio");
 
   useEffect(() => {
     if (location.state?.scrollTo) {

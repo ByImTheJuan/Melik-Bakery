@@ -212,6 +212,20 @@
   background: rgba(166, 61, 47, 0.08);
 }
 
+.error strong {
+  display: block;
+  margin-bottom: 0.55rem;
+}
+
+.error-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.error-list li + li {
+  margin-top: 0.35rem;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .order-container {

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { getCart, addItem, removeItem,  updateItemQuantity } from "../services/cartService";
-import { ensureCartId } from "../services/cartStorage";
+import { getCart, addItem, removeItem, updateItemQuantity } from "../services/cartService";
+import { clearCartId, ensureCartId } from "../services/cartStorage";
 
 
 
@@ -70,6 +70,16 @@ export function CartProvider({ children }) {
     setCart(data);
   }
 
+  async function clearCart() {
+    clearCartId();
+
+    const newCartId = await ensureCartId();
+    const newCart = await getCart(newCartId);
+
+    setCartId(newCartId);
+    setCart(newCart);
+  }
+
   const value = {
     cartId,
     cart,
@@ -78,6 +88,7 @@ export function CartProvider({ children }) {
     addToCart,
     removeFromCart,
     updateQuantity,
+    clearCart,
   };
 
 

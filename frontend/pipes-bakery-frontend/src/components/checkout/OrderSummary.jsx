@@ -1,7 +1,7 @@
 import CartSummaryItem from "../shoppingCart/CartSummaryItem";
 import { formatCOP } from "../../utils/formatPrice.js";
 
-const OrderSummary = ({ cart, onCheckout, loading, error }) => {
+const OrderSummary = ({ cart, onCheckout, loading, errors = [] }) => {
   const itemsTotal = cart.itemsTotal || 0;
   const shippingCost = cart.shippingCost || 0;
   const total = cart.totalPrice || 0;
@@ -24,7 +24,7 @@ const OrderSummary = ({ cart, onCheckout, loading, error }) => {
       </div>
 
       <div className="summary-shipping">
-        <span>Gastos de envio</span>
+        <span>Gastos de envío</span>
         <span>
           {shippingCost === 0
             ? "Gratis"
@@ -37,7 +37,16 @@ const OrderSummary = ({ cart, onCheckout, loading, error }) => {
         <span>${formatCOP(total)}</span>
       </div>
 
-      {error && <p className="error">{error}</p>}
+      {errors.length > 0 && (
+        <div className="error">
+          <strong>Revisa estos datos antes de continuar:</strong>
+          <ul className="error-list">
+            {errors.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <button className="checkout-button" onClick={onCheckout} disabled={loading}>
         {loading ? "Procesando..." : "Confirmar pedido"}

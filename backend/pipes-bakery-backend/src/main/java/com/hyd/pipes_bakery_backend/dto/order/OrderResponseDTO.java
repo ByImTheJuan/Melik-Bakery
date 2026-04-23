@@ -11,7 +11,7 @@ import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
 public class OrderResponseDTO {
 
-    private Long id;
+    private String id;
     private String clientFirstName;
     private String clientLastName;
     private String clientEmail;
@@ -22,7 +22,7 @@ public class OrderResponseDTO {
     private LocalDateTime createdAt;
     private AddressSnapshotDTO shippingAddress;
 
-    public OrderResponseDTO(Long id, String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber,
+    public OrderResponseDTO(String id, String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber,
             List<OrderItemResponseDTO> items, BigDecimal totalAmount,
             OrderStatus status, LocalDateTime createdAt, AddressSnapshotDTO shippingAddress) {
         this.id = id;
@@ -37,7 +37,7 @@ public class OrderResponseDTO {
         this.shippingAddress = shippingAddress;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
     public String getClientFirstName() {
@@ -67,7 +67,7 @@ public class OrderResponseDTO {
     public AddressSnapshotDTO getShippingAddress() {
         return shippingAddress;
     }
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     public void setClientFirstName(String clientFirstName) {

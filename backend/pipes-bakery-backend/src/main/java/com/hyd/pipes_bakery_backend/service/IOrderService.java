@@ -13,11 +13,11 @@ public interface IOrderService {
 
     List<OrderResponseDTO> getAllOrders();
 
-    OrderResponseDTO getOrderById(@NonNull Long orderId);
+    OrderResponseDTO getOrderById(@NonNull String orderId);
 
-    OrderResponseDTO cancelOrder(@NonNull Long orderId);
+    OrderResponseDTO cancelOrder(@NonNull String orderId);
 
-    OrderResponseDTO updateOrderStatus(@NonNull Long orderId, OrderStatus status);
+    OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus status);
 
     OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request);
 }

@@ -17,7 +17,7 @@ public class OrderMapper {
     }
 
     public OrderResponseDTO toDto(Order order) {
-        OrderResponseDTO dto = new OrderResponseDTO(order.getId(),
+        OrderResponseDTO dto = new OrderResponseDTO(order.getPublicId(),
                                                         order.getClientFirstName(), 
                                                         order.getClientLastName(),
                                                         order.getClientEmail(),

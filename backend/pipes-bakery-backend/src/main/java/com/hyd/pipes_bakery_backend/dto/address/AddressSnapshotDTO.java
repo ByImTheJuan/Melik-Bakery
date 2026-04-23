@@ -19,8 +19,8 @@ public class AddressSnapshotDTO {
     private String city;
 
     @NotNull(message = "Zip code is required")
-    @Min(value = 100000, message = "Zip code must be exactly 6 characters")
-    @Max(value = 999999, message = "Zip code must be exactly 6 characters")
+    @Min(value = 110000, message = "Zip code must have 6 digits and start with 11")
+    @Max(value = 119999, message = "Zip code must have 6 digits and start with 11")
     private int zipCode;
 
     @NotBlank(message = "Country is required")

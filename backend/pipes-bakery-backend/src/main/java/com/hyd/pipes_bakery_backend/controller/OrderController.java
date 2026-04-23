@@ -33,7 +33,7 @@ public class OrderController {
 
     //GET /api/orders/{orderId}
     @GetMapping("/{orderId}")
-    public OrderResponseDTO getOrderById(@NonNull @PathVariable Long orderId) {
+    public OrderResponseDTO getOrderById(@NonNull @PathVariable String orderId) {
         return orderService.getOrderById(orderId);
     }
 
@@ -41,7 +41,7 @@ public class OrderController {
     @PutMapping("/{orderId}")
     @ResponseStatus(HttpStatus.OK)
     public void updateOrderStatus(
-            @NonNull @PathVariable Long orderId,
+            @NonNull @PathVariable String orderId,
             @PathVariable OrderStatus status) {
 
         orderService.updateOrderStatus(orderId, status);

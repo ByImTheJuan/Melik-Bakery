@@ -1,10 +1,12 @@
 import ProductCard from "../components/products/ProductCard";
 import { useProducts } from "../hooks/useAllProducts";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/global.css";
 import "../styles/productsPage.css";
 
 function ProductsPage() {
   const { products, status, errorMessage } = useProducts();
+  useDocumentTitle("Productos");
 
   if (status === "loading") return <p>Cargando productos...</p>;
   if (status === "error") return <p>{errorMessage}</p>;
