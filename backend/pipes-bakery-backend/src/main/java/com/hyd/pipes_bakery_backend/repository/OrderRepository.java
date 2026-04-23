@@ -5,7 +5,12 @@ import org.springframework.stereotype.Repository;
 
 import com.hyd.pipes_bakery_backend.model.Order;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    Optional<Order> findByPublicId(String publicId);
+
+    boolean existsByPublicId(String publicId);
 }

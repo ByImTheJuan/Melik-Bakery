@@ -29,7 +29,7 @@ export default function PhotoCarousel() {
     useEffect(() => {
     if (isHovered) return;
 
-    const interval = setInterval(nextImage, 4000);
+    const interval = setInterval(nextImage, 5000);
     return () => clearInterval(interval);
     }, [isHovered]);
 

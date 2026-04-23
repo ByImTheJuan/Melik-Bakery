@@ -26,6 +26,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 6, updatable = false)
+    private String publicId;
+
     // Quién hizo el pedido
     @Column(nullable = false)
     private String clientFirstName;
@@ -78,6 +81,10 @@ public class Order {
         return id;
     }
 
+    public String getPublicId() {
+        return publicId;
+    }
+
     public String getClientFirstName() {
         return clientFirstName;
     }
@@ -120,6 +127,10 @@ public class Order {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public void setClientFirstName(String clientFirstName) {

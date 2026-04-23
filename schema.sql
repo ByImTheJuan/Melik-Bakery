@@ -111,10 +111,12 @@ CREATE TABLE `orders` (
   `client_last_name` varchar(255) NOT NULL,
   `client_phone_number` varchar(255) NOT NULL,
   `country` varchar(255) DEFAULT NULL,
+  `public_id` varchar(6) NOT NULL,
   `receiver_name` varchar(255) DEFAULT NULL,
   `street` varchar(255) DEFAULT NULL,
   `status` enum('CANCELLED','CREATED','DELIVERED','PAID','SHIPPED') NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_orders_public_id` (`public_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

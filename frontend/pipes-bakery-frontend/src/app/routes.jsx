@@ -5,6 +5,7 @@ import ProductsPage from "../pages/ProductsPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import ShoppingCartPage from "../pages/ShoppingCartPage";
 import CheckoutPage from "../pages/CheckoutPage";
+import OrderConfirmationPage from "../pages/OrderConfirmationPage";
 import ScrollToTop from "../components/layout/ScrollToTop";
 
 export default function AppRoutes() {
@@ -18,6 +19,7 @@ export default function AppRoutes() {
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/cart/:id" element={<ShoppingCartPage />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
+          <Route path="/order/success/:orderId" element={<OrderConfirmationPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

@@ -4,6 +4,7 @@ import { formatCOP } from "../utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAddToCart } from "../hooks/useAddToCart";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/global.css";
 import "../styles/productDetailPage.css";
 
@@ -13,6 +14,7 @@ function ProductDetailPage() {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useAddToCart();
+  useDocumentTitle(`${product?.name}`);
 
   const increaseQty = () => {
     setQuantity((prev) => prev + 1);

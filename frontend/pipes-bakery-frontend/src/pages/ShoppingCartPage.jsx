@@ -1,13 +1,14 @@
 import { useCart } from "../context/CartContext";
 import { formatCOP } from "../utils/formatPrice";
 import { useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import CartItemCard from "../components/shoppingCart/CartItemCard";
 
 import "../styles/global.css";
 import "../styles/shoppingCartPage.css";
 
 function ShoppingCartPage() {
-
+  useDocumentTitle("Carrito");
   const navigate = useNavigate();
   const { cart, loading } = useCart();
   const total =

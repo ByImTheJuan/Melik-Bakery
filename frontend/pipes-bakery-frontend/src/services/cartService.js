@@ -51,7 +51,7 @@ export async function clearCart(cartId) {
   return await response.data;
 }
 
-export async function checkoutCart(cartId) {
-  const response = await apiClient.post(`/cart/${cartId}/checkout`);
+export async function checkoutCart(cartId, checkoutData) {
+  const response = await apiClient.post(`/cart/${cartId}/checkout`, checkoutData);
   return await response.data;
 }
