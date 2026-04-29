@@ -38,6 +38,7 @@ public class ClientControllerIntegrationTest {
         request.setFirstName("Felipe");
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
 
         AddressRequestDTO addressRequest = new AddressRequestDTO();

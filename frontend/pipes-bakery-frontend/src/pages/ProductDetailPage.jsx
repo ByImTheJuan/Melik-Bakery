@@ -86,7 +86,7 @@ function ProductDetailPage() {
             <span className="product-details-price">${formatCOP(product.price)}</span>
           </div>
           <div className="product-details-divider"></div>
-          <p>{product.description}</p>
+          <p className="product-description-text">{product.description}</p>
           <p>
             <strong>Ingredientes: </strong>
             {product.ingredients.join(", ")}

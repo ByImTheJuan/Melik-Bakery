@@ -10,7 +10,11 @@ import com.hyd.pipes_bakery_backend.model.Client;
 @Component
 public class ClientMapper {
 
-    private final AddressMapper addressMapper = new AddressMapper();
+    private final AddressMapper addressMapper;
+
+    public ClientMapper(AddressMapper addressMapper) {
+        this.addressMapper = addressMapper;
+    }
 
 
     public ClientResponseDTO toDto(Client client) {

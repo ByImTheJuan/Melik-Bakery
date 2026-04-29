@@ -135,6 +135,10 @@ main {
   color: var(--color-text);
 }
 
+.product-description-text {
+  white-space: pre-line;
+}
+
 .product-details-info strong {
   color: var(--color-primary);
 }

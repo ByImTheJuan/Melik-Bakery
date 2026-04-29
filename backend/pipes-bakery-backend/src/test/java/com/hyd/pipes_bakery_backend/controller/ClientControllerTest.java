@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,6 +30,7 @@ import com.hyd.pipes_bakery_backend.service.ClientService;
 
 @SuppressWarnings("null")
 @WebMvcTest(ClientController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ClientControllerTest {
 
     @Autowired
@@ -55,6 +57,7 @@ public class ClientControllerTest {
         request.setFirstName("Felipe");
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
         request.setAddress(addressRequest);
 
@@ -103,6 +106,7 @@ public class ClientControllerTest {
         request.setFirstName(""); // Invalid name
         request.setLastName(""); // Invalid last name
         request.setEmail("invalid-email"); // Invalid email
+        request.setPassword("short");
         request.setPhoneNumber("invalid-phone"); // Invalid phone
 
         // Act + Assert
@@ -187,6 +191,7 @@ public class ClientControllerTest {
         request.setFirstName("Baguette");
         request.setLastName("García");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
 
         AddressRequestDTO addressRequest = new AddressRequestDTO();
@@ -242,6 +247,7 @@ public class ClientControllerTest {
         request.setFirstName("Baguette");
         request.setLastName("García");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
 
         AddressRequestDTO addressRequest = new AddressRequestDTO();
