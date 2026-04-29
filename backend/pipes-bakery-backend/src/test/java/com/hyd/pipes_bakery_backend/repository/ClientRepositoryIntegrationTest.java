@@ -25,6 +25,7 @@ public class ClientRepositoryIntegrationTest {
         client.setFirstName("Felipe");
         client.setLastName("Hernández");
         client.setEmail("pipelon@gmail.com");
+        client.setPassword("$2a$10$hashedPasswordForTest");
         client.setPhoneNumber("3053466622");
         Client saved = clientRepository.save(client);
 

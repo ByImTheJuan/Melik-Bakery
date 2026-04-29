@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.service;
 import java.util.List;
 
 import org.springframework.lang.NonNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
@@ -21,11 +22,18 @@ public class ClientService implements IClientService {
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
     private final OrderMapper orderMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public ClientService(ClientRepository clientRepository, ClientMapper clientMapper, OrderMapper orderMapper) {
+    public ClientService(
+            ClientRepository clientRepository,
+            ClientMapper clientMapper,
+            OrderMapper orderMapper,
+            PasswordEncoder passwordEncoder
+    ) {
         this.clientRepository = clientRepository;
         this.clientMapper = clientMapper;
         this.orderMapper = orderMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -51,6 +59,7 @@ public class ClientService implements IClientService {
         }
         
         Client client = clientMapper.toEntity(dto);
+        client.setPassword(passwordEncoder.encode(dto.getPassword()));
         Client savedClient = clientRepository.save(client);
         return clientMapper.toDto(savedClient);
     }
@@ -71,6 +80,7 @@ public class ClientService implements IClientService {
                     client.setFirstName(updatedClient.getFirstName());
                     client.setLastName(updatedClient.getLastName());
                     client.setEmail(updatedClient.getEmail());
+                    client.setPassword(passwordEncoder.encode(updatedClient.getPassword()));
                     client.setPhoneNumber(updatedClient.getPhoneNumber());
                     return clientRepository.save(client);
                 })

@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.hyd.pipes_bakery_backend.dto.client.ClientRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.client.ClientResponseDTO;
@@ -31,6 +32,9 @@ public class ClientServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private ClientService clientService;
 
@@ -44,6 +48,7 @@ public class ClientServiceTest {
         request.setFirstName("Felipe");
         request.setLastName("Hernández");
         request.setEmail("pipelon@gmail.com");
+        request.setPassword("password123");
         request.setPhoneNumber("3053466622");
 
         Client savedClient = new Client();
@@ -63,6 +68,7 @@ public class ClientServiceTest {
         when(clientRepository.save(any(Client.class))).thenReturn(savedClient);
         when(clientMapper.toDto(savedClient)).thenReturn(responseDto);
         when(clientMapper.toEntity(request)).thenReturn(savedClient);
+        when(passwordEncoder.encode("password123")).thenReturn("$2a$10$hashedPassword");
 
         // Act
         ClientResponseDTO result = clientService.createClient(request);
@@ -184,6 +190,7 @@ public class ClientServiceTest {
         updatedRequest.setFirstName("Pan de chocolate");
         updatedRequest.setLastName("Hernández");
         updatedRequest.setEmail("panchocolate@gmail.com");
+        updatedRequest.setPassword("password123");
         updatedRequest.setPhoneNumber("3053466622");
 
         Client existingClient = new Client();
@@ -203,6 +210,7 @@ public class ClientServiceTest {
         when(clientRepository.findById(clientId)).thenReturn(java.util.Optional.of(existingClient));
         when(clientRepository.save(any(Client.class))).thenAnswer(i -> i.getArgument(0));
         when(clientMapper.toDto(any(Client.class))).thenReturn(responseDto);
+        when(passwordEncoder.encode("password123")).thenReturn("$2a$10$updatedHashedPassword");
 
         // Act
         ClientResponseDTO result = clientService.updateClient(clientId, updatedRequest);
@@ -228,6 +236,7 @@ public class ClientServiceTest {
         updatedRequest.setFirstName("Pan inexistente");
         updatedRequest.setLastName("Fernández");
         updatedRequest.setEmail("paninexistente@gmail.com");
+        updatedRequest.setPassword("password123");
         updatedRequest.setPhoneNumber("3053466922");
 
         ClientResponseDTO responseDto = new ClientResponseDTO(1L, 
