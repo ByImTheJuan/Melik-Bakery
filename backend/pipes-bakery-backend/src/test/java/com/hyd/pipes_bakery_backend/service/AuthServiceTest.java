@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.hyd.pipes_bakery_backend.dto.auth.AuthResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.auth.LoginRequestDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,9 +46,9 @@ class AuthServiceTest {
         when(passwordEncoder.matches("plain-password", "$2a$10$hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(userDetails)).thenReturn("jwt-token");
 
-        AuthResponseDTO response = authService.login(request);
+        String token = authService.login(request);
 
-        assertThat(response.getToken()).isEqualTo("jwt-token");
+        assertThat(token).isEqualTo("jwt-token");
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.storage;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,7 +44,7 @@ public class CartStorage implements ICartStorage {
     @Override
     public void saveCart(UUID cartId, @NonNull ShoppingCart cart) {
         System.out.println("Saving cart with ID: " + cartId);
-        redisTemplate.opsForValue().set(key(cartId), cart);
+        redisTemplate.opsForValue().set(key(cartId), cart, Duration.ofHours(48));
     }
 
     @Override

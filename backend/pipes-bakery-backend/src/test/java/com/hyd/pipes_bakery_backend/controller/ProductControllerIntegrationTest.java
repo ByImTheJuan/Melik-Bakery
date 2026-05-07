@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 
 import jakarta.transaction.Transactional;
 
@@ -42,13 +44,19 @@ public class ProductControllerIntegrationTest {
         request.setIngredients(Arrays.asList("Harina", "chocolate"));
         request.setImageUrl("https://example.com/images/baguette.jpg");
 
-        mockMvc.perform(post("/api/products")
+        MvcResult creationResult = mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").exists());
+            .andExpect(jsonPath("$.id").exists())
+            .andReturn();
 
-        mockMvc.perform(get("/api/products/1"))
+        ProductResponseDTO createdProduct = objectMapper.readValue(
+                creationResult.getResponse().getContentAsString(),
+                ProductResponseDTO.class
+        );
+
+        mockMvc.perform(get("/api/products/{id}", createdProduct.getId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("Pan de chocolate"))
             .andExpect(jsonPath("$.price").value(4000))

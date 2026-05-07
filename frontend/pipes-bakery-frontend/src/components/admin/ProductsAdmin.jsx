@@ -3,6 +3,7 @@ import {
   createProduct,
   deleteProduct,
   getAllProducts,
+  updateProductOrder,
   updateProduct,
 } from "../../services/productService";
 import { formatCOP } from "../../utils/formatPrice";
@@ -47,6 +48,8 @@ export default function ProductsAdmin() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeletingId, setIsDeletingId] = useState(null);
+  const [draggedProductId, setDraggedProductId] = useState(null);
+  const [dragOverProductId, setDragOverProductId] = useState(null);
 
   const submitLabel = useMemo(
     () => (editingProductId ? "Guardar cambios" : "Crear producto"),
@@ -123,6 +126,74 @@ export default function ProductsAdmin() {
     setErrorMessage("");
   }
 
+  function reorderProducts(productList, sourceProductId, targetProductId) {
+    const sourceId = String(sourceProductId);
+    const targetId = String(targetProductId);
+    const sourceIndex = productList.findIndex((product) => String(product.id) === sourceId);
+    const targetIndex = productList.findIndex((product) => String(product.id) === targetId);
+
+    if (sourceIndex === -1 || targetIndex === -1 || sourceIndex === targetIndex) {
+      return productList;
+    }
+
+    const nextProducts = [...productList];
+    const [movedProduct] = nextProducts.splice(sourceIndex, 1);
+    nextProducts.splice(targetIndex, 0, movedProduct);
+
+    return nextProducts;
+  }
+
+  function handleDragStart(event, productId) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", String(productId));
+    setDraggedProductId(productId);
+    setSubmitMessage("");
+    setErrorMessage("");
+  }
+
+  function handleDragOver(event, productId) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    setDragOverProductId(productId);
+  }
+
+  function handleDragLeave(productId) {
+    setDragOverProductId((current) => (current === productId ? null : current));
+  }
+
+  async function handleDrop(event, targetProductId) {
+    event.preventDefault();
+    const sourceProductId = event.dataTransfer.getData("text/plain") || draggedProductId;
+    const nextProducts = reorderProducts(products, sourceProductId, targetProductId);
+
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+
+    if (nextProducts === products) {
+      return;
+    }
+
+    setProducts(nextProducts);
+
+    try {
+      const updatedProducts = await updateProductOrder(nextProducts.map((product) => product.id));
+
+      setProducts(updatedProducts);
+      setSubmitMessage("Orden del catálogo actualizado.");
+    } catch (error) {
+      setProducts(products);
+      setErrorMessage(
+        error.response?.data?.message ??
+          "No se pudo actualizar el orden del catálogo."
+      );
+    }
+  }
+
+  function handleDragEnd() {
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -186,7 +257,7 @@ export default function ProductsAdmin() {
       <div className="products-admin-header">
         <div>
           <span className="products-admin-eyebrow">Gestión de productos</span>
-          <h2>Catálogo de panadería</h2>
+          <h2>Catálogo de productos</h2>
           <p>
             Crea productos nuevos, actualiza la información existente o elimina referencias del catálogo.
           </p>
@@ -220,7 +291,18 @@ export default function ProductsAdmin() {
           {status === "success" && products.length > 0 && (
             <div className="products-admin-list">
               {products.map((product) => (
-                <article className="products-admin-item" key={product.id}>
+                <article
+                  className={`products-admin-item${
+                    draggedProductId === product.id ? " is-dragging" : ""
+                  }${dragOverProductId === product.id ? " is-drag-over" : ""}`}
+                  draggable
+                  key={product.id}
+                  onDragEnd={handleDragEnd}
+                  onDragLeave={() => handleDragLeave(product.id)}
+                  onDragOver={(event) => handleDragOver(event, product.id)}
+                  onDragStart={(event) => handleDragStart(event, product.id)}
+                  onDrop={(event) => handleDrop(event, product.id)}
+                >
                   <div className="products-admin-item-image">
                     <img
                       src={`${import.meta.env.VITE_IMAGES_BASE_URL}${product.imageUrl}`}
@@ -231,7 +313,12 @@ export default function ProductsAdmin() {
                   <div className="products-admin-item-content">
                     <div className="products-admin-item-top">
                       <div>
-                        <h4>{product.name}</h4>
+                        <div className="products-admin-title-row">
+                          <span className="products-admin-drag-handle" aria-hidden="true">
+                            ::
+                          </span>
+                          <h4>{product.name}</h4>
+                        </div>
                         <p className="products-admin-item-description">
                           {product.description || "Sin descripción"}
                         </p>

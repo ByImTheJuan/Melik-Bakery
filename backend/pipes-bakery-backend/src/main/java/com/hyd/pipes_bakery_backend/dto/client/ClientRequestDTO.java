@@ -3,33 +3,41 @@ package com.hyd.pipes_bakery_backend.dto.client;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressRequestDTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Datos necesarios para registrar o actualizar un cliente.")
 public class ClientRequestDTO {
 
+    @Schema(description = "Nombre del cliente.", example = "Maria")
     @NotBlank(message = "First name is required")
     @Size(max = 100, message = "First name must be at most 100 characters")
     private String firstName;
 
+    @Schema(description = "Apellidos del cliente.", example = "Garcia")
     @NotBlank(message = "Last name is required")
     @Size(max = 100, message = "Last name must be at most 100 characters")
     private String lastName;
 
+    @Schema(description = "Email de contacto y acceso del cliente.", example = "maria@example.com")
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
 
+    @Schema(description = "Contrasena del cliente.", example = "superSecret123")
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     private String password;
 
+    @Schema(description = "Telefono de contacto del cliente.", example = "+34600111222")
     @Size(max = 15, message = "Phone number must be at most 15 characters")
     private String phoneNumber;
 
+    @Schema(description = "Direccion principal del cliente.")
     @NotNull(message = "Address is required")
     @Valid()
     private AddressRequestDTO address;

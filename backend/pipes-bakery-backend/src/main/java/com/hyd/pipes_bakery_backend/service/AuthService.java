@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.hyd.pipes_bakery_backend.dto.auth.AuthResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.auth.LoginRequestDTO;
 
 @Service
@@ -26,7 +25,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthResponseDTO login(LoginRequestDTO request) {
+    public String login(LoginRequestDTO request) {
         UserDetails userDetails;
 
         try {
@@ -47,7 +46,7 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        return new AuthResponseDTO(generateToken(userDetails));
+        return generateToken(userDetails);
     }
 
     public String generateToken(UserDetails userDetails) {

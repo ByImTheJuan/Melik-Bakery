@@ -3,25 +3,32 @@ package com.hyd.pipes_bakery_backend.dto.product;
 import java.math.BigDecimal;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Datos necesarios para crear o actualizar un producto.")
 public class ProductRequestDTO {
-    
+
+    @Schema(description = "Nombre comercial del producto.", example = "Cinnamon Roll")
     @NotBlank(message = "Product name is required")
     private String name;
+    @Schema(description = "Descripcion visible del producto.", example = "Roll suave de canela con glaseado de vainilla.")
     private String description;
 
+    @Schema(description = "Precio del producto.", example = "4.50")
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price must be positive")
     private BigDecimal price;
 
+    @Schema(description = "Lista de ingredientes principales.", example = "[\"harina\", \"canela\", \"azucar\"]")
     @NotNull
     @NotEmpty(message = "Ingredients list cannot be empty")
     private List<@NotBlank(message = "Elements in ingredients list cannot be blank") String> ingredients;
 
+    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
     @NotBlank(message = "Image URL is required")
     private String imageUrl;
 

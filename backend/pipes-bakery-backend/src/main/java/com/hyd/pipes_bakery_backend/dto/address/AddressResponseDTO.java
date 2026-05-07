@@ -1,12 +1,21 @@
 package com.hyd.pipes_bakery_backend.dto.address;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Direccion devuelta por la API.")
 public class AddressResponseDTO {
 
+    @Schema(description = "Identificador unico de la direccion.", example = "1")
     private Long id;
+    @Schema(description = "Calle y numero de la direccion.", example = "Calle Mayor 12")
     private String street;
+    @Schema(description = "Informacion adicional para la entrega.", example = "Piso 2, puerta B")
     private String additionalInformation;
+    @Schema(description = "Ciudad de la direccion.", example = "Madrid")
     private String city;
+    @Schema(description = "Codigo postal de 6 digitos.", example = "110001")
     private int zipCode;
+    @Schema(description = "Pais de la direccion.", example = "Spain")
     private String country;
 
     public AddressResponseDTO(Long id, String street, String additionalInformation, String city, int zipCode, String country) {

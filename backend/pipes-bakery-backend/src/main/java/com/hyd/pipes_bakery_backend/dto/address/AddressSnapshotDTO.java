@@ -1,28 +1,35 @@
 package com.hyd.pipes_bakery_backend.dto.address;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Copia de la direccion de envio guardada dentro de un pedido.")
 public class AddressSnapshotDTO {
 
+    @Schema(description = "Calle y numero de la direccion de envio.", example = "Calle Mayor 12")
     @NotBlank(message = "Street is required")
     @Size(max = 100, message = "Street must be at most 100 characters")
     private String street;
 
+    @Schema(description = "Informacion adicional para la entrega.", example = "Piso 2, puerta B")
     private String additionalInformation;
 
+    @Schema(description = "Ciudad de envio.", example = "Madrid")
     @NotBlank(message = "City is required")
     @Size(max = 100, message = "City must be at most 100 characters")
     private String city;
 
+    @Schema(description = "Codigo postal valido para la zona de entrega.", example = "110001")
     @NotNull(message = "Zip code is required")
     @Min(value = 110000, message = "Zip code must have 6 digits and start with 11")
     @Max(value = 119999, message = "Zip code must have 6 digits and start with 11")
     private int zipCode;
 
+    @Schema(description = "Pais de envio.", example = "Spain")
     @NotBlank(message = "Country is required")
     @Size(max = 100, message = "Country must be at most 100 characters")
     private String country;

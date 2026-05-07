@@ -2,13 +2,22 @@ package com.hyd.pipes_bakery_backend.dto.client;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressResponseDTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Cliente devuelto por la API.")
 public class ClientResponseDTO {
 
+    @Schema(description = "Identificador unico del cliente.", example = "1")
     private Long id;
+    @Schema(description = "Nombre del cliente.", example = "Maria")
     private String firstName;
+    @Schema(description = "Apellidos del cliente.", example = "Garcia")
     private String lastName;
+    @Schema(description = "Email del cliente.", example = "maria@example.com")
     private String email;
+    @Schema(description = "Telefono de contacto del cliente.", example = "+34600111222")
     private String phoneNumber;
+    @Schema(description = "Direccion principal asociada al cliente.")
     private AddressResponseDTO address;
 
     public ClientResponseDTO(Long id, String firstName, String lastName, String email, String phoneNumber, AddressResponseDTO address) {

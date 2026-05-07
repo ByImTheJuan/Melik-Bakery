@@ -8,7 +8,7 @@ export default function HeroSection() {
     <section id="hero" className="hero">
         <div className="hero-content">
             <img src="/images/logo.png" alt="Logo" />
-            <p>Pan artesanal horneado con amor.</p>
+            <p>Postres de autor horneados con amor.</p>
             <button onClick={() => {
                 navigate("/products");
           }}>
