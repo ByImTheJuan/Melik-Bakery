@@ -20,7 +20,8 @@ import com.hyd.pipes_bakery_backend.mapper.ProductMapper;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 
-@SuppressWarnings("unused")
+
+@SuppressWarnings({"unused", "null"})
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
 

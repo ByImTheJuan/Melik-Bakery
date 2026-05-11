@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import { useAddToCart } from "../../hooks/useAddToCart";
 import { formatCOP } from "../../utils/formatPrice";
@@ -6,9 +6,19 @@ import { formatCOP } from "../../utils/formatPrice";
 
 function ProductCard({ product }) {
   const { addToCart } = useAddToCart();
+  const navigate = useNavigate();
+
+  const handleDetailsClick = () => {
+
+    sessionStorage.setItem(
+      "productsScrollPosition",
+      window.scrollY
+    );
+    navigate(`/products/${product.id}`);
+  };
 
   return (
-    <Link to={`/products/${product.id}`} className="product-card">
+    <div onClick={handleDetailsClick} className="product-card">
       <div className="product-image">
         <img src={`${import.meta.env.VITE_IMAGES_BASE_URL}${product.imageUrl}`} alt={product.name} />
       </div>
@@ -24,7 +34,7 @@ function ProductCard({ product }) {
           addToCart(product.id, 1);
         }}>Añadir al carrito</button>
       </div>
-    </Link>
+    </div>
   );
 }
 

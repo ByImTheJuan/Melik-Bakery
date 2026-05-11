@@ -12,7 +12,7 @@ export default function HeroSection() {
             <button onClick={() => {
                 navigate("/products");
           }}>
-            Qué antojo tienes hoy?
+            ¿Qué antojo tienes hoy?
           </button>
         </div>
     </section>

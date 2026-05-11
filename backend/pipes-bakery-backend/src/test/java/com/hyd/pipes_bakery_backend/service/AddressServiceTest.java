@@ -16,7 +16,7 @@ import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.model.Address;
 import com.hyd.pipes_bakery_backend.repository.AddressRepository;
 
-
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 public class AddressServiceTest {
 

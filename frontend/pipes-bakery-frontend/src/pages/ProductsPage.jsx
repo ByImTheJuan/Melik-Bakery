@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import ProductCard from "../components/products/ProductCard";
 import { useProducts } from "../hooks/useAllProducts";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -7,6 +8,27 @@ import "../styles/productsPage.css";
 function ProductsPage() {
   const { products, status, errorMessage } = useProducts();
   useDocumentTitle("Productos");
+  
+  useEffect(() => {
+
+    const savedScroll = sessionStorage.getItem(
+      "productsScrollPosition"
+    );
+
+    if (savedScroll) {
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: Number(savedScroll),
+          behavior: "instant"
+        });
+      }, 500);
+
+      sessionStorage.removeItem(
+        "productsScrollPosition"
+      );
+    }
+  }, []);
 
   if (status === "loading") return <p>Cargando productos...</p>;
   if (status === "error") return <p>{errorMessage}</p>;
@@ -20,6 +42,9 @@ function ProductsPage() {
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
+      </div>
+      <div className="products-note">
+        * Si no encuentras lo que buscas, contáctanos para pedidos personalizados.
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export default function AboutSection() {
                 </div>
 
                 <div className={`about-content ${isVisible ? "show" : ""}`}>
-                    <h2>Quiénes somos</h2>
+                    <h2>El artista detrás de Melik</h2>
                     <p>
                         <b>Nuestra historia:</b><br />
                         En catalán, Melic significa ombligo; sin embargo, también puede significar raíces o centro de algo. 
@@ -42,7 +42,7 @@ export default function AboutSection() {
                         creaciones con el público.
                     </p>
                     <p>
-                        Mi pasión por la cocina se desarrolló en casa, cuando horneaba ocasionalmente tortas con mi padre. 
+                        Soy <b>Felipe Hernández Derch</b> y mi pasión por la cocina se desarrolló en casa, cuando horneaba ocasionalmente tortas con mi padre. 
                         Lo que empezó como un gesto de amor hacia mis seres queridos, se transformó en un camino con el 
                         proposito de mejorar técnicamente mis preparaciones.
                     </p>
@@ -58,7 +58,7 @@ export default function AboutSection() {
                         nos posicionan como una marca que vende productos artesanales. No buscamos solo cocinar productos 
                         deliciosos, sino ser el centro de tus celebraciones.
                     </p>
-                    <p>
+                    <p className="closure-statement">
                         <b>Bienvenidos al origen. Bienvenidos a Melik.</b>
                     </p>
                 </div>
