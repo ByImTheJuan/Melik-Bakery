@@ -1,0 +1,68 @@
+# =========================
+# OS FILES
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE
+# =========================
+
+.idea/
+*.iml
+
+.vscode/
+
+# =========================
+# ENV FILES / SECRETS
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# BACKEND - SPRING BOOT
+# =========================
+
+backend/**/target/
+backend/**/.classpath
+backend/**/.project
+backend/**/.settings/
+
+# Maven wrapper should be versioned
+!backend/**/.mvn/
+!backend/**/mvnw
+!backend/**/mvnw.cmd
+
+# Logs
+backend/**/*.log
+
+# =========================
+# FRONTEND - NODE / VITE
+# =========================
+
+frontend/**/node_modules/
+frontend/**/dist/
+frontend/**/.vite/
+
+# Logs
+frontend/**/npm-debug.log*
+frontend/**/yarn-debug.log*
+frontend/**/yarn-error.log*
+
+# =========================
+# DOCKER
+# =========================
+
+docker/**/*.pem
+docker/**/*.key
+
+# =========================
+# TEMP FILES
+# =========================
+
+tmp/
+temp/
+*.tmp

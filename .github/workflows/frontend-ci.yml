@@ -1,0 +1,44 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  build-frontend:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend/pipes-bakery-frontend
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/pipes-bakery-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: CI=true npm test
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build

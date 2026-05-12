@@ -1,11 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { CartContext } from "./cartContext";
 
 import { getCart, addItem, removeItem, updateItemQuantity } from "../services/cartService";
 import { clearCartId, ensureCartId } from "../services/cartStorage";
-
-
-
-const CartContext = createContext();
 
 
 export function CartProvider({ children }) {
@@ -36,41 +33,42 @@ export function CartProvider({ children }) {
 
 
   // Recargar carrito
-  async function loadCart() {
+  const loadCart = useCallback(async () => {
     if (!cartId) return;
 
     const data = await getCart(cartId);
     setCart(data);
-  }
+  }, [cartId]);
 
 
   // Añadir item
-  async function addToCart(productId, quantity) {
+  const addToCart = useCallback(async (productId, quantity) => {
     if (!cartId) return;
 
     const data = await addItem(cartId, productId, quantity);
     setCart(data);
-  }
+  }, [cartId]);
 
   // Eliminar item
-  async function removeFromCart(productId) {
+  const removeFromCart = useCallback(async (productId) => {
 
     if (!cartId) return;
 
     await removeItem(cartId, productId);
 
     loadCart();
-  }
+
+  }, [cartId, loadCart]);
 
   // Actualizar cantidad de item
-  async function updateQuantity(productId, quantity) {
+  const updateQuantity = useCallback(async (productId, quantity) => {
     if (!cartId) return;
 
     const data = await updateItemQuantity(cartId, productId, quantity);
     setCart(data);
-  }
+  }, [cartId]);
 
-  async function clearCart() {
+  const clearCart = useCallback(async () => {
     clearCartId();
 
     const newCartId = await ensureCartId();
@@ -78,9 +76,10 @@ export function CartProvider({ children }) {
 
     setCartId(newCartId);
     setCart(newCart);
-  }
 
-  const value = {
+  }, []);
+
+  const value = useMemo(() => ({
     cartId,
     cart,
     loading,
@@ -89,7 +88,16 @@ export function CartProvider({ children }) {
     removeFromCart,
     updateQuantity,
     clearCart,
-  };
+  }), [
+    cartId,
+    cart,
+    loading,
+    loadCart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+  ]);
 
 
   return (
@@ -97,9 +105,4 @@ export function CartProvider({ children }) {
       {children}
     </CartContext.Provider>
   );
-}
-
-
-export function useCart() {
-  return useContext(CartContext);
 }

@@ -29,6 +29,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Grant execute permission for Maven wrapper
         run: chmod +x mvnw

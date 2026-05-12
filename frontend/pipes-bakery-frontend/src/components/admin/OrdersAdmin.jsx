@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getAllOrders,
   updateOrderStatus,
@@ -29,17 +29,7 @@ export default function OrdersAdmin() {
     [orders, selectedOrderId]
   );
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
-  useEffect(() => {
-    if (selectedOrder) {
-      setSelectedStatus(selectedOrder.status);
-    }
-  }, [selectedOrder]);
-
-  async function loadOrders() {
+  const loadOrders = useCallback(async () => {
     setStatus("loading");
     setErrorMessage("");
 
@@ -55,7 +45,17 @@ export default function OrdersAdmin() {
       );
       setStatus("error");
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setSelectedStatus(selectedOrder.status);
+    }
+  }, [selectedOrder]);
 
   async function handleStatusSubmit(event) {
     event.preventDefault();

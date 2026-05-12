@@ -1,4 +1,4 @@
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 import { formatCOP } from "../../utils/formatPrice";
 import "../../styles/global.css";
 

@@ -1,4 +1,4 @@
-import { useCart } from "../context/CartContext";
+import { useCart } from "../hooks/useCart";
 import { toast } from "react-toastify";
 
 
@@ -17,6 +17,7 @@ export function useAddToCart() {
     } catch (err) {
 
       toast.error("Error al añadir producto al carrito");
+      console.error("Error adding to cart:", err);
 
     }
 

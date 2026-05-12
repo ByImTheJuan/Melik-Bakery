@@ -23,16 +23,20 @@ const images = [
 
 export default function FinalCTASection() {
   const [index, setIndex] = useState(0);
-  const [prevIndex, setPrevIndex] = useState(0);
   const [ref, isVisible] = useInView();
   const navigate = useNavigate();
+  const prevIndex =
+  index === 0
+    ? images.length - 1
+    : index - 1;
 
   useEffect(() => {
     const interval = setInterval(() => {
-        setIndex((prev) => {
-            setPrevIndex(index);
-            return prev === images.length - 1 ? 0 : prev + 1;
-        });
+        setIndex((prev) => 
+          prev === images.length - 1
+          ? 0
+          : prev + 1
+        );
     }, 7000);
 
     return () => clearInterval(interval);

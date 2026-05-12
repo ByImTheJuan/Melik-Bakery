@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import CheckoutPage from "./CheckoutPage";
 import * as cartService from "../services/cartService";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../hooks/useCart";
 
 const clearCartMock = vi.fn();
 const navigateMock = vi.fn();

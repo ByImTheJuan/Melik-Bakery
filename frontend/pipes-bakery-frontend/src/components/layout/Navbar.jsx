@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useCart } from "../../context/CartContext";
+import { useState } from "react";
+import { useCart } from "../../hooks/useCart";
 import { FaShoppingCart } from "react-icons/fa";
 import useActiveSection  from "../../hooks/useActiveSection";
 import useScrollState from "../../hooks/useScrollState";
@@ -14,19 +14,7 @@ export default function Navbar() {
   const activeSection = useActiveSection(isHome ? ["hero", "about", "contact"] : []);
   const scrolled = useScrollState(25);
   const { cart } = useCart();
-  const [animate, setAnimate] = useState(false);
   const totalItems = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-  useEffect(() => {
-    setAnimate(true);
-
-    const t = setTimeout(() => {
-      setAnimate(false);
-    }, 200);
-
-    return () => clearTimeout(t);
-
-  }, [totalItems]);
 
   const goToSection = (sectionId) => {
     navigate("/", { state: { scrollTo: sectionId } });

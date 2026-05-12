@@ -1,5 +1,5 @@
-import { use, useState } from "react";
-import { useCart } from "../context/CartContext";
+import { useState } from "react";
+import { useCart } from "../hooks/useCart";
 import CheckoutForm from "../components/checkout/CheckoutForm";
 import OrderSummary from "../components/checkout/OrderSummary";
 import { checkoutCart } from "../services/cartService";
