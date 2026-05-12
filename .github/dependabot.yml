@@ -7,12 +7,14 @@ updates:
     directory: "/backend/pipes-bakery-backend"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
 
   # Frontend npm
   - package-ecosystem: "npm"
     directory: "/frontend/pipes-bakery-frontend"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
