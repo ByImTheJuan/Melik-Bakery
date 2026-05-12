@@ -1,12 +1,18 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.InvalidProductOrderException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.ProductMapper;
 import com.hyd.pipes_bakery_backend.model.Product;
@@ -25,7 +31,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll()
+        return productRepository.findAllByOrderByDisplayOrderAscIdAsc()
                 .stream()
                 .map(productMapper::toDto)
                 .toList();
@@ -41,7 +47,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
         Product product = productMapper.toEntity(dto);
-        System.out.println(product.getIngredients());
+        product.setDisplayOrder(getNextDisplayOrder());
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
@@ -68,5 +74,49 @@ public class ProductService implements IProductService {
                 })
                 .map(productMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
+    }
+
+    @Override
+    public List<ProductResponseDTO> updateProductOrder(List<Long> productIds) {
+        List<Product> products = productRepository.findAll();
+
+        validateProductOrder(productIds, products);
+
+        Map<Long, Product> productsById = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        for (int index = 0; index < productIds.size(); index++) {
+            productsById.get(productIds.get(index)).setDisplayOrder(index);
+        }
+
+        return productRepository.saveAll(new ArrayList<>(productsById.values()))
+                .stream()
+                .sorted((firstProduct, secondProduct) -> Integer.compare(firstProduct.getDisplayOrder(), secondProduct.getDisplayOrder()))
+                .map(productMapper::toDto)
+                .toList();
+    }
+
+    private int getNextDisplayOrder() {
+        return productRepository.findTopByOrderByDisplayOrderDesc()
+                .map(product -> product.getDisplayOrder() + 1)
+                .orElse(0);
+    }
+
+    private void validateProductOrder(List<Long> productIds, List<Product> products) {
+        if (productIds.size() != products.size()) {
+            throw new InvalidProductOrderException("Product order must include every product exactly once.");
+        }
+
+        if (new HashSet<>(productIds).size() != productIds.size()) {
+            throw new InvalidProductOrderException("Product order cannot contain duplicated product IDs.");
+        }
+
+        HashSet<Long> existingProductIds = products.stream()
+                .map(Product::getId)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        if (!existingProductIds.containsAll(productIds)) {
+            throw new InvalidProductOrderException("Product order contains unknown product IDs.");
+        }
     }
 }

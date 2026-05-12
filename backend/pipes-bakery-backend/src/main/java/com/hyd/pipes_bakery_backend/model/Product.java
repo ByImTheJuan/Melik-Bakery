@@ -32,6 +32,7 @@ public class Product {
     private List<String> ingredients;
     
     private String imageUrl;
+    private int displayOrder;
 
     public Product() {
     }
@@ -90,6 +91,14 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
     }
 
     public String getIngredientsAsString() {

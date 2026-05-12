@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.controller;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyd.pipes_bakery_backend.dto.product.ProductOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
@@ -253,5 +255,30 @@ public class ProductControllerTest {
                         .value("Product not found with id " + productId));
 
         verify(productService).deleteProduct(productId);
+    }
+
+
+    @Test
+    void shouldUpdateProductOrderSuccessfully() throws Exception {
+        ProductOrderRequestDTO request = new ProductOrderRequestDTO();
+        request.setProductIds(List.of(2L, 1L));
+
+        when(productService.updateProductOrder(List.of(2L, 1L)))
+                .thenReturn(List.of(
+                        new ProductResponseDTO(2L, "Baguette", "Pan artesanal", new BigDecimal(3000), Arrays.asList("Harina"), "/images/products/baguette.jpg", 0),
+                        new ProductResponseDTO(1L, "Croissant", "Mantequilla", new BigDecimal(9500), Arrays.asList("Harina", "Mantequilla"), "/images/products/croissant.jpg", 1)
+                ));
+
+        mockMvc.perform(put("/api/products/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(2L))
+                .andExpect(jsonPath("$[0].displayOrder").value(0))
+                .andExpect(jsonPath("$[1].id").value(1L))
+                .andExpect(jsonPath("$[1].displayOrder").value(1));
+
+        verify(productService).updateProductOrder(List.of(2L, 1L));
     }
 }

@@ -1,12 +1,21 @@
 package com.hyd.pipes_bakery_backend.dto.shoppingCart;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Linea de carrito devuelta por la API.")
 public class CartItemResponseDTO {
 
+    @Schema(description = "Identificador del producto.", example = "3")
     private Long productId;
+    @Schema(description = "Nombre del producto.", example = "Cinnamon Roll")
     private String productName;
+    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
     private String productImage;
+    @Schema(description = "Precio unitario en el momento de anadirlo al carrito.", example = "4.50")
     private double unitPriceAtAdd;
+    @Schema(description = "Cantidad de unidades en el carrito.", example = "2")
     private int quantity;
+    @Schema(description = "Subtotal de esta linea.", example = "9.00")
     private double subtotal;
 
     public CartItemResponseDTO(Long productId, String productName, String productImage, double unitPriceAtAdd, int quantity, double subtotal) {

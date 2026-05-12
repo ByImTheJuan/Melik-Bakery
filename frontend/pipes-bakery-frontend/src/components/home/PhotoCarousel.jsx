@@ -5,7 +5,18 @@ const images = [
   "/images/homePageCarousel2.png",
   "/images/homePageCarousel3.jfif",
   "/images/homePageCarousel4.png",
-  "/images/homePageCarousel5.jpeg"
+  "/images/homePageCarousel5.jpeg",
+  "/images/homePageCarousel6.jfif",
+  "/images/homePageCarousel7.jfif",
+  "/images/homePageCarousel8.png"/*,
+  "/images/homePageCarousel9.png",
+  "/images/homePageCarousel10.jpeg",
+  "/images/homePageCarousel11.png",
+  "/images/homePageCarousel12.png",
+  "/images/homePageCarousel13.jpeg",
+  "/images/homePageCarousel14.jpeg",
+  "/images/homePageCarousel15.png",
+  "/images/homePageCarousel16.jpeg"*/
 ];
 
 export default function PhotoCarousel() {

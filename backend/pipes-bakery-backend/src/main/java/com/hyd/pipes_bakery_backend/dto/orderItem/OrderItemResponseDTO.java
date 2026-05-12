@@ -2,12 +2,20 @@ package com.hyd.pipes_bakery_backend.dto.orderItem;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Linea de pedido devuelta por la API.")
 public class OrderItemResponseDTO {
-        
+
+    @Schema(description = "Identificador unico de la linea de pedido.", example = "10")
     private long id;
+    @Schema(description = "Identificador del producto comprado.", example = "3")
     private long productId;
+    @Schema(description = "Nombre del producto comprado.", example = "Cinnamon Roll")
     private String productName;
+    @Schema(description = "Cantidad comprada.", example = "2")
     private int quantity;
+    @Schema(description = "Precio unitario aplicado en el momento de la compra.", example = "4.50")
     private BigDecimal unitPriceAtPurchase;
 
     public OrderItemResponseDTO(long id, long productId, String productName, int quantity, BigDecimal unitPriceAtPurchase) {

@@ -94,6 +94,19 @@
   border: 1px solid rgba(90, 45, 12, 0.08);
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(248, 244, 239, 0.85), rgba(255, 255, 255, 0.96));
+  cursor: grab;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.products-admin-item.is-dragging {
+  opacity: 0.55;
+  cursor: grabbing;
+}
+
+.products-admin-item.is-drag-over {
+  border-color: rgba(198, 134, 66, 0.62);
+  box-shadow: 0 16px 32px rgba(90, 45, 12, 0.12);
+  transform: translateY(-2px);
 }
 
 .products-admin-item-image img {
@@ -117,6 +130,20 @@
 .products-admin-item-top h4 {
   margin: 0 0 0.35rem;
   color: var(--color-primary);
+}
+
+.products-admin-title-row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.products-admin-drag-handle {
+  color: color-mix(in srgb, var(--color-primary) 58%, white);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.08em;
+  user-select: none;
 }
 
 .products-admin-item-top p,

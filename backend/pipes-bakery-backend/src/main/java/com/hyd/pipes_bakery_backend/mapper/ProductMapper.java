@@ -18,7 +18,8 @@ public class ProductMapper {
                                                         product.getDescription(), 
                                                         product.getPrice(),
                                                         product.getIngredients(),
-                                                        product.getImageUrl());
+                                                        product.getImageUrl(),
+                                                        product.getDisplayOrder());
         return dto;
     }
 

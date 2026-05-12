@@ -18,4 +18,6 @@ public interface IProductService {
     void deleteProduct(@NonNull Long id);
 
     ProductResponseDTO updateProduct(@NonNull Long id, ProductRequestDTO updatedProduct);
+
+    List<ProductResponseDTO> updateProductOrder(List<Long> productIds);
 }

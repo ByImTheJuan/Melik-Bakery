@@ -4,16 +4,24 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Producto almacenado dentro de un carrito.")
 public class CartItem {
 
+    @Schema(description = "Identificador del producto.", example = "3")
     private long productId;
 
+    @Schema(description = "Nombre del producto.", example = "Cinnamon Roll")
     private String productName;
 
+    @Schema(description = "Cantidad del producto en el carrito.", example = "2")
     private int quantity;
 
+    @Schema(description = "Precio unitario en el momento de anadirlo al carrito.", example = "4.50")
     private BigDecimal unitPriceAtAdd;
 
+    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
     private String productImage;
 
     public CartItem() {}

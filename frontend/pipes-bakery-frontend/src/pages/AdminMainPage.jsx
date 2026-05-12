@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import OrdersAdmin from "../components/admin/OrdersAdmin";
 import ProductsAdmin from "../components/admin/ProductsAdmin";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { getAdminToken, removeAdminToken } from "../services/authStorage";
+import { checkAdminSession, logoutAdmin } from "../services/authService";
 import "../styles/global.css";
 import "../styles/adminMainPage.css";
 
@@ -11,39 +12,50 @@ const sections = [
   { id: "orders", label: "Gestión de Pedidos" },
 ];
 
-function OrdersPlaceholder() {
-  return (
-    <section className="admin-placeholder">
-      <span className="admin-placeholder-badge">Próximamente</span>
-      <h2>Gestión de pedidos</h2>
-      <p>
-        Esta sección queda preparada en el menú para que en el siguiente paso conectemos el listado y detalle de pedidos.
-      </p>
-    </section>
-  );
-}
-
 export default function AdminMainPage() {
   const navigate = useNavigate();
-  const token = getAdminToken();
+  const [authStatus, setAuthStatus] = useState("checking");
   const [activeSection, setActiveSection] = useState("products");
 
   useDocumentTitle("Panel de administración");
 
   const activeContent = useMemo(() => {
     if (activeSection === "orders") {
-      return <OrdersPlaceholder />;
+      return <OrdersAdmin />;
     }
 
     return <ProductsAdmin />;
   }, [activeSection]);
 
-  if (!token) {
+  useEffect(() => {
+    let isMounted = true;
+
+    checkAdminSession().then((isAuthenticated) => {
+      if (isMounted) {
+        setAuthStatus(isAuthenticated ? "authenticated" : "unauthenticated");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (authStatus === "checking") {
+    return <div className="admin-main-page">Comprobando sesion...</div>;
+  }
+
+  if (authStatus === "unauthenticated") {
     return <Navigate to="/admin/login" replace />;
   }
 
-  function handleLogout() {
-    removeAdminToken();
+  async function handleLogout() {
+    try {
+      await logoutAdmin();
+    } finally {
+      setAuthStatus("unauthenticated");
+    }
+
     navigate("/admin/login", { replace: true });
   }
 

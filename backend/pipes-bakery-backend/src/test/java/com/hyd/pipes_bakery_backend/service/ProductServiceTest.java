@@ -20,7 +20,8 @@ import com.hyd.pipes_bakery_backend.mapper.ProductMapper;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 
-@SuppressWarnings("unused")
+
+@SuppressWarnings({"unused", "null"})
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
 
@@ -55,7 +56,9 @@ public class ProductServiceTest {
         savedProduct.setDescription("Pan artesanal hecho con ingredientes naturales");
         savedProduct.setIngredients(Arrays.asList("Agua", "harina", "masa madre", "sal"));
         savedProduct.setImageUrl("https://example.com/images/baguette.jpg");
+        savedProduct.setDisplayOrder(0);
 
+        when(productRepository.findTopByOrderByDisplayOrderDesc()).thenReturn(java.util.Optional.empty());
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
         // Act
@@ -68,7 +71,9 @@ public class ProductServiceTest {
         assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
         assertThat(result.getIngredients()).containsExactly("Agua", "harina", "masa madre", "sal");
         assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
+        assertThat(result.getDisplayOrder()).isEqualTo(0);
 
+        verify(productRepository).findTopByOrderByDisplayOrderDesc();
         verify(productRepository).save(any(Product.class));
     }
 
@@ -246,7 +251,7 @@ public class ProductServiceTest {
         product2.setIngredients(Arrays.asList("Harina", "arándanos", "azúcar", "mantequilla", "huevos", "levadura"));
         product2.setImageUrl("https://example.com/images/muffin.jpg");
 
-        when(productRepository.findAll()).thenReturn(java.util.List.of(product1, product2));
+        when(productRepository.findAllByOrderByDisplayOrderAscIdAsc()).thenReturn(java.util.List.of(product1, product2));
 
         // Act
         java.util.List<ProductResponseDTO> result = productService.getAllProducts();
@@ -255,6 +260,39 @@ public class ProductServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(2);
 
+        verify(productRepository).findAllByOrderByDisplayOrderAscIdAsc();
+    }
+
+    @Test
+    void shouldUpdateProductOrderSuccessfully() {
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Pan francÃ©s");
+        product1.setPrice(new BigDecimal(2500));
+        product1.setDescription("ClÃ¡sico pan francÃ©s");
+        product1.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
+        product1.setImageUrl("https://example.com/images/baguette.jpg");
+        product1.setDisplayOrder(0);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Muffin de arÃ¡ndanos");
+        product2.setPrice(new BigDecimal(3500));
+        product2.setDescription("Muffin suave con arÃ¡ndanos frescos");
+        product2.setIngredients(Arrays.asList("Harina", "arÃ¡ndanos", "azÃºcar", "mantequilla", "huevos", "levadura"));
+        product2.setImageUrl("https://example.com/images/muffin.jpg");
+        product2.setDisplayOrder(1);
+
+        when(productRepository.findAll()).thenReturn(java.util.List.of(product1, product2));
+        when(productRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
+
+        java.util.List<ProductResponseDTO> result = productService.updateProductOrder(java.util.List.of(2L, 1L));
+
+        assertThat(result).extracting(ProductResponseDTO::getId).containsExactly(2L, 1L);
+        assertThat(product2.getDisplayOrder()).isEqualTo(0);
+        assertThat(product1.getDisplayOrder()).isEqualTo(1);
+
         verify(productRepository).findAll();
+        verify(productRepository).saveAll(any());
     }
 }

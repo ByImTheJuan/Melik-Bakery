@@ -15,7 +15,7 @@ const OrderConfirmationPage = () => {
     <div className="order-confirmation-page">
       <div className="order-confirmation-card">
         <div className="order-confirmation-badge">Pedido confirmado</div>
-        <h1>Tu pedido ha sido completado con exito</h1>
+        <h1>Tu pedido ha sido completado con éxito</h1>
         <p className="order-confirmation-text">
           Ya recibimos tu solicitud y comenzaremos a prepararla lo antes posible.
         </p>
@@ -44,7 +44,7 @@ const OrderConfirmationPage = () => {
         </div>
 
         <p className="order-confirmation-note">
-          Si necesitamos alguna aclaracion sobre la entrega, nos pondremos en contacto contigo.
+          Si necesitamos alguna aclaración sobre la entrega, nos pondremos en contacto contigo.
         </p>
 
         <div className="order-confirmation-actions">

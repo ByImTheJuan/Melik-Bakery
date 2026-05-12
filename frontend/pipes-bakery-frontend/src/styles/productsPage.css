@@ -24,26 +24,26 @@
 @media (max-width: 1024px) {
   .products-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 7%;
+    gap: 2rem;
   }
 }
 
 @media (max-width: 1024px) {
 
   .products-container {
-    padding: 0.5rem 2rem 10rem 2rem;
+    padding: 0.5rem 2rem 2rem 2rem;
   }
 
   .products-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 5%;
+    gap: 4rem;
   }
 }
 
 @media (max-width: 500px) {
   .products-grid {
     grid-template-columns: 1fr;
-    gap: 2%;
+    gap: 4rem;
   }
 }
 
@@ -110,6 +110,7 @@
   margin-left: 0.5rem;
   font-size: 1.2rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .product-price {
@@ -148,4 +149,11 @@
 
 .product-button:hover {
   background: color-mix(in srgb, var(--color-secondary-2) 90%, black);
+}
+
+.products-note {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text);
 }

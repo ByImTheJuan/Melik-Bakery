@@ -15,7 +15,10 @@
             "mainClass": "com.hyd.pipes_bakery_backend.PipesBakeryBackendApplication",
             "projectName": "pipes-bakery-backend",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "SPRING_PROFILES_ACTIVE": "dev"
+            }
         }
     ]
 }
