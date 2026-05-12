@@ -16,7 +16,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("../context/CartContext", () => ({
+vi.mock("../hooks/useCart", () => ({
   useCart: vi.fn(),
 }));
 
