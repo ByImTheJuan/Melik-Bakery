@@ -52,7 +52,6 @@ public class ShoppingCartController {
     @ApiResponse(responseCode = "201", description = "Carrito creado",
             content = @Content(schema = @Schema(implementation = ShoppingCartResponseDTO.class)))
     public ShoppingCartResponseDTO createCart() {
-        System.out.println("Creating new cart (controller)...");
         return cartService.createCart();
     }
 

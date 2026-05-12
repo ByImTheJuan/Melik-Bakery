@@ -43,7 +43,6 @@ public class CartStorage implements ICartStorage {
 
     @Override
     public void saveCart(UUID cartId, @NonNull ShoppingCart cart) {
-        System.out.println("Saving cart with ID: " + cartId);
         redisTemplate.opsForValue().set(key(cartId), cart, Duration.ofHours(48));
     }
 

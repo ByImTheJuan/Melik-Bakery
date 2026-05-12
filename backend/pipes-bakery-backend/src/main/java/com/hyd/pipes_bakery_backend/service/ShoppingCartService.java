@@ -39,7 +39,6 @@ public class ShoppingCartService implements IShoppingCartService {
     @Override
     public ShoppingCartResponseDTO createCart() {
         ShoppingCart cart = cartStorage.createCart();
-        System.out.println("Neww cart created with ID: (service)" + cart.getCartId());
         return shoppingCartMapper.toDto(cart);
     }
 
