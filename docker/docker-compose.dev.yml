@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8
-    container_name: pipes-mysql
+    container_name: bakery-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: pipes_bakery
@@ -12,20 +10,21 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - pipes-bakery-backend_mysql-data:/var/lib/mysql
     networks:
-      - pipes-network
+      - bakery-network
 
   redis:
     image: redis:7
-    container_name: pipes-redis
+    container_name: bakery-redis
     ports:
       - "6379:6379"
     networks:
-      - pipes-network
+      - bakery-network
 
 networks:
-  pipes-network:
+  bakery-network:
 
 volumes:
-  mysql-data:
+  pipes-bakery-backend_mysql-data:
+    external: true
