@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import OrdersAdmin from "./OrdersAdmin";
 import * as orderService from "../../services/orderService";
@@ -60,10 +61,18 @@ describe("OrdersAdmin", () => {
     expect(await screen.findByText("ana@melik.com")).toBeInTheDocument();
     expect(screen.getByText("Croissant")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "SHIPPED" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Guardar estado" }));
+    const user = userEvent.setup();
+
+    await user.selectOptions(
+      screen.getByRole("combobox"),
+      "SHIPPED"
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Guardar estado",
+      })
+    );
 
     await waitFor(() => {
       expect(orderService.updateOrderStatus).toHaveBeenCalledWith("ABC123", "SHIPPED");
