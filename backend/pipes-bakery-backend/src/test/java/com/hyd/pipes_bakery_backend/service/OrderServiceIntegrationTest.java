@@ -1,11 +1,10 @@
 package com.hyd.pipes_bakery_backend.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +38,7 @@ class OrderServiceIntegrationTest {
 
     @Test
     void shouldRetrieveAndUpdateOrderStatusByPublicId() {
-        Order savedOrder = saveOrder("LMN456", OrderStatus.CREATED);
+        Order savedOrder = saveOrder("LMN456", OrderStatus.PENDING_PAYMENT);
 
         OrderResponseDTO found = orderService.getOrderById(savedOrder.getPublicId());
         OrderResponseDTO updated = orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.DELIVERED);

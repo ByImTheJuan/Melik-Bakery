@@ -32,7 +32,10 @@ export async function ensureCartId() {
 
   const cart = await createCart();
 
-  console.log("Created new cart:", cart);
+  if (import.meta.env.DEV) {
+    console.log("Created new cart:", cart);
+  }
+  
   cartId = cart.cartId;
 
   setCartId(cartId);

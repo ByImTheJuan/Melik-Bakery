@@ -22,7 +22,9 @@ export function CartProvider({ children }) {
         setCart(data);
 
       } catch (err) {
-        console.error("Error initializing cart", err);
+        if (import.meta.env.DEV) {
+          console.error("Error initializing cart", err);
+        }
       } finally {
         setLoading(false);
       }

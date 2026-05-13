@@ -2,7 +2,9 @@ import apiClient from "../api/apiClient";
 
 
 export async function createCart() {
-  console.log("Creating new cart...");
+  if (import.meta.env.DEV) {
+    console.log("Creating new cart...");
+  }
   const response = await apiClient.post("/cart");
   return await response.data;
 }
@@ -16,16 +18,21 @@ export async function getCart(cartId) {
     const response = await apiClient.get(`/cart/${cartId}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching cart:", error);
-    if (error.response?.status === 404) {
-      console.log("Cart not found, returning null");
-      return null;
+    if (import.meta.env.DEV) {
+      console.error("Error fetching cart:", error);
+      if (error.response?.status === 404) {
+        console.log("Cart not found, returning null");
+        return null;
+      }
+      throw error;
     }
-    throw error;
   }
 }
 
 export async function addItem(cartId, productId, quantity) {
+  if (import.meta.env.DEV) {
+    console.log("Adding item to cart...", { cartId, productId, quantity });
+  }
   const response = await apiClient.post(`/cart/${cartId}/items`, {
     productId,
     quantity
@@ -34,6 +41,9 @@ export async function addItem(cartId, productId, quantity) {
 }
 
 export async function removeItem(cartId, productId) {
+  if (import.meta.env.DEV) {
+    console.log("Removing item from cart...", { cartId, productId });
+  }
   const response = await apiClient.delete(`/cart/${cartId}/items/${productId}`);
   return await response.data;
 }

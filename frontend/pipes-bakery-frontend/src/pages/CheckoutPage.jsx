@@ -156,8 +156,10 @@ const CheckoutPage = () => {
         state: { order },
       });
     } catch (err) {
-      console.error(err);
-      setErrors(getApiErrors(err));
+      if (import.meta.env.DEV) {
+        console.error(err);
+        setErrors(getApiErrors(err));
+      }
     } finally {
       setLoading(false);
     }

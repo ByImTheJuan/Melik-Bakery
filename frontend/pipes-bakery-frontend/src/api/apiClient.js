@@ -10,8 +10,21 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   response => response,
+
   error => {
-    console.error("API Error:", error);
+
+    const status = error.response?.status;
+
+    // Errores esperados
+    if (status === 401 || status === 403) {
+      return Promise.reject(error);
+    }
+
+    // Sólo en desarrollo
+    if (import.meta.env.DEV) {
+      console.error("API Error:", error);
+    }
+
     return Promise.reject(error);
   }
 );

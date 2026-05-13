@@ -44,7 +44,7 @@ class OrderControllerTest {
 
     @Test
     void shouldGetAllOrdersSuccessfully() throws Exception {
-        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.CREATED)));
+        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.PENDING_PAYMENT)));
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
@@ -57,7 +57,7 @@ class OrderControllerTest {
 
     @Test
     void shouldGetOrderByIdSuccessfully() throws Exception {
-        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.CREATED));
+        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.PENDING_PAYMENT));
 
         mockMvc.perform(get("/api/orders/{orderId}", "ABC123"))
                 .andExpect(status().isOk())
