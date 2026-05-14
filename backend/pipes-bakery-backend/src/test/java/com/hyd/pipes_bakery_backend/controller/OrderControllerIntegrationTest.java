@@ -55,7 +55,7 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("CREATED"));
+                .andExpect(jsonPath("$[0].status").value("PENDING_PAYMENT"));
 
         OrderStatusUpdateRequestDTO request = new OrderStatusUpdateRequestDTO();
         request.setStatus(OrderStatus.SHIPPED);

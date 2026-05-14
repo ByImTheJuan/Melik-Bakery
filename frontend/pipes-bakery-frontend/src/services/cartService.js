@@ -15,17 +15,16 @@ export async function getCart(cartId) {
   }
 
   try {
-    const response = await apiClient.get(`/cart/${cartId}`);
+    const response = await apiClient.get(`/cart/${cartId}`, {
+      suppressExpectedErrorLog: true,
+    });
     return response.data;
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("Error fetching cart:", error);
-      if (error.response?.status === 404) {
-        console.log("Cart not found, returning null");
-        return null;
-      }
-      throw error;
+    if (error.response?.status === 404) {
+      return null;
     }
+
+    throw error;
   }
 }
 

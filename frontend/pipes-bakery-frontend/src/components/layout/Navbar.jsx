@@ -13,8 +13,9 @@ export default function Navbar() {
   const isHome = location.pathname === "/";
   const activeSection = useActiveSection(isHome ? ["hero", "about", "contact"] : []);
   const scrolled = useScrollState(25);
-  const { cart } = useCart();
+  const { cart, cartId } = useCart();
   const totalItems = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartPath = cart?.cartId || cartId ? `/cart/${cart?.cartId || cartId}` : "/cart";
 
   const goToSection = (sectionId) => {
     navigate("/", { state: { scrollTo: sectionId } });
@@ -84,7 +85,7 @@ export default function Navbar() {
 
           </div>
 
-          <Link to={`/cart/${cart?.cartId}`} 
+          <Link to={cartPath} 
             className={`cart-button ${
               location.pathname.startsWith("/cart") ? "active" : ""
             }`}

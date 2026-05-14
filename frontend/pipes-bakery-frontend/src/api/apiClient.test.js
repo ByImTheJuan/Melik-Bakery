@@ -17,4 +17,17 @@ describe("apiClient interceptors", () => {
       apiClient.interceptors.response.handlers[0].rejected(error)
     ).rejects.toBe(error);
   });
+
+  it("does not log errors marked as expected", async () => {
+    const error = {
+      config: { suppressExpectedErrorLog: true },
+      response: { status: 404 },
+    };
+
+    await expect(
+      apiClient.interceptors.response.handlers[0].rejected(error)
+    ).rejects.toBe(error);
+
+    expect(console.error).not.toHaveBeenCalled();
+  });
 });

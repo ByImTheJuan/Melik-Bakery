@@ -33,6 +33,9 @@ describe("cartService", () => {
     apiClient.get.mockRejectedValue({ response: { status: 404 } });
 
     await expect(getCart("missing")).resolves.toBeNull();
+    expect(apiClient.get).toHaveBeenCalledWith("/cart/missing", {
+      suppressExpectedErrorLog: true,
+    });
   });
 
   it("rethrows non-404 getCart errors", async () => {

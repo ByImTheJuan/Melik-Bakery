@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { CartContext } from "./cartContext";
 
 import { getCart, addItem, removeItem, updateItemQuantity } from "../services/cartService";
-import { clearCartId, ensureCartId } from "../services/cartStorage";
+import { clearCartId, ensureCartId, getCartId } from "../services/cartStorage";
 
 
 export function CartProvider({ children }) {
@@ -11,16 +11,26 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
 
-  // Inicializar carrito
+  // Inicializar carrito existente, sin crear uno nuevo al entrar en la web.
   useEffect(() => {
     async function init() {
+      const storedCartId = getCartId();
+
+      if (!storedCartId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const id = await ensureCartId();
-        const data = await getCart(id);
+        const data = await getCart(storedCartId);
 
-        setCartId(id);
-        setCart(data);
+        if (data) {
+          setCartId(storedCartId);
+          setCart(data);
+          return;
+        }
 
+        clearCartId();
       } catch (err) {
         if (import.meta.env.DEV) {
           console.error("Error initializing cart", err);
@@ -43,11 +53,15 @@ export function CartProvider({ children }) {
   }, [cartId]);
 
 
-  // Añadir item
+  // Anadir item
   const addToCart = useCallback(async (productId, quantity) => {
-    if (!cartId) return;
+    const id = cartId || await ensureCartId();
 
-    const data = await addItem(cartId, productId, quantity);
+    if (!cartId) {
+      setCartId(id);
+    }
+
+    const data = await addItem(id, productId, quantity);
     setCart(data);
   }, [cartId]);
 
@@ -70,15 +84,10 @@ export function CartProvider({ children }) {
     setCart(data);
   }, [cartId]);
 
-  const clearCart = useCallback(async () => {
+  const clearCart = useCallback(() => {
     clearCartId();
-
-    const newCartId = await ensureCartId();
-    const newCart = await getCart(newCartId);
-
-    setCartId(newCartId);
-    setCart(newCart);
-
+    setCartId(null);
+    setCart(null);
   }, []);
 
   const value = useMemo(() => ({

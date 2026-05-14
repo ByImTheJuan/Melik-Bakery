@@ -1,0 +1,451 @@
+PIPES BAKERY - TESTING STRATEGY AND TEST INVENTORY
+
+1. Objective
+
+The testing strategy of this project verifies the application by layers and by risk:
+
+- Fast unit tests for business rules, frontend utilities, HTTP service wrappers and page/component behavior in isolation.
+- Integration tests for backend persistence, Spring wiring, serialization and real controller-service-repository flows.
+- A backend smoke test to confirm the Spring Boot application context starts correctly.
+- A frontend component-flow test layer to validate the admin area, checkout validations and request orchestration without needing a browser E2E stack.
+
+This combination is appropriate because the project contains:
+
+- Non-trivial checkout and order-management rules.
+- JWT authentication and role-based access control.
+- An admin panel with create/edit/delete/update actions.
+- REST contracts where a small regression can break the frontend immediately.
+- A React SPA where routing, request orchestration and validation messaging are critical to the user experience.
+
+2. Testing technologies and why they were chosen
+
+2.1. Backend technologies
+
+- JUnit 5
+  Purpose: base test framework for the Java backend.
+  Justification: standard, stable and already integrated with Spring Boot and Maven Surefire.
+
+- Mockito
+  Purpose: isolate service and controller unit tests through mocks and stubs.
+  Justification: ideal for verifying business rules and repository/service interactions without hitting infrastructure.
+
+- Spring Boot Test
+  Purpose: bootstraps real application slices or the full Spring context.
+  Justification: necessary to validate security configuration, serialization, dependency wiring and end-to-end backend flows.
+
+- MockMvc
+  Purpose: exercises REST endpoints without deploying a real servlet container.
+  Justification: the most efficient way to validate HTTP contracts, status codes and JSON payloads in controller tests.
+
+- H2/test profile infrastructure already present in the backend
+  Purpose: run repository and integration tests with real persistence.
+  Justification: gives confidence in JPA mappings and transactional flows while keeping tests fast and deterministic.
+
+2.2. Frontend technologies
+
+- Vitest
+  Purpose: frontend test runner.
+  Justification: it integrates naturally with Vite, is fast, supports ESM without extra ceremony, and is the most coherent choice for a Vite-based React project. Choosing Jest here would add more configuration and less native compatibility.
+
+- React Testing Library
+  Purpose: render components/pages and assert user-visible behavior.
+  Justification: it encourages testing from the user's perspective instead of testing implementation details, which is especially important for pages like AdminLoginPage, CheckoutPage, OrdersAdmin and ProductsAdmin.
+
+- @testing-library/jest-dom
+  Purpose: richer DOM assertions such as toBeInTheDocument and toBeDisabled.
+  Justification: improves readability and reduces noisy low-level assertions.
+
+- @testing-library/user-event
+  Purpose: simulate richer user interactions when needed.
+  Justification: keeps the suite future-proof for realistic interactions, even though many current tests are already covered with fireEvent.
+
+- jsdom
+  Purpose: browser-like DOM environment for Vitest.
+  Justification: necessary to execute React component and page tests in Node while preserving DOM APIs like document, localStorage and form behavior.
+
+2.3. Why no E2E framework was added in this iteration
+
+- Tools such as Playwright or Cypress are valuable, but they would introduce a heavier infrastructure and slower pipelines.
+- At the current project maturity, the highest value comes from stabilizing unit and component-flow tests first.
+- The newly added suite already validates the most fragile frontend flows without requiring a running browser or backend.
+
+3. Complete test inventory
+
+3.1. Backend smoke tests
+
+- PipesBakeryBackendApplicationTests
+  Type: backend smoke test.
+  Purpose: confirms that the Spring Boot application context starts successfully.
+  Justification: detects global configuration breakage early.
+
+3.2. Backend controller unit tests (WebMvc)
+
+- AddressControllerTest
+  Type: controller unit test.
+  Purpose: validates HTTP responses, validation errors and not-found handling for addresses.
+  Justification: protects the REST contract of the address resource.
+
+- ClientControllerTest
+  Type: controller unit test.
+  Purpose: validates create/read/update flows and client-related HTTP errors.
+  Justification: protects the client API contract without involving the database.
+
+- ProductControllerTest
+  Type: controller unit test.
+  Purpose: validates product CRUD HTTP behavior and validation errors.
+  Justification: protects the catalog API contract.
+
+- OrderControllerTest
+  Type: controller unit test.
+  Purpose:
+  - list all orders
+  - get one order by publicId
+  - return 404 for missing orders
+  - patch the order status
+  - reject invalid patch payloads
+  Justification: the admin order module depends directly on this contract.
+
+3.3. Backend controller integration tests
+
+- AddressControllerIntegrationTest
+  Type: integration test.
+  Purpose: validates that address endpoints work with a real Spring context.
+  Justification: catches serialization and wiring problems beyond unit scope.
+
+- ClientControllerIntegrationTest
+  Type: integration test.
+  Purpose: validates create/read client flows with real Spring wiring.
+  Justification: verifies the complete HTTP-to-persistence chain.
+
+- ProductControllerIntegrationTest
+  Type: integration test.
+  Purpose: validates product creation and retrieval with real persistence.
+  Justification: ensures catalog persistence and exposure work together correctly.
+
+- OrderControllerIntegrationTest
+  Type: integration test.
+  Purpose:
+  - list persisted orders
+  - retrieve an order by publicId
+  - update status through PATCH
+  Justification: verifies the admin order-management flow with real persistence and JSON serialization.
+
+3.4. Backend repository integration tests
+
+- AddressRepositoryIntegrationTest
+  Type: repository integration test.
+  Purpose: validates address persistence and retrieval.
+  Justification: protects basic JPA mapping behavior.
+
+- ClientRepositoryIntegrationTest
+  Type: repository integration test.
+  Purpose: validates client persistence and lookup.
+  Justification: confirms client entity mappings and repository behavior.
+
+- ProductRepositoryIntegrationTest
+  Type: repository integration test.
+  Purpose: validates product persistence.
+  Justification: catches mapping or schema regressions in the catalog model.
+
+- OrderRepositoryIntegrationTest
+  Type: repository integration test.
+  Purpose:
+  - persist orders with items
+  - validate lookup by publicId
+  - validate existence check by publicId
+  Justification: publicId is fundamental to the order domain and must remain reliable.
+
+3.5. Backend service unit tests
+
+- AddressServiceTest
+  Type: service unit test.
+  Purpose: validates address business rules and service errors.
+  Justification: isolates domain behavior from infrastructure.
+
+- ClientServiceTest
+  Type: service unit test.
+  Purpose:
+  - create and update clients
+  - hash passwords
+  - handle client-related errors
+  Justification: protects critical user/client rules, including credential storage behavior.
+
+- ProductServiceTest
+  Type: service unit test.
+  Purpose: validates product CRUD business behavior and not-found handling.
+  Justification: protects catalog service logic.
+
+- AuthServiceTest
+  Type: service unit test.
+  Purpose:
+  - validate login credential flow
+  - enforce ADMIN-only token issuance
+  Justification: protects authentication and authorization rules.
+
+- JwtServiceTest
+  Type: service unit test.
+  Purpose:
+  - generate JWTs
+  - extract username
+  - extract roles
+  - validate tokens
+  Justification: protects the stateless authentication core.
+
+- OrderServiceTest
+  Type: service unit test.
+  Purpose:
+  - list and retrieve orders by publicId
+  - update and cancel order status
+  - run checkout with valid data
+  - reject empty carts
+  - reject invalid address data
+  Justification: concentrates the highest-risk business logic in the backend.
+
+3.6. Backend service integration tests
+
+- AddressServiceIntegrationTest
+  Type: service integration test.
+  Purpose: validates the real address service flow with mapper and repository.
+  Justification: checks real collaboration across layers.
+
+- ClientServiceIntegrationTest
+  Type: service integration test.
+  Purpose: validates client service behavior in a real Spring context.
+  Justification: catches wiring and persistence issues not visible in unit tests.
+
+- ProductServiceIntegrationTest
+  Type: service integration test.
+  Purpose: validates real product creation and retrieval.
+  Justification: ensures the product service works correctly with persistence.
+
+- OrderServiceIntegrationTest
+  Type: service integration test.
+  Purpose:
+  - retrieve orders by publicId
+  - persist and update order statuses
+  Justification: ensures the order domain works correctly beyond mocks.
+
+3.7. Frontend utility and service unit tests
+
+- src/utils/formatPrice.test.js
+  Type: frontend utility unit test.
+  Purpose: validates Colombian price formatting.
+  Justification: prices are shown throughout the storefront and admin area, so formatting consistency matters.
+
+- src/utils/handleAxiosError.test.js
+  Type: frontend utility unit test.
+  Purpose: validates user-facing error mapping for HTTP, network and unexpected failures.
+  Justification: prevents regressions in error messaging.
+
+- src/services/authStorage.test.js
+  Type: frontend service unit test.
+  Purpose: validates token persistence and removal in localStorage.
+  Justification: admin authentication depends directly on this storage layer.
+
+- src/services/authService.test.js
+  Type: frontend service unit test.
+  Purpose:
+  - send admin login credentials
+  - persist the returned JWT
+  Justification: protects the login request contract and token storage behavior.
+
+- src/services/cartService.test.js
+  Type: frontend service unit test.
+  Purpose:
+  - create carts
+  - handle cart 404 as a recoverable case
+  - mark cart lookup 404 responses as expected so the HTTP interceptor does not log them
+  - rethrow non-404 cart errors
+  - send checkout payloads correctly
+  Justification: cart lifecycle and checkout orchestration are core storefront flows.
+
+- src/services/orderService.test.js
+  Type: frontend service unit test.
+  Purpose:
+  - fetch orders
+  - update order status through PATCH
+  - validate exported status metadata
+  Justification: protects the admin order module contract and the recent REST refactor from PUT to PATCH.
+
+- src/api/apiClient.test.js
+  Type: frontend infrastructure unit test.
+  Purpose:
+  - inject Bearer tokens into outgoing requests
+  - keep requests unchanged when no token exists
+  - reject failed responses through the interceptor chain
+  - suppress console logging for errors explicitly marked as expected
+  Justification: this is the common HTTP entry point for admin-secured requests.
+
+3.8. Frontend component tests
+
+- src/context/CartProvider.test.jsx
+  Type: frontend context/component test.
+  Purpose:
+  - avoid creating or fetching a cart when no cart id exists in localStorage
+  - create the cart lazily when the first product is added
+  - update context state after the first add-to-cart operation
+  Justification: protects the Redis-saving cart lifecycle change by ensuring anonymous visits do not create unnecessary carts.
+
+- src/components/checkout/OrderSummary.test.jsx
+  Type: frontend component test.
+  Purpose:
+  - render backend-provided subtotal, shipping and total
+  - render validation errors
+  - disable checkout button while loading
+  - trigger the checkout callback
+  Justification: the checkout summary is a critical user-facing financial component.
+
+- src/components/layout/Layout.test.jsx
+  Type: frontend component test.
+  Purpose:
+  - show Navbar on public routes
+  - hide Navbar on admin routes
+  - always render Footer
+  Justification: validates route-sensitive layout behavior introduced by the admin area.
+
+- src/components/admin/OrdersAdmin.test.jsx
+  Type: frontend component test.
+  Purpose:
+  - load the order list
+  - display selected order details
+  - submit order status changes
+  - surface backend load errors
+  Justification: OrdersAdmin is a critical admin workflow and directly exercises the patched status-change behavior.
+
+- src/components/admin/ProductsAdmin.test.jsx
+  Type: frontend component test.
+  Purpose:
+  - load products
+  - create products with dynamic ingredient fields
+  - switch to edit mode
+  - submit edited products
+  Justification: the product form has non-trivial behavior because ingredients are a list, not a single text field.
+
+3.9. Frontend page tests
+
+- src/pages/AdminLoginPage.test.jsx
+  Type: frontend page test.
+  Purpose:
+  - submit admin credentials
+  - redirect after successful login
+  - show backend error messages on failure
+  Justification: validates the full login page behavior from the user's perspective.
+
+- src/pages/AdminMainPage.test.jsx
+  Type: frontend page test.
+  Purpose:
+  - redirect unauthenticated users to admin login
+  - switch between product and order management
+  - clear token and navigate on logout
+  Justification: protects access control and section orchestration inside the admin shell.
+
+- src/pages/CheckoutPage.test.jsx
+  Type: frontend page test.
+  Purpose:
+  - block submission when client-side validation fails
+  - send the normalized checkout payload on success
+  - clear the cart after successful checkout
+  - redirect to order success page
+  Justification: this page coordinates the most important conversion flow in the storefront.
+
+4. Coverage achieved
+
+With the current suite, the project is explicitly covered in these areas:
+
+- Backend application startup.
+- Backend CRUD for addresses, clients and products.
+- Backend order retrieval, publicId usage and status patching.
+- Backend checkout rules:
+  - non-empty cart
+  - valid address
+  - Bogota city normalization
+  - Colombia country restriction
+  - zip code format 11xxxx
+- Password hashing and admin-only login token issuance.
+- JWT generation, extraction and validation.
+- Frontend token storage and automatic Authorization header injection.
+- Frontend cart recovery behavior when a stored cart no longer exists.
+- Frontend lazy cart creation on first add-to-cart instead of on anonymous page entry.
+- Frontend suppression of expected cart lookup 404 console logging.
+- Frontend admin login flow and logout flow.
+- Frontend admin section switching.
+- Frontend product admin ingredient-list behavior.
+- Frontend order admin loading and status update flow.
+- Frontend checkout page validation, payload construction and success redirect.
+- Frontend presentation of backend-provided totals in checkout.
+
+5. Strategy behind the suite
+
+The suite follows a pragmatic testing pyramid:
+
+- Broad base of unit tests
+  Used for backend services, frontend utilities and HTTP wrappers.
+  Benefit: very fast feedback and precise failure localization.
+
+- Middle layer of integration tests
+  Used mainly in the backend to validate Spring, JPA, JSON serialization and transactional flows.
+  Benefit: high confidence that real infrastructure and domain logic collaborate correctly.
+
+- Frontend component-flow tests
+  Used for pages and admin components where the main risk is user interaction, routing and request orchestration.
+  Benefit: strong UX validation without the cost of full browser E2E infrastructure.
+
+This balance is especially suitable here because:
+
+- The backend carries substantial business logic and persistence concerns.
+- The frontend carries orchestration, validation and admin workflow complexity.
+- The project benefits more from fast, maintainable regression protection than from a small number of slow browser tests.
+
+6. Why the new frontend tests were necessary
+
+These frontend tests were added because the project had an important validation gap:
+
+- There was no automated verification for the React application.
+- Recent changes introduced admin authentication, protected admin navigation, product management, order management and checkout refinements.
+- Several frontend flows depend on exact request shapes and navigation behavior; those regressions are easy to miss manually.
+- The cart recovery and order status patching flows had already shown that frontend/backend contract mismatches can break production behavior.
+
+The new frontend suite is necessary to guarantee:
+
+- stable API contract usage from the client
+- stable route and layout behavior
+- stable admin authentication and logout behavior
+- stable list-based ingredient editing in products
+- stable order status updates using PATCH
+- stable checkout validations and order completion flow
+
+7. Files added or updated for frontend testing infrastructure
+
+- frontend/pipes-bakery-frontend/package.json
+  Added scripts:
+  - npm run test
+  - npm run test:watch
+
+- frontend/pipes-bakery-frontend/vite.config.js
+  Added Vitest configuration:
+  - jsdom environment
+  - setup file
+  - globals
+  - CSS support
+
+- frontend/pipes-bakery-frontend/src/test/setup.js
+  Shared test setup:
+  - jest-dom matchers
+  - localStorage cleanup
+  - mock restoration
+  - DOM cleanup
+
+8. Recommended next steps
+
+- Add a small number of E2E tests later for the highest-value real browser flows:
+  - admin login
+  - create product
+  - patch order status
+  - checkout success flow
+
+- Add CI execution for:
+  - backend: ./mvnw clean package
+  - frontend: npm run test and npm run build
+
+- Consider adding MSW in the future if frontend API mocking grows more complex.
+  Justification: for the current project size, direct module mocks are simpler and sufficient; MSW becomes more valuable when many screens share broader API interaction patterns.

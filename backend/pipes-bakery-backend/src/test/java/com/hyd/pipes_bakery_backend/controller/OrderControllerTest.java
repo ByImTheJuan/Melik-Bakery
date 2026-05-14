@@ -50,7 +50,7 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("CREATED"));
+                .andExpect(jsonPath("$[0].status").value("PENDING_PAYMENT"));
 
         verify(orderService).getAllOrders();
     }

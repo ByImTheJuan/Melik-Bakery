@@ -15,6 +15,10 @@ apiClient.interceptors.response.use(
 
     const status = error.response?.status;
 
+    if (error.config?.suppressExpectedErrorLog) {
+      return Promise.reject(error);
+    }
+
     // Errores esperados
     if (status === 401 || status === 403) {
       return Promise.reject(error);
