@@ -114,7 +114,7 @@ public class OrderService implements IOrderService {
                                     )
                             );
 
-                    return new OrderItem(product, itemDto.getQuantity());
+                    return new OrderItem(product, itemDto.getQuantity(), itemDto.getUnitPriceAtAdd());
                 })
                 .toList();
 

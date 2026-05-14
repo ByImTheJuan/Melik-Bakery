@@ -105,6 +105,15 @@ This combination is appropriate because the project contains:
   - reject invalid patch payloads
   Justification: the admin order module depends directly on this contract.
 
+- AuthControllerTest
+  Type: controller unit test.
+  Purpose:
+  - set the admin JWT in an HttpOnly Secure cookie after successful login
+  - clear the admin cookie on logout
+  - invoke login rate-limit checks before authenticating
+  - clear failed login attempts after successful authentication
+  Justification: protects the cookie-based admin login contract and verifies that the controller is connected to the brute-force protection service.
+
 3.3. Backend controller integration tests
 
 - AddressControllerIntegrationTest
@@ -182,6 +191,15 @@ This combination is appropriate because the project contains:
   - enforce ADMIN-only token issuance
   Justification: protects authentication and authorization rules.
 
+- LoginRateLimitServiceTest
+  Type: service unit test.
+  Purpose:
+  - lock admin login after 5 failed attempts for the same IP and email
+  - reject login while a Redis-backed lock exists
+  - reject login when the Redis-backed per-minute rate window is exceeded
+  - clear failed-attempt and lock keys after successful login
+  Justification: protects the brute-force mitigation added to the admin login flow and verifies that the state used for throttling is stored in Redis keys, not only in process memory.
+
 - JwtServiceTest
   Type: service unit test.
   Purpose:
@@ -197,9 +215,10 @@ This combination is appropriate because the project contains:
   - list and retrieve orders by publicId
   - update and cancel order status
   - run checkout with valid data
+  - preserve the frozen cart price when converting a cart into an order
   - reject empty carts
   - reject invalid address data
-  Justification: concentrates the highest-risk business logic in the backend.
+  Justification: concentrates the highest-risk business logic in the backend, including the payment-readiness rule that the order total must come from backend-owned cart state rather than a frontend-submitted price.
 
 3.6. Backend service integration tests
 
@@ -237,17 +256,15 @@ This combination is appropriate because the project contains:
   Purpose: validates user-facing error mapping for HTTP, network and unexpected failures.
   Justification: prevents regressions in error messaging.
 
-- src/services/authStorage.test.js
-  Type: frontend service unit test.
-  Purpose: validates token persistence and removal in localStorage.
-  Justification: admin authentication depends directly on this storage layer.
-
 - src/services/authService.test.js
   Type: frontend service unit test.
   Purpose:
   - send admin login credentials
-  - persist the returned JWT
-  Justification: protects the login request contract and token storage behavior.
+  - confirm login does not store an admin token in localStorage
+  - validate admin session checks
+  - fetch the admin CSRF token after a valid session check
+  - fetch the admin CSRF token before logout
+  Justification: protects the cookie-based admin authentication contract and the CSRF preparation required before unsafe admin mutations.
 
 - src/services/cartService.test.js
   Type: frontend service unit test.
@@ -270,11 +287,12 @@ This combination is appropriate because the project contains:
 - src/api/apiClient.test.js
   Type: frontend infrastructure unit test.
   Purpose:
-  - inject Bearer tokens into outgoing requests
-  - keep requests unchanged when no token exists
+  - keep requests configured with credentials so HttpOnly cookies are sent
+  - attach X-XSRF-TOKEN to unsafe admin requests when the XSRF-TOKEN cookie exists
+  - avoid attaching CSRF headers to public cart requests
   - reject failed responses through the interceptor chain
   - suppress console logging for errors explicitly marked as expected
-  Justification: this is the common HTTP entry point for admin-secured requests.
+  Justification: this is the common HTTP entry point for cookie-authenticated admin requests and must preserve CSRF protection without polluting public storefront calls.
 
 3.8. Frontend component tests
 
@@ -362,8 +380,17 @@ With the current suite, the project is explicitly covered in these areas:
   - Colombia country restriction
   - zip code format 11xxxx
 - Password hashing and admin-only login token issuance.
+- Admin login brute-force protection:
+  - 5 failed attempts create a temporary lock
+  - existing locks reject login
+  - Redis-backed per-minute rate windows reject excessive login traffic
+  - successful login clears failed-attempt state
 - JWT generation, extraction and validation.
-- Frontend token storage and automatic Authorization header injection.
+- Cookie-based admin authentication without localStorage token persistence.
+- Frontend CSRF behavior:
+  - fetch CSRF token for authenticated admin sessions
+  - attach CSRF token to unsafe admin requests
+  - avoid attaching CSRF token to public cart requests
 - Frontend cart recovery behavior when a stored cart no longer exists.
 - Frontend lazy cart creation on first add-to-cart instead of on anonymous page entry.
 - Frontend suppression of expected cart lookup 404 console logging.
@@ -373,6 +400,7 @@ With the current suite, the project is explicitly covered in these areas:
 - Frontend order admin loading and status update flow.
 - Frontend checkout page validation, payload construction and success redirect.
 - Frontend presentation of backend-provided totals in checkout.
+- Backend checkout conversion preserves frozen cart prices when creating order items.
 
 5. Strategy behind the suite
 
@@ -396,20 +424,25 @@ This balance is especially suitable here because:
 - The frontend carries orchestration, validation and admin workflow complexity.
 - The project benefits more from fast, maintainable regression protection than from a small number of slow browser tests.
 
-6. Why the new frontend tests were necessary
+6. Why the new security and frontend tests were necessary
 
-These frontend tests were added because the project had an important validation gap:
+These frontend and security tests were added because the project had an important validation gap:
 
 - There was no automated verification for the React application.
 - Recent changes introduced admin authentication, protected admin navigation, product management, order management and checkout refinements.
+- Recent hardening introduced CSRF protection for unsafe admin requests and rate limiting for admin login.
+- Checkout now has an explicit frozen-price policy that must not regress before real payments are added.
 - Several frontend flows depend on exact request shapes and navigation behavior; those regressions are easy to miss manually.
 - The cart recovery and order status patching flows had already shown that frontend/backend contract mismatches can break production behavior.
 
-The new frontend suite is necessary to guarantee:
+The new suite is necessary to guarantee:
 
 - stable API contract usage from the client
 - stable route and layout behavior
-- stable admin authentication and logout behavior
+- stable cookie-based admin authentication and logout behavior
+- stable CSRF token retrieval and header injection for admin mutations
+- stable login brute-force protection based on IP and email
+- stable frozen-price order creation
 - stable list-based ingredient editing in products
 - stable order status updates using PATCH
 - stable checkout validations and order completion flow

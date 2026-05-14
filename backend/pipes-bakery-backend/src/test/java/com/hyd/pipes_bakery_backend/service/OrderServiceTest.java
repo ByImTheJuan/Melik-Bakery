@@ -145,6 +145,32 @@ class OrderServiceTest {
     }
 
     @Test
+    void shouldUseFrozenCartPriceWhenCheckingOut() {
+        UUID cartId = UUID.randomUUID();
+        ShoppingCart cart = new ShoppingCart(cartId);
+        cart.setItems(List.of(new CartItem(1L, "Croissant", 2, new BigDecimal("9500"), "/images/products/croissant.jpg")));
+
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Croissant");
+        product.setPrice(new BigDecimal("12000"));
+
+        when(cartStorage.getCart(cartId)).thenReturn(cart);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(orderRepository.existsByPublicId(anyString())).thenReturn(false);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
+            Order savedOrder = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedOrder.getItems().get(0), "id", 1L);
+            return savedOrder;
+        });
+
+        OrderResponseDTO result = orderService.checkout(cartId, buildCheckoutRequest("Bogota", "Colombia", 110111));
+
+        assertThat(result.getItems().get(0).getUnitPriceAtPurchase()).isEqualByComparingTo(new BigDecimal("9500"));
+        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("19000"));
+    }
+
+    @Test
     void shouldThrowWhenCheckoutCartIsEmpty() {
         UUID cartId = UUID.randomUUID();
         ShoppingCart cart = new ShoppingCart(cartId);

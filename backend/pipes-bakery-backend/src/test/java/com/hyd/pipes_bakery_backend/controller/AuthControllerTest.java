@@ -3,6 +3,8 @@ package com.hyd.pipes_bakery_backend.controller;
 import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyd.pipes_bakery_backend.dto.auth.LoginRequestDTO;
 import com.hyd.pipes_bakery_backend.service.AuthService;
+import com.hyd.pipes_bakery_backend.service.LoginRateLimitService;
 
 @SuppressWarnings("null")
 @WebMvcTest(AuthController.class)
@@ -33,6 +36,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private LoginRateLimitService loginRateLimitService;
 
     @Test
     void shouldSetJwtInHttpOnlySecureCookieWhenLoginSucceeds() throws Exception {
@@ -51,6 +57,9 @@ class AuthControllerTest {
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Max-Age=3600")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Secure")));
+
+        verify(loginRateLimitService).assertLoginAllowed(anyString(), anyString());
+        verify(loginRateLimitService).clearFailedAttempts(anyString(), anyString());
     }
 
     @Test
