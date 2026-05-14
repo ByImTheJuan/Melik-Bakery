@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
+@Profile("!prod")
 public class OpenApiConfig {
 
     public static final String SECURITY_SCHEME_NAME = "adminAuthCookie";

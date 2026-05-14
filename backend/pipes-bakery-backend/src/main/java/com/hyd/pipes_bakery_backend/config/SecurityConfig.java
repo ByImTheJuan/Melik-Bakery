@@ -1,8 +1,11 @@
 package com.hyd.pipes_bakery_backend.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,10 +19,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.hyd.pipes_bakery_backend.security.JwtAuthenticatorFilter;
 import com.hyd.pipes_bakery_backend.service.ClientUserDetailsService;
 import com.hyd.pipes_bakery_backend.service.JwtService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +40,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticatorFilter jwtAuthenticatorFilter) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .requireCsrfProtectionMatcher(new AdminUnsafeRequestMatcher())
+                )
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -48,13 +57,16 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/auth/session").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/admin/products/order").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/order").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/orders/**").hasRole("ADMIN")
+                        .requestMatchers("/api/clients", "/api/clients/**").hasRole("ADMIN")
+                        .requestMatchers("/api/addresses", "/api/addresses/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().permitAll()
                 )
@@ -85,5 +97,29 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private static class AdminUnsafeRequestMatcher implements RequestMatcher {
+        private static final String[] UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"};
+        private static final List<String> ADMIN_PATHS = List.of(
+                "/api/auth/logout",
+                "/api/products",
+                "/api/orders",
+                "/api/clients",
+                "/api/addresses"
+        );
+
+        @Override
+        public boolean matches(HttpServletRequest request) {
+            if (!List.of(UNSAFE_METHODS).contains(request.getMethod())) {
+                return false;
+            }
+
+            String requestPath = request.getServletPath();
+
+            return ADMIN_PATHS.stream().anyMatch(path ->
+                    requestPath.equals(path) || requestPath.startsWith(path + "/")
+            );
+        }
     }
 }

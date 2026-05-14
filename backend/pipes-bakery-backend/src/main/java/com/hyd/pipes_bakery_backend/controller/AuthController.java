@@ -1,10 +1,13 @@
 package com.hyd.pipes_bakery_backend.controller;
 
 import java.time.Duration;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +18,7 @@ import com.hyd.pipes_bakery_backend.dto.auth.AuthResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.auth.LoginRequestDTO;
 import com.hyd.pipes_bakery_backend.exception.ApiError;
 import com.hyd.pipes_bakery_backend.service.AuthService;
+import com.hyd.pipes_bakery_backend.service.LoginRateLimitService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -34,9 +39,11 @@ public class AuthController {
     private static final Duration ADMIN_AUTH_COOKIE_MAX_AGE = Duration.ofHours(1);
 
     private final AuthService authService;
+    private final LoginRateLimitService loginRateLimitService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, LoginRateLimitService loginRateLimitService) {
         this.authService = authService;
+        this.loginRateLimitService = loginRateLimitService;
     }
 
     @PostMapping("/login")
@@ -51,9 +58,22 @@ public class AuthController {
     })
     public AuthResponseDTO login(
             @Valid @RequestBody LoginRequestDTO request,
-            HttpServletResponse response
+            HttpServletResponse response,
+            HttpServletRequest httpRequest
     ) {
-        String token = authService.login(request);
+        String ipAddress = resolveClientIp(httpRequest);
+
+        loginRateLimitService.assertLoginAllowed(ipAddress, request.getEmail());
+
+        String token;
+        try {
+            token = authService.login(request);
+            loginRateLimitService.clearFailedAttempts(ipAddress, request.getEmail());
+        } catch (BadCredentialsException ex) {
+            loginRateLimitService.recordFailedAttempt(ipAddress, request.getEmail());
+            throw ex;
+        }
+
         response.addHeader(HttpHeaders.SET_COOKIE, buildAdminAuthCookie(token, ADMIN_AUTH_COOKIE_MAX_AGE).toString());
 
         return new AuthResponseDTO(true);
@@ -63,6 +83,16 @@ public class AuthController {
     @Operation(summary = "Comprobar sesion administrativa", description = "Devuelve estado autenticado cuando la cookie JWT administrativa es valida.")
     public AuthResponseDTO session() {
         return new AuthResponseDTO(true);
+    }
+
+    @GetMapping("/csrf")
+    @Operation(summary = "Obtener token CSRF administrativo", description = "Devuelve el token CSRF que debe enviarse en mutaciones administrativas.")
+    public Map<String, String> csrf(CsrfToken csrfToken) {
+        return Map.of(
+                "headerName", csrfToken.getHeaderName(),
+                "parameterName", csrfToken.getParameterName(),
+                "token", csrfToken.getToken()
+        );
     }
 
     @PostMapping("/logout")
@@ -81,5 +111,15 @@ public class AuthController {
                 .maxAge(maxAge)
                 .sameSite("Strict")
                 .build();
+    }
+
+    private String resolveClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
     }
 }

@@ -72,6 +72,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
+    @ExceptionHandler(LoginRateLimitException.class)
+    public ResponseEntity<ApiError> handleLoginRateLimit(LoginRateLimitException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(apiError);
+    }
+
     // RESOURCE NOT FOUND (404)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex) {
