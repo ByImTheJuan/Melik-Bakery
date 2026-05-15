@@ -12,7 +12,6 @@ import com.hyd.pipes_bakery_backend.exception.LoginRateLimitException;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 
 @Service
 public class LoginRateLimitService {
@@ -46,10 +45,10 @@ public class LoginRateLimitService {
         }
 
         Bucket bucket = requestBuckets.computeIfAbsent(key, ignored -> Bucket.builder()
-                .addLimit(Bandwidth.classic(
-                        MAX_ATTEMPTS_PER_MINUTE,
-                        Refill.greedy(MAX_ATTEMPTS_PER_MINUTE, Duration.ofMinutes(1))
-                ))
+                .addLimit(Bandwidth.builder()
+                        .capacity(MAX_ATTEMPTS_PER_MINUTE)
+                        .refillGreedy(MAX_ATTEMPTS_PER_MINUTE, Duration.ofMinutes(1))
+                        .build())
                 .build());
 
         if (!bucket.tryConsume(1)) {
