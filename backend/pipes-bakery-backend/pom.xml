@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.11</version>
+		<version>3.5.14</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.hyd</groupId>
@@ -106,7 +106,6 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
-		<!-- Not to use in production according to ChatGPT -->
 		<dependency>
    			<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-configuration-processor</artifactId>
