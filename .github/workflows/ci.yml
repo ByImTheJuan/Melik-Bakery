@@ -122,8 +122,8 @@ jobs:
           context: ./backend/pipes-bakery-backend
           push: true
           tags: |
-            ghcr.io/ByImTheJuan/pipes-bakery-backend:latest
-            ghcr.io/ByImTheJuan/pipes-bakery-backend:${{ github.sha }}
+            ghcr.io/byimthejuan/pipes-bakery-backend:latest
+            ghcr.io/byimthejuan/pipes-bakery-backend:${{ github.sha }}
 
       #################################################
       # FRONTEND IMAGE
@@ -135,5 +135,5 @@ jobs:
           context: ./frontend/pipes-bakery-frontend
           push: true
           tags: |
-            ghcr.io/ByImTheJuan/pipes-bakery-frontend:latest
-            ghcr.io/ByImTheJuan/pipes-bakery-frontend:${{ github.sha }}
+            ghcr.io/byimthejuan/pipes-bakery-frontend:latest
+            ghcr.io/byimthejuan/pipes-bakery-frontend:${{ github.sha }}
