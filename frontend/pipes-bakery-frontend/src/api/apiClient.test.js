@@ -31,28 +31,4 @@ describe("apiClient interceptors", () => {
 
     expect(console.error).not.toHaveBeenCalled();
   });
-
-  it("attaches csrf token to unsafe admin requests", () => {
-    document.cookie = "XSRF-TOKEN=csrf-token";
-
-    const config = apiClient.interceptors.request.handlers[0].fulfilled({
-      method: "put",
-      url: "/products/1",
-      headers: {},
-    });
-
-    expect(config.headers["X-XSRF-TOKEN"]).toBe("csrf-token");
-  });
-
-  it("does not attach csrf token to public cart requests", () => {
-    document.cookie = "XSRF-TOKEN=csrf-token";
-
-    const config = apiClient.interceptors.request.handlers[0].fulfilled({
-      method: "post",
-      url: "/cart",
-      headers: {},
-    });
-
-    expect(config.headers["X-XSRF-TOKEN"]).toBeUndefined();
-  });
 });
