@@ -82,7 +82,7 @@ jobs:
   #################################################
 
   docker-build:
-  
+
     runs-on: ubuntu-latest
 
     needs:
@@ -110,7 +110,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_AUTH_TOKEN }}
+          password: ${{ secrets.AUTH_TOKEN }}
 
       #################################################
       # BACKEND IMAGE
