@@ -130,7 +130,7 @@ jobs:
       #################################################
 
       - name: Build and push frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./frontend/pipes-bakery-frontend
           push: true
