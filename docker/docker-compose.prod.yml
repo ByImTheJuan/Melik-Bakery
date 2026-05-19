@@ -17,7 +17,7 @@ services:
       retries: 5
     volumes:
       - mysql_data:/var/lib/mysql
-      - ../../data/mysql/init:/docker-entrypoint-initdb.d
+      - ./data/mysql/init:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:7
@@ -46,9 +46,9 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     volumes:
-      - ../../data/Melik-Bakery/product-images/products:/app/images
+      - ./data/images/products:/app/images
 
-  frontend:
+  nginx:
     image: ghcr.io/ByImTheJuan/pipes-bakery-frontend:latest
 
     restart: unless-stopped
