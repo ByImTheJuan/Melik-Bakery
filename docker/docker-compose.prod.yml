@@ -46,7 +46,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     volumes:
-      - ./data/images/products:/app/images
+      - ./data/images:/app/images
 
   nginx:
     image: ghcr.io/ByImTheJuan/pipes-bakery-frontend:latest
