@@ -44,7 +44,7 @@ function ProductsPage() {
         ))}
       </div>
       <div className="products-note">
-        * Si no encuentras lo que buscas, contáctanos para pedidos personalizados.
+        * ¿No encuentras lo que buscas? Contáctanos para pedidos personalizados.
       </div>
     </div>
   );
