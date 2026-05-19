@@ -2,10 +2,10 @@ package com.hyd.pipes_bakery_backend.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.hyd.pipes_bakery_backend.security.JwtAuthenticatorFilter;
@@ -33,17 +36,29 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
+    @Value("${app.security.csrf.enabled:true}")
+    private boolean csrfEnabled;
+
     public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticatorFilter jwtAuthenticatorFilter) throws Exception {
+        
+         if (!csrfEnabled) {
+            http.csrf(csrf -> csrf.disable());
+        } else {
+
+            CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+
+            http.csrf(csrf -> csrf
+                    .csrfTokenRepository(csrfRepository)
+                    .requireCsrfProtectionMatcher(new AdminUnsafeRequestMatcher())
+            );
+        }
+        
         return http
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .requireCsrfProtectionMatcher(new AdminUnsafeRequestMatcher())
-                )
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -71,6 +86,17 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticatorFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter((request, response, chain) -> {
+                    CsrfToken csrfToken =
+                            (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+                    if (csrfToken != null) {
+                        csrfToken.getToken();
+                    }
+
+                    chain.doFilter(request, response);
+
+                }, CsrfFilter.class)
                 .build();
     }
 

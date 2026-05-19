@@ -3,7 +3,7 @@ import apiClient from "../api/apiClient";
 export async function loginAdmin(credentials) {
   const response = await apiClient.post("/auth/login", credentials);
 
-  await fetchAdminCsrfToken();
+  //await fetchAdminCsrfToken();
 
   return response.data;
 }
