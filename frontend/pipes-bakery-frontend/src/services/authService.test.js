@@ -20,10 +20,14 @@ describe("authService", () => {
       data: { authenticated: true },
     });
 
+    apiClient.get.mockResolvedValue({});
+
     const response = await loginAdmin({
       email: "admin@melik.com",
       password: "secret",
     });
+
+    expect(apiClient.get).toHaveBeenCalledWith("/auth/csrf");
 
     expect(apiClient.post).toHaveBeenCalledWith("/auth/login", {
       email: "admin@melik.com",
