@@ -41,9 +41,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
 
           script: |
-            wsl bash -c '
-              cd /home/dev/apps/Melik-Bakery &&
-              docker compose -f docker-compose.prod.yml pull &&
-              docker compose -f docker-compose.prod.yml up -d --remove-orphans &&
-              docker image prune -f
-            '
+            wsl bash -c "cd /home/dev/apps/Melik-Bakery && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -f"
