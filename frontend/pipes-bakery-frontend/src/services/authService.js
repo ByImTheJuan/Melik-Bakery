@@ -1,16 +1,22 @@
 import apiClient from "../api/apiClient";
 
 export async function loginAdmin(credentials) {
+  await fetchAdminCsrfToken();
   const response = await apiClient.post("/auth/login", credentials);
-
-  //await fetchAdminCsrfToken();
+  await fetchAdminCsrfToken();
 
   return response.data;
 }
 
 export async function checkAdminSession() {
   try {
-    await apiClient.get("/auth/session");
+    const sessionPath = import.meta.env.PROD ? "/auth/session-status" : "/auth/session";
+    const response = await apiClient.get(sessionPath);
+
+    if (response.data?.authenticated === false) {
+      return false;
+    }
+
     await fetchAdminCsrfToken();
     return true;
   } catch {

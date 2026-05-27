@@ -76,7 +76,7 @@ export default function OrdersAdmin() {
       );
       setSubmitMessage("Estado del pedido actualizado correctamente.");
     } catch (error) {
-      const apiErrors = error.response?.data?.errors;
+      const apiErrors = error.response?.data?.details;
       const apiMessage = error.response?.data?.message;
 
       setErrorMessage(

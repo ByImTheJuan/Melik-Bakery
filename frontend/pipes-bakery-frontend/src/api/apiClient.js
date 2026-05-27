@@ -10,6 +10,7 @@ const apiClient = axios.create({
 
 const unsafeMethods = new Set(["post", "put", "patch", "delete"]);
 const adminCsrfPaths = [
+  "/auth/login",
   "/auth/logout",
   "/products",
   "/orders",

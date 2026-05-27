@@ -21,12 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.hyd.pipes_bakery_backend.security.RestSecurityErrorHandler;
 import com.hyd.pipes_bakery_backend.security.JwtAuthenticatorFilter;
 import com.hyd.pipes_bakery_backend.service.ClientUserDetailsService;
 import com.hyd.pipes_bakery_backend.service.JwtService;
+import com.hyd.pipes_bakery_backend.service.JwtRevocationService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -44,16 +48,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticatorFilter jwtAuthenticatorFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticatorFilter jwtAuthenticatorFilter,
+            CsrfTokenRepository csrfTokenRepository,
+            RestSecurityErrorHandler securityErrorHandler
+    ) throws Exception {
         
          if (!csrfEnabled) {
             http.csrf(csrf -> csrf.disable());
         } else {
-
-            CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-
             http.csrf(csrf -> csrf
-                    .csrfTokenRepository(csrfRepository)
+                    .csrfTokenRepository(csrfTokenRepository)
+                    // The SPA reads the plain cookie value and sends it in X-XSRF-TOKEN.
+                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                    // JWT authentication is reconstructed on every stateless request;
+                    // token rotation is handled explicitly in the auth controller.
+                    .sessionAuthenticationStrategy((authentication, request, response) -> { })
                     .requireCsrfProtectionMatcher(new AdminUnsafeRequestMatcher())
             );
         }
@@ -64,15 +75,20 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(securityErrorHandler)
+                        .accessDeniedHandler(securityErrorHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/session-status").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/auth/session").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
@@ -101,11 +117,17 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        return CookieCsrfTokenRepository.withHttpOnlyFalse();
+    }
+
+    @Bean
     public JwtAuthenticatorFilter jwtAuthenticatorFilter(
             JwtService jwtService,
-            ClientUserDetailsService userDetailsService
+            ClientUserDetailsService userDetailsService,
+            JwtRevocationService jwtRevocationService
     ) {
-        return new JwtAuthenticatorFilter(jwtService, userDetailsService);
+        return new JwtAuthenticatorFilter(jwtService, userDetailsService, jwtRevocationService);
     }
 
     @Bean
@@ -128,6 +150,7 @@ public class SecurityConfig {
     private static class AdminUnsafeRequestMatcher implements RequestMatcher {
         private static final String[] UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"};
         private static final List<String> ADMIN_PATHS = List.of(
+                "/api/auth/login",
                 "/api/auth/logout",
                 "/api/products",
                 "/api/orders",
@@ -141,7 +164,7 @@ public class SecurityConfig {
                 return false;
             }
 
-            String requestPath = request.getServletPath();
+            String requestPath = request.getRequestURI().substring(request.getContextPath().length());
 
             return ADMIN_PATHS.stream().anyMatch(path ->
                     requestPath.equals(path) || requestPath.startsWith(path + "/")

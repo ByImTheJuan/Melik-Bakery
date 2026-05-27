@@ -1,6 +1,8 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +68,12 @@ public class JwtService {
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .toList();
+    }
+
+    public Duration getRemainingValidity(String token) {
+        Instant expiration = extractAllClaims(token).getExpiration().toInstant();
+        Duration remaining = Duration.between(Instant.now(), expiration);
+        return remaining.isNegative() ? Duration.ZERO : remaining;
     }
 
     private boolean isTokenExpired(String token) {

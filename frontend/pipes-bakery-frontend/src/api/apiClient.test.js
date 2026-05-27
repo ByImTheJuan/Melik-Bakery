@@ -11,6 +11,24 @@ describe("apiClient interceptors", () => {
     expect(apiClient.defaults.withCredentials).toBe(true);
   });
 
+  it("adds the CSRF header to login and administrative mutations", async () => {
+    document.cookie = "XSRF-TOKEN=csrf-token";
+
+    const loginConfig = await apiClient.interceptors.request.handlers[0].fulfilled({
+      method: "post",
+      url: "/auth/login",
+      headers: {},
+    });
+    const updateConfig = await apiClient.interceptors.request.handlers[0].fulfilled({
+      method: "put",
+      url: "/products/1",
+      headers: {},
+    });
+
+    expect(loginConfig.headers["X-XSRF-TOKEN"]).toBe("csrf-token");
+    expect(updateConfig.headers["X-XSRF-TOKEN"]).toBe("csrf-token");
+  });
+
   it("rejects response errors", async () => {
     const error = new Error("boom");
 

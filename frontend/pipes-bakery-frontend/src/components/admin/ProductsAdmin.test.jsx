@@ -106,6 +106,25 @@ describe("ProductsAdmin", () => {
     });
   });
 
+  it("shows the backend validation detail when an update is rejected", async () => {
+    productService.getAllProducts.mockResolvedValue(products);
+    productService.updateProduct.mockRejectedValue({
+      response: {
+        data: {
+          message: "Validation failed",
+          details: ["Price must be positive"],
+        },
+      },
+    });
+
+    render(<ProductsAdmin />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Editar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(await screen.findByText("Price must be positive")).toBeInTheDocument();
+  });
+
   it("persists a new product order when products are dragged", async () => {
     const sortableProducts = [
       products[0],

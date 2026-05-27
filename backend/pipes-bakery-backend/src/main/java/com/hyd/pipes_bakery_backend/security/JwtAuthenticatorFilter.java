@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.hyd.pipes_bakery_backend.service.ClientUserDetailsService;
+import com.hyd.pipes_bakery_backend.service.JwtRevocationService;
 import com.hyd.pipes_bakery_backend.service.JwtService;
 
 import jakarta.servlet.http.Cookie;
@@ -27,10 +28,16 @@ public class JwtAuthenticatorFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final ClientUserDetailsService userDetailsService;
+    private final JwtRevocationService jwtRevocationService;
 
-    public JwtAuthenticatorFilter(JwtService jwtService, ClientUserDetailsService userDetailsService) {
+    public JwtAuthenticatorFilter(
+            JwtService jwtService,
+            ClientUserDetailsService userDetailsService,
+            JwtRevocationService jwtRevocationService
+    ) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.jwtRevocationService = jwtRevocationService;
     }
 
     @Override
@@ -52,7 +59,7 @@ public class JwtAuthenticatorFilter extends OncePerRequestFilter {
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                if (jwtService.isTokenValid(token, userDetails)) {
+                if (!jwtRevocationService.isRevoked(token) && jwtService.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

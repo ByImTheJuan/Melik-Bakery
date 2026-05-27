@@ -16,6 +16,9 @@ describe("authService", () => {
   });
 
   it("logs in an admin without storing a token in localStorage", async () => {
+    apiClient.get.mockResolvedValue({
+      data: { headerName: "X-XSRF-TOKEN", token: "csrf-token" },
+    });
     apiClient.post.mockResolvedValue({
       data: { authenticated: true },
     });
@@ -29,17 +32,30 @@ describe("authService", () => {
       email: "admin@melik.com",
       password: "secret",
     });
+    expect(apiClient.get).toHaveBeenNthCalledWith(1, "/auth/csrf");
+    expect(apiClient.get).toHaveBeenNthCalledWith(2, "/auth/csrf");
     expect(localStorage.getItem("ADMIN_AUTH_TOKEN")).toBeNull();
     expect(response).toEqual({ authenticated: true });
   });
 
   it("checks whether the admin session cookie is valid", async () => {
-    apiClient.get.mockResolvedValue({});
+    apiClient.get.mockResolvedValue({ data: { authenticated: true } });
 
     await expect(checkAdminSession()).resolves.toBe(true);
 
     expect(apiClient.get).toHaveBeenCalledWith("/auth/session");
     expect(apiClient.get).toHaveBeenCalledWith("/auth/csrf");
+  });
+
+  it("checks session status without a protected request in production", async () => {
+    vi.stubEnv("PROD", true);
+    apiClient.get.mockResolvedValueOnce({ data: { authenticated: false } });
+
+    await expect(checkAdminSession()).resolves.toBe(false);
+
+    expect(apiClient.get).toHaveBeenCalledWith("/auth/session-status");
+    expect(apiClient.get).not.toHaveBeenCalledWith("/auth/csrf");
+    vi.unstubAllEnvs();
   });
 
   it("returns false when the admin session cookie is invalid", async () => {

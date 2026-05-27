@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ImageProperties {
 
     private String path;
+    private String urlPattern = "/images/**";
 
     public String getPath() {
         return path;
@@ -14,5 +15,13 @@ public class ImageProperties {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getUrlPattern() {
+        return urlPattern;
+    }
+
+    public void setUrlPattern(String urlPattern) {
+        this.urlPattern = urlPattern;
     }
 }

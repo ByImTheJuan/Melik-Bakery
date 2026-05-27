@@ -215,7 +215,7 @@ export default function ProductsAdmin() {
 
       await loadProducts();
     } catch (error) {
-      const apiErrors = error.response?.data?.errors;
+      const apiErrors = error.response?.data?.details;
       const apiMessage = error.response?.data?.message;
 
       setErrorMessage(
