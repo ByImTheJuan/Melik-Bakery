@@ -33,7 +33,7 @@ jobs:
       #################################################
 
       - name: Deploy
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
 
         with:
           host: ${{ secrets.SERVER_HOST }}
