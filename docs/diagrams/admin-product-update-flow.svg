@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2940" viewBox="0 0 1800 2940">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#203047"/>
+    </marker>
+    <marker id="arrowOk" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#0e8060"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 36px Arial, sans-serif; fill: #10243d; }
+      .subtitle { font: 20px Arial, sans-serif; fill: #47607e; }
+      .actor { fill: #ffffff; stroke: #153b65; stroke-width: 2; rx: 14; }
+      .actorText { font: 700 18px Arial, sans-serif; fill: #163353; text-anchor: middle; }
+      .lifeline { stroke: #a7b6c8; stroke-width: 2; stroke-dasharray: 8 8; }
+      .phase { fill: #e9f1fd; stroke: #2e64ae; stroke-width: 2; rx: 12; }
+      .phaseTitle { font: 700 20px Arial, sans-serif; fill: #164b91; }
+      .request { stroke: #203047; stroke-width: 2.3; marker-end: url(#arrow); }
+      .response { stroke: #0e8060; stroke-width: 2.3; stroke-dasharray: 8 5; marker-end: url(#arrowOk); }
+      .error { stroke: #cf4a32; stroke-width: 2.3; stroke-dasharray: 8 5; marker-end: url(#arrow); }
+      .msg { font: 16px Consolas, 'Courier New', monospace; fill: #152c47; }
+      .msgSmall { font: 14px Consolas, 'Courier New', monospace; fill: #152c47; }
+      .okText { font: 15px Consolas, 'Courier New', monospace; fill: #086b50; }
+      .errText { font: 15px Consolas, 'Courier New', monospace; fill: #ad3422; }
+      .note { fill: #fff; stroke: #7b91ab; stroke-width: 1.5; rx: 10; }
+      .security { fill: #eaf8f3; stroke: #0e8060; stroke-width: 1.7; rx: 10; }
+      .warning { fill: #fff6ed; stroke: #cf692e; stroke-width: 1.7; rx: 10; }
+      .noteTitle { font: 700 15px Arial, sans-serif; fill: #1b3551; }
+      .noteText { font: 14px Arial, sans-serif; fill: #233a54; }
+      .securityTitle { font: 700 15px Arial, sans-serif; fill: #096b51; }
+      .smallTitle { font: 700 17px Arial, sans-serif; fill: #163353; }
+      .footer { font: 14px Arial, sans-serif; fill: #4c627d; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="2940"/>
+  <text class="title" x="80" y="62">Diagrama UML de secuencia: actualización de un producto desde Admin</text>
+  <text class="subtitle" x="80" y="100">Flujo implementado con SPA React, JWT en cookie HttpOnly, CSRF double-submit y API Spring Security</text>
+
+  <!-- Participants -->
+  <rect class="actor" x="75" y="140" width="205" height="72"/>
+  <rect class="actor" x="370" y="140" width="230" height="72"/>
+  <rect class="actor" x="685" y="140" width="245" height="72"/>
+  <rect class="actor" x="1010" y="140" width="290" height="72"/>
+  <rect class="actor" x="1390" y="140" width="260" height="72"/>
+  <text class="actorText" x="177" y="183">Administrador</text>
+  <text class="actorText" x="485" y="183">SPA React / Axios</text>
+  <text class="actorText" x="807" y="174">Navegador</text>
+  <text class="actorText" x="807" y="196">Cookies</text>
+  <text class="actorText" x="1155" y="174">Backend Spring</text>
+  <text class="actorText" x="1155" y="196">Security + Controllers</text>
+  <text class="actorText" x="1520" y="183">Persistencia</text>
+
+  <line class="lifeline" x1="177" y1="212" x2="177" y2="2765"/>
+  <line class="lifeline" x1="485" y1="212" x2="485" y2="2765"/>
+  <line class="lifeline" x1="807" y1="212" x2="807" y2="2765"/>
+  <line class="lifeline" x1="1155" y1="212" x2="1155" y2="2765"/>
+  <line class="lifeline" x1="1520" y1="212" x2="1520" y2="2765"/>
+
+  <!-- Phase 1 -->
+  <rect class="phase" x="50" y="252" width="1700" height="386"/>
+  <text class="phaseTitle" x="74" y="288">1. Acceso a /admin y comprobación de sesión</text>
+  <line class="request" x1="177" y1="330" x2="485" y2="330"/>
+  <text class="msg" x="216" y="318">Navega a /admin</text>
+
+  <text class="smallTitle" x="404" y="368">PRODUCCIÓN</text>
+  <line class="request" x1="485" y1="398" x2="1155" y2="398"/>
+  <text class="msg" x="540" y="388">GET /api/auth/session-status</text>
+  <text class="msgSmall" x="540" y="418">Cookie automática si existe: ADMIN_AUTH_TOKEN=&lt;JWT&gt;</text>
+  <line class="response" x1="1155" y1="452" x2="485" y2="452"/>
+  <text class="okText" x="550" y="444">200 { authenticated: true | false }</text>
+
+  <text class="smallTitle" x="404" y="493">DESARROLLO</text>
+  <line class="request" x1="485" y1="522" x2="1155" y2="522"/>
+  <text class="msg" x="540" y="512">GET /api/auth/session</text>
+  <line class="response" x1="1155" y1="555" x2="485" y2="555"/>
+  <text class="okText" x="550" y="547">200 { authenticated: true } si JWT admin válido</text>
+  <line class="error" x1="1155" y1="590" x2="485" y2="590"/>
+  <text class="errText" x="550" y="582">401 Authentication is required. si no hay sesión</text>
+
+  <!-- Phase 2 login -->
+  <rect class="phase" x="50" y="666" width="1700" height="706"/>
+  <text class="phaseTitle" x="74" y="702">2. Rama si no existe sesión: login protegido por CSRF</text>
+  <line class="response" x1="485" y1="742" x2="177" y2="742"/>
+  <text class="okText" x="212" y="732">Redirección a /admin/login</text>
+
+  <line class="request" x1="485" y1="792" x2="1155" y2="792"/>
+  <text class="msg" x="545" y="782">GET /api/auth/csrf</text>
+  <line class="response" x1="1155" y1="832" x2="807" y2="832"/>
+  <text class="okText" x="844" y="823">Set-Cookie: XSRF-TOKEN=&lt;preLoginCsrf&gt;</text>
+  <text class="okText" x="844" y="847">Cookie legible por la SPA</text>
+
+  <line class="request" x1="177" y1="898" x2="485" y2="898"/>
+  <text class="msg" x="210" y="888">Envía email + password</text>
+  <line class="request" x1="485" y1="956" x2="1155" y2="956"/>
+  <text class="msg" x="530" y="914">POST /api/auth/login</text>
+  <text class="msgSmall" x="530" y="936">Body: { email, password }</text>
+  <text class="msgSmall" x="530" y="978">Cookie: XSRF-TOKEN=&lt;preLoginCsrf&gt;</text>
+  <text class="msgSmall" x="530" y="1000">Header: X-XSRF-TOKEN: &lt;preLoginCsrf&gt;</text>
+
+  <rect class="security" x="1180" y="902" width="495" height="146"/>
+  <text class="securityTitle" x="1200" y="930">Validaciones antes de emitir JWT</text>
+  <text class="noteText" x="1200" y="956">• CSRF cookie/cabecera coinciden</text>
+  <text class="noteText" x="1200" y="980">• Rate limit por IP del proxy/conexión</text>
+  <text class="noteText" x="1200" y="1004">• Credenciales válidas y ROLE_ADMIN</text>
+  <text class="noteText" x="1200" y="1028">• Token CSRF pre-login se invalida</text>
+
+  <line class="response" x1="1155" y1="1094" x2="807" y2="1094"/>
+  <text class="okText" x="836" y="1075">Set-Cookie: ADMIN_AUTH_TOKEN=&lt;JWT&gt;</text>
+  <text class="okText" x="836" y="1099">HttpOnly; Secure; SameSite=Strict</text>
+  <text class="okText" x="836" y="1123">Max-Age = expiración del JWT</text>
+  <line class="response" x1="1155" y1="1157" x2="485" y2="1157"/>
+  <text class="okText" x="545" y="1147">200 { authenticated: true }</text>
+
+  <line class="request" x1="485" y1="1212" x2="1155" y2="1212"/>
+  <text class="msg" x="540" y="1202">GET /api/auth/csrf  [post-login]</text>
+  <line class="response" x1="1155" y1="1252" x2="807" y2="1252"/>
+  <text class="okText" x="840" y="1243">Set-Cookie: XSRF-TOKEN=&lt;authenticatedCsrf&gt;</text>
+
+  <rect class="warning" x="104" y="1275" width="1512" height="70"/>
+  <text class="noteTitle" x="126" y="1303">Detalle de la implementación actual</text>
+  <text class="noteText" x="126" y="1328">Al navegar a /admin tras el login, checkAdminSession() comprueba sesión y vuelve a ejecutar GET /api/auth/csrf.</text>
+
+  <!-- Phase 3 products -->
+  <rect class="phase" x="50" y="1400" width="1700" height="376"/>
+  <text class="phaseTitle" x="74" y="1437">3. Render del panel y carga del catálogo</text>
+
+  <line class="request" x1="485" y1="1482" x2="1155" y2="1482"/>
+  <text class="msg" x="544" y="1472">GET /api/auth/csrf  [tras sesión confirmada]</text>
+  <text class="msgSmall" x="544" y="1506">Sólo si authenticated = true</text>
+  <line class="response" x1="1155" y1="1537" x2="807" y2="1537"/>
+  <text class="okText" x="850" y="1528">Cookie XSRF-TOKEN vigente</text>
+
+  <line class="request" x1="485" y1="1592" x2="1155" y2="1592"/>
+  <text class="msg" x="545" y="1582">GET /api/products</text>
+  <text class="msgSmall" x="545" y="1614">No lleva header CSRF; endpoint GET público</text>
+  <line class="request" x1="1155" y1="1644" x2="1520" y2="1644"/>
+  <text class="msgSmall" x="1235" y="1633">SELECT productos</text>
+  <line class="response" x1="1520" y1="1681" x2="485" y2="1681"/>
+  <text class="okText" x="600" y="1671">200 List&lt;ProductResponseDTO&gt;</text>
+
+  <rect class="note" x="105" y="1707" width="1540" height="47"/>
+  <text class="noteText" x="126" y="1736">Al pintar las tarjetas, el navegador descarga imageUrl: DEV /images/products/{archivo}; PROD /api/images/products/{archivo} vía Nginx.</text>
+
+  <!-- Phase 4 local edit and PUT -->
+  <rect class="phase" x="50" y="1804" width="1700" height="608"/>
+  <text class="phaseTitle" x="74" y="1841">4. Edición local y actualización del producto</text>
+
+  <line class="request" x1="177" y1="1884" x2="485" y2="1884"/>
+  <text class="msg" x="211" y="1873">Pulsa Editar y modifica campos</text>
+  <rect class="note" x="520" y="1853" width="570" height="63"/>
+  <text class="noteTitle" x="540" y="1878">No hay llamada API durante la edición</text>
+  <text class="noteText" x="540" y="1901">React mantiene formData y editingProductId en estado local.</text>
+
+  <line class="request" x1="177" y1="1960" x2="485" y2="1960"/>
+  <text class="msg" x="219" y="1949">Pulsa “Guardar cambios”</text>
+  <line class="request" x1="485" y1="2047" x2="1155" y2="2047"/>
+  <text class="msg" x="530" y="1995">PUT /api/products/{id}</text>
+  <text class="msgSmall" x="530" y="2019">Body JSON: { name, description, price,</text>
+  <text class="msgSmall" x="530" y="2041">              ingredients, imageUrl }</text>
+  <text class="msgSmall" x="530" y="2075">Cookies automáticas: ADMIN_AUTH_TOKEN=&lt;JWT&gt;;</text>
+  <text class="msgSmall" x="530" y="2097">                    XSRF-TOKEN=&lt;authenticatedCsrf&gt;</text>
+  <text class="msgSmall" x="530" y="2119">Header Axios: X-XSRF-TOKEN: &lt;authenticatedCsrf&gt;</text>
+
+  <rect class="security" x="1190" y="1918" width="465" height="198"/>
+  <text class="securityTitle" x="1210" y="1947">Spring Security valida</text>
+  <text class="noteText" x="1210" y="1974">• Firma y expiración JWT</text>
+  <text class="noteText" x="1210" y="2000">• JWT no revocado en Redis</text>
+  <text class="noteText" x="1210" y="2026">• Usuario con ROLE_ADMIN</text>
+  <text class="noteText" x="1210" y="2052">• CSRF cookie = header</text>
+  <text class="noteText" x="1210" y="2078">• Bean Validation del payload</text>
+  <text class="noteText" x="1210" y="2104">Si todo es válido, invoca controller.</text>
+
+  <line class="request" x1="1155" y1="2160" x2="1520" y2="2160"/>
+  <text class="msgSmall" x="1210" y="2148">ProductController → ProductService</text>
+  <text class="msgSmall" x="1210" y="2180">UPDATE product WHERE id = {id}</text>
+  <line class="response" x1="1520" y1="2224" x2="485" y2="2224"/>
+  <text class="okText" x="565" y="2213">200 ProductResponseDTO actualizado</text>
+
+  <line class="request" x1="485" y1="2283" x2="1155" y2="2283"/>
+  <text class="msg" x="535" y="2272">GET /api/products  [loadProducts() tras PUT]</text>
+  <line class="response" x1="1155" y1="2325" x2="485" y2="2325"/>
+  <text class="okText" x="550" y="2315">200 Lista actualizada; UI muestra confirmación</text>
+
+  <!-- Phase 5 errors -->
+  <rect class="phase" x="50" y="2442" width="1700" height="326"/>
+  <text class="phaseTitle" x="74" y="2478">5. Respuestas alternativas de seguridad y validación</text>
+  <rect class="warning" x="90" y="2510" width="510" height="200"/>
+  <text class="noteTitle" x="112" y="2540">401 Unauthorized</text>
+  <text class="noteText" x="112" y="2572">JWT ausente, inválido, expirado o revocado.</text>
+  <text class="msgSmall" x="112" y="2608">message:</text>
+  <text class="errText" x="112" y="2633">"Authentication is required."</text>
+  <text class="noteText" x="112" y="2672">La actualización no llega al controller.</text>
+
+  <rect class="warning" x="645" y="2510" width="510" height="200"/>
+  <text class="noteTitle" x="667" y="2540">403 Forbidden</text>
+  <text class="noteText" x="667" y="2572">CSRF ausente o inválido.</text>
+  <text class="msgSmall" x="667" y="2608">message:</text>
+  <text class="errText" x="667" y="2633">"CSRF token is missing or invalid."</text>
+  <text class="noteText" x="667" y="2672">La actualización queda bloqueada.</text>
+
+  <rect class="warning" x="1200" y="2510" width="510" height="200"/>
+  <text class="noteTitle" x="1222" y="2540">400 Bad Request</text>
+  <text class="noteText" x="1222" y="2572">El payload no supera validación.</text>
+  <text class="msgSmall" x="1222" y="2608">details: [ "mensaje específico" ]</text>
+  <text class="noteText" x="1222" y="2642">ProductsAdmin muestra details[0]</text>
+  <text class="noteText" x="1222" y="2672">al administrador.</text>
+
+  <!-- Legend -->
+  <rect class="note" x="50" y="2800" width="1700" height="100"/>
+  <text class="smallTitle" x="78" y="2835">Leyenda</text>
+  <line class="request" x1="210" y1="2830" x2="305" y2="2830"/>
+  <text class="noteText" x="325" y="2836">Solicitud</text>
+  <line class="response" x1="475" y1="2830" x2="570" y2="2830"/>
+  <text class="noteText" x="590" y="2836">Respuesta correcta</text>
+  <line class="error" x1="790" y1="2830" x2="885" y2="2830"/>
+  <text class="noteText" x="905" y="2836">Respuesta de error</text>
+  <text class="footer" x="78" y="2875">JWT sólo en cookie HttpOnly ADMIN_AUTH_TOKEN. XSRF-TOKEN es legible por la SPA para construir X-XSRF-TOKEN en POST/PUT/PATCH/DELETE admin.</text>
+  <text class="footer" x="78" y="2920">Fuente del flujo: authService.js, apiClient.js, ProductsAdmin.jsx, AuthController.java, SecurityConfig.java y JwtAuthenticatorFilter.java.</text>
+</svg>

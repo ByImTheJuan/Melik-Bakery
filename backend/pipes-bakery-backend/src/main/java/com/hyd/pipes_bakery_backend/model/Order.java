@@ -72,7 +72,7 @@ public class Order {
         this.clientPhoneNumber = clientPhoneNumber;
         this.shippingAddress = shippingAddress;
         this.receiverName = receiverName;
-        this.status = OrderStatus.PENDING_PAYMENT;
+        this.status = OrderStatus.CREATED;
         this.createdAt = LocalDateTime.now();
         this.totalAmount = new BigDecimal(0);
     }

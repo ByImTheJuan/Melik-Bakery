@@ -20,10 +20,10 @@ public class OpenApiConfig {
     public OpenAPI pipesBakeryOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Pipes Bakery API")
+                        .title("Melik Bakery API")
                         .version("v1")
-                        .description("API REST para gestionar productos, carrito, pedidos, clientes, direcciones y autenticacion administrativa de Pipes Bakery.")
-                        .contact(new Contact().name("Pipes Bakery")))
+                        .description("API REST para gestionar productos, carrito, pedidos, clientes, direcciones y autenticacion administrativa de Melik Bakery.")
+                        .contact(new Contact().name("Melik Bakery")))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
                                 .name("ADMIN_AUTH_TOKEN")
