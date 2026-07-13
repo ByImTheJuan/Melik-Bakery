@@ -44,20 +44,20 @@ class OrderControllerTest {
 
     @Test
     void shouldGetAllOrdersSuccessfully() throws Exception {
-        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.PENDING_PAYMENT)));
+        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.CREATED)));
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("PENDING_PAYMENT"));
+                .andExpect(jsonPath("$[0].status").value("CREATED"));
 
         verify(orderService).getAllOrders();
     }
 
     @Test
     void shouldGetOrderByIdSuccessfully() throws Exception {
-        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.PENDING_PAYMENT));
+        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.CREATED));
 
         mockMvc.perform(get("/api/orders/{orderId}", "ABC123"))
                 .andExpect(status().isOk())

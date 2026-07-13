@@ -38,7 +38,7 @@ class OrderServiceIntegrationTest {
 
     @Test
     void shouldRetrieveAndUpdateOrderStatusByPublicId() {
-        Order savedOrder = saveOrder("LMN456", OrderStatus.PENDING_PAYMENT);
+        Order savedOrder = saveOrder("LMN456", OrderStatus.CREATED);
 
         OrderResponseDTO found = orderService.getOrderById(savedOrder.getPublicId());
         OrderResponseDTO updated = orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.DELIVERED);

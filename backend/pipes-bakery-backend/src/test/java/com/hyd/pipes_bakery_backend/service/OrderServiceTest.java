@@ -61,7 +61,7 @@ class OrderServiceTest {
 
     @Test
     void shouldGetAllOrdersSuccessfully() {
-        when(orderRepository.findAll()).thenReturn(List.of(buildOrder("ABC123", OrderStatus.PENDING_PAYMENT)));
+        when(orderRepository.findAll()).thenReturn(List.of(buildOrder("ABC123", OrderStatus.CREATED)));
 
         List<OrderResponseDTO> result = orderService.getAllOrders();
 
@@ -72,7 +72,7 @@ class OrderServiceTest {
     @Test
     void shouldGetOrderByPublicIdSuccessfully() {
         when(orderRepository.findByPublicId("ABC123"))
-                .thenReturn(Optional.of(buildOrder("ABC123", OrderStatus.PENDING_PAYMENT)));
+                .thenReturn(Optional.of(buildOrder("ABC123", OrderStatus.CREATED)));
 
         OrderResponseDTO result = orderService.getOrderById("ABC123");
 
@@ -82,7 +82,7 @@ class OrderServiceTest {
 
     @Test
     void shouldUpdateOrderStatusSuccessfully() {
-        Order order = buildOrder("ABC123", OrderStatus.PENDING_PAYMENT);
+        Order order = buildOrder("ABC123", OrderStatus.CREATED);
 
         when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -95,7 +95,7 @@ class OrderServiceTest {
 
     @Test
     void shouldCancelOrderSuccessfully() {
-        Order order = buildOrder("ABC123", OrderStatus.PENDING_PAYMENT);
+        Order order = buildOrder("ABC123", OrderStatus.CREATED);
 
         when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -139,7 +139,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.checkout(cartId, buildCheckoutRequest("BOGOTÁ", "COLOMBIA", 110111));
 
         assertThat(result.getId()).matches("[A-Z0-9]{6}");
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING_PAYMENT);
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.CREATED);
         assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("19000"));
         verify(cartStorage).clearCart(cartId);
     }

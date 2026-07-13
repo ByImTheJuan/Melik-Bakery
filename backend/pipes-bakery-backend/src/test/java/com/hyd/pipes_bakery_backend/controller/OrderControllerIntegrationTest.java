@@ -50,12 +50,12 @@ class OrderControllerIntegrationTest {
 
     @Test
     void shouldListOrdersAndPatchOrderStatus() throws Exception {
-        Order savedOrder = saveOrder("ABC123", OrderStatus.PENDING_PAYMENT);
+        Order savedOrder = saveOrder("ABC123", OrderStatus.CREATED);
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("PENDING_PAYMENT"));
+                .andExpect(jsonPath("$[0].status").value("CREATED"));
 
         OrderStatusUpdateRequestDTO request = new OrderStatusUpdateRequestDTO();
         request.setStatus(OrderStatus.SHIPPED);
