@@ -27,7 +27,7 @@ services:
       retries: 5
 
   backend:
-    image: ghcr.io/ByImTheJuan/pipes-bakery-backend:latest
+    image: ghcr.io/byimthejuan/pipes-bakery-backend:latest
     restart: unless-stopped
     depends_on:
       mysql:
@@ -52,7 +52,7 @@ services:
       - ./data/images:/app/images
 
   nginx:
-    image: ghcr.io/ByImTheJuan/pipes-bakery-frontend:latest
+    image: ghcr.io/byimthejuan/pipes-bakery-frontend:latest
 
     restart: unless-stopped
 
