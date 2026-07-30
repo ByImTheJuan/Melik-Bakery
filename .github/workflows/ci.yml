@@ -109,7 +109,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.AUTH_TOKEN }}
+          password: ${{ secrets.GHCR_AUTH_TOKEN }}
 
       #################################################
       # BACKEND IMAGE
@@ -159,7 +159,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.AUTH_TOKEN }}
+          password: ${{ secrets.GHCR_AUTH_TOKEN }}
 
       #################################################
       # FRONTEND IMAGE
