@@ -1,3 +1,5 @@
+##db/migration/V1__initial_schema.sql
+
 CREATE TABLE `addresses` (
   `zip_code` int NOT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
