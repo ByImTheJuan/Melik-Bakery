@@ -26,41 +26,41 @@ export default function Footer() {
 
         <div className="footer-contact-list">
           <a
-            href="https://wa.me/573192908054"
+            href="https://wa.me/573193830446"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-contact-item"
           >
             <FaWhatsapp />
-            <span>+57 319 290 8054</span>
+            <span>+57 319 383 0446</span>
           </a>
 
           <a
-            href="mailto:contacto@melikbakery.com"
+            href="mailto:melik.bakery@hyd.net.co"
             className="footer-contact-item"
           >
             <MdEmail />
-            <span>contacto@melikbakery.com</span>
+            <span>melik.bakery@hyd.net.co</span>
           </a>
 
           <a
-            href="https://instagram.com/melikbakery"
+            href="https://instagram.com/melik.bakery"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-contact-item"
           >
             <FaInstagram />
-            <span>@melikbakery</span>
+            <span>@melik.bakery</span>
           </a>
 
           <a
-            href="https://tiktok.com/@melikbakery"
+            href="https://tiktok.com/@melik.bakery"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-contact-item"
           >
             <FaTiktok />
-            <span>@melikbakery</span>
+            <span>@melik.bakery</span>
           </a>
           
         </div>

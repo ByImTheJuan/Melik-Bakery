@@ -428,12 +428,12 @@ export default function ProductsAdmin() {
             </div>
 
             <label>
-              <span>Ruta de imagen</span>
+              <span>Archivo de imagen</span>
               <input
                 name="imageUrl"
                 value={formData.imageUrl}
                 onChange={handleChange}
-                placeholder="/images/products/nombre-del-archivo.jpg"
+                placeholder="nombre-del-archivo.jpg"
                 required
               />
             </label>
