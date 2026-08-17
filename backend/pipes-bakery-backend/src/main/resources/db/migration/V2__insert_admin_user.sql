@@ -5,12 +5,12 @@ INSERT INTO clients (
     first_name,
     last_name,
     password,
-    role,
+    role
 )
 VALUES (
     'admin@melik.com',
     'Admin',
     'Melik',
     '$2a$10$zPxvKTY6QndsasqmBySir.DBEvPHe4trUa4ImlbEtT0.vMZOjlOB6',
-    'ADMIN',
+    'ADMIN'
 );
