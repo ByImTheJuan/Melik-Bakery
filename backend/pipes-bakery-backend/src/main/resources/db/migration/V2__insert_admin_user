@@ -1,0 +1,18 @@
+INSERT INTO clients (
+    email,
+    first_name,
+    last_name,
+    password,
+    phone_number,
+    role,
+    address_id
+)
+VALUES (
+    'admin@melik.com',
+    'Admin',
+    'Melik',
+    '$2a$10$zPxvKTY6QndsasqmBySir.DBEvPHe4trUa4ImlbEtT0.vMZOjlOB6',
+    NULL,
+    'ADMIN',
+    NULL
+);
