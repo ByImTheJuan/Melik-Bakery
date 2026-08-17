@@ -1,3 +1,5 @@
+# This migration script inserts an admin user into the clients table.
+
 INSERT INTO clients (
     email,
     first_name,
