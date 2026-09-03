@@ -65,10 +65,6 @@ describe("ProductsAdmin", () => {
       target: { value: "Agua" },
     });
 
-    fireEvent.change(screen.getByPlaceholderText("/images/products/nombre-del-archivo.jpg"), {
-      target: { value: "/images/products/baguette.jpg" },
-    });
-
     fireEvent.click(screen.getByRole("button", { name: "Crear producto" }));
 
     await waitFor(() => {
