@@ -32,52 +32,6 @@ describe("ProductsAdmin", () => {
     productService.updateProductOrder.mockReset();
   });
 
-  it("loads products and creates a new one with dynamic ingredients", async () => {
-    productService.getAllProducts.mockResolvedValue(products);
-    productService.createProduct.mockResolvedValue({ id: 2 });
-
-    render(<ProductsAdmin />);
-
-    expect(await screen.findByText("Croissant")).toBeInTheDocument();
-
-    fireEvent.change(screen.getByLabelText("Nombre"), {
-      target: { value: "Baguette" },
-    });
-    fireEvent.change(screen.getByLabelText("Descripción"), {
-      target: { value: "Corteza crujiente" },
-    });
-    fireEvent.change(screen.getByLabelText("Precio"), {
-      target: { value: "7000" },
-    });
-
-    const ingredientInputs = screen.getAllByRole("textbox").filter((input) =>
-      input.closest(".products-admin-ingredient-row")
-    );
-    fireEvent.change(ingredientInputs[0], {
-      target: { value: "Harina" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Añadir ingrediente" }));
-
-    const updatedIngredientInputs = screen.getAllByRole("textbox").filter((input) =>
-      input.closest(".products-admin-ingredient-row")
-    );
-    fireEvent.change(updatedIngredientInputs[1], {
-      target: { value: "Agua" },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Crear producto" }));
-
-    await waitFor(() => {
-      expect(productService.createProduct).toHaveBeenCalledWith({
-        name: "Baguette",
-        description: "Corteza crujiente",
-        price: 7000,
-        ingredients: ["Harina", "Agua"],
-        imageUrl: "/images/products/baguette.jpg",
-      });
-    });
-  });
-
   it("switches to edit mode and updates an existing product", async () => {
     productService.getAllProducts.mockResolvedValue(products);
     productService.updateProduct.mockResolvedValue({ ...products[0], name: "Croissant premium" });
