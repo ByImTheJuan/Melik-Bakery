@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const images = [
-  "/images/homePageCarousel1.jpg",
+  "/images/homePageCarousel1.webp",
   "/images/homePageCarousel2.png",
   "/images/homePageCarousel3.jfif",
   "/images/homePageCarousel4.png",

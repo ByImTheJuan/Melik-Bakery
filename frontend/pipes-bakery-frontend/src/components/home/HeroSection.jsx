@@ -7,7 +7,7 @@ export default function HeroSection() {
   return (
     <section id="hero" className="hero">
         <div className="hero-content">
-            <img src="/images/logo.png" alt="Logo" />
+            <img src="/images/logo.webp" alt="Logo" />
             <p>Postres de autor horneados con amor.</p>
             <button onClick={() => {
                 navigate("/products");
