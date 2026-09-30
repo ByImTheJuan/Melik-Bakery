@@ -24,6 +24,7 @@ import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.CartIsEmptyException;
 import com.hyd.pipes_bakery_backend.exception.InvalidAddressException;
+import com.hyd.pipes_bakery_backend.exception.InvalidOrderStatusTransitionException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.mapper.OrderItemMapper;
@@ -61,7 +62,7 @@ class OrderServiceTest {
 
     @Test
     void shouldGetAllOrdersSuccessfully() {
-        when(orderRepository.findAll()).thenReturn(List.of(buildOrder("ABC123", OrderStatus.CREATED)));
+        when(orderRepository.findAll()).thenReturn(List.of(buildOrder("ABC123", OrderStatus.PAYMENT_PENDING)));
 
         List<OrderResponseDTO> result = orderService.getAllOrders();
 
@@ -72,7 +73,7 @@ class OrderServiceTest {
     @Test
     void shouldGetOrderByPublicIdSuccessfully() {
         when(orderRepository.findByPublicId("ABC123"))
-                .thenReturn(Optional.of(buildOrder("ABC123", OrderStatus.CREATED)));
+                .thenReturn(Optional.of(buildOrder("ABC123", OrderStatus.PAYMENT_PENDING)));
 
         OrderResponseDTO result = orderService.getOrderById("ABC123");
 
@@ -82,20 +83,94 @@ class OrderServiceTest {
 
     @Test
     void shouldUpdateOrderStatusSuccessfully() {
-        Order order = buildOrder("ABC123", OrderStatus.CREATED);
+        Order order = buildOrder("ABC123", OrderStatus.PAID);
 
         when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.PAID);
+        OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.PREPARING);
 
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PREPARING);
         verify(orderRepository).save(order);
     }
 
     @Test
+    void shouldAdvancePreparingToShipped() {
+        Order order = buildOrder("ABC123", OrderStatus.PREPARING);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.SHIPPED);
+
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+    }
+
+    @Test
+    void shouldAdvanceShippedToDelivered() {
+        Order order = buildOrder("ABC123", OrderStatus.SHIPPED);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.DELIVERED);
+
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.DELIVERED);
+    }
+
+    @Test
+    void shouldRejectSkippedTransition() {
+        Order order = buildOrder("ABC123", OrderStatus.PAID);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.DELIVERED))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+    }
+
+    @Test
+    void shouldRejectBackwardTransition() {
+        Order order = buildOrder("ABC123", OrderStatus.SHIPPED);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.PAID))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+    }
+
+    @Test
+    void shouldRejectAdminSettingPaymentPending() {
+        Order order = buildOrder("ABC123", OrderStatus.PAID);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.PAYMENT_PENDING))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+    }
+
+    @Test
+    void shouldRejectAdminSettingPaidManually() {
+        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.PAID))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+    }
+
+    @Test
+    void shouldRejectAdminSettingCancelled() {
+        Order order = buildOrder("ABC123", OrderStatus.PAID);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.CANCELLED))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+    }
+
+    @Test
     void shouldCancelOrderSuccessfully() {
-        Order order = buildOrder("ABC123", OrderStatus.CREATED);
+        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING);
 
         when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -103,6 +178,30 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.cancelOrder("ABC123");
 
         assertThat(result.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+    }
+
+    @Test
+    void shouldMarkOrderAsPaidFromPaymentPending() {
+        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderResponseDTO result = orderService.markOrderAsPaid("ABC123");
+
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PAID);
+    }
+
+    @Test
+    void shouldNotDowngradeAlreadyPaidOrderWhenMarkingPaidAgain() {
+        Order order = buildOrder("ABC123", OrderStatus.PREPARING);
+
+        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+
+        OrderResponseDTO result = orderService.markOrderAsPaid("ABC123");
+
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PREPARING);
+        verify(orderRepository, org.mockito.Mockito.never()).save(any(Order.class));
     }
 
     @Test
@@ -139,8 +238,9 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.checkout(cartId, buildCheckoutRequest("BOGOTÁ", "COLOMBIA", 110111));
 
         assertThat(result.getId()).matches("[A-Z0-9]{6}");
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.CREATED);
-        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("19000"));
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
+        assertThat(result.getShippingCost()).isEqualByComparingTo(new BigDecimal("10000"));
+        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
         verify(cartStorage).clearCart(cartId);
     }
 
@@ -167,7 +267,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.checkout(cartId, buildCheckoutRequest("Bogota", "Colombia", 110111));
 
         assertThat(result.getItems().get(0).getUnitPriceAtPurchase()).isEqualByComparingTo(new BigDecimal("9500"));
-        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("19000"));
+        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
     }
 
     @Test

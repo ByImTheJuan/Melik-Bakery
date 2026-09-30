@@ -6,6 +6,7 @@ import ProductDetailPage from "../pages/ProductDetailPage";
 import ShoppingCartPage from "../pages/ShoppingCartPage";
 import CheckoutPage from "../pages/CheckoutPage";
 import OrderConfirmationPage from "../pages/OrderConfirmationPage";
+import PaymentPendingPage from "../pages/PaymentPendingPage";
 import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminMainPage from "../pages/AdminMainPage";
 import ScrollToTop from "../components/layout/ScrollToTop";
@@ -23,6 +24,7 @@ export default function AppRoutes() {
           <Route path="/cart/:id" element={<ShoppingCartPage />} />
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/order/success/:orderId" element={<OrderConfirmationPage />} />
+          <Route path="/payment/pending/:orderId" element={<PaymentPendingPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminMainPage />} />
         </Routes>

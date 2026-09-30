@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import CheckoutPage from "./CheckoutPage";
 import * as cartService from "../services/cartService";
+import * as paymentService from "../services/paymentService";
 import { useCart } from "../hooks/useCart";
 
 const clearCartMock = vi.fn();
@@ -22,6 +23,10 @@ vi.mock("../hooks/useCart", () => ({
 
 vi.mock("../services/cartService", () => ({
   checkoutCart: vi.fn(),
+}));
+
+vi.mock("../services/paymentService", () => ({
+  createPaymentSession: vi.fn(),
 }));
 
 const cart = {
@@ -44,11 +49,14 @@ describe("CheckoutPage", () => {
     navigateMock.mockReset();
     clearCartMock.mockReset();
     cartService.checkoutCart.mockReset();
+    paymentService.createPaymentSession.mockReset();
     useCart.mockReturnValue({
       cart,
       cartId: "cart-1",
       clearCart: clearCartMock,
     });
+    delete window.location;
+    window.location = { href: "" };
   });
 
   it("shows client-side validation errors without calling the backend", async () => {
@@ -66,9 +74,13 @@ describe("CheckoutPage", () => {
     expect(cartService.checkoutCart).not.toHaveBeenCalled();
   });
 
-  it("submits a valid checkout and redirects to success", async () => {
+  it("submits a valid checkout and redirects to the Wompi checkout URL", async () => {
     cartService.checkoutCart.mockResolvedValue({ id: "ABC123" });
     clearCartMock.mockResolvedValue();
+    paymentService.createPaymentSession.mockResolvedValue({
+      checkoutUrl: "https://checkout.wompi.co/p/?reference=ABC123-XXXX",
+      reference: "ABC123-XXXX",
+    });
 
     render(
       <MemoryRouter initialEntries={["/checkout/cart-1"]}>
@@ -123,8 +135,58 @@ describe("CheckoutPage", () => {
     });
 
     expect(clearCartMock).toHaveBeenCalledTimes(1);
-    expect(navigateMock).toHaveBeenCalledWith("/order/success/ABC123", {
-      state: { order: { id: "ABC123" } },
+
+    await waitFor(() => {
+      expect(paymentService.createPaymentSession).toHaveBeenCalledWith("ABC123");
     });
+
+    await waitFor(() => {
+      expect(window.location.href).toBe("https://checkout.wompi.co/p/?reference=ABC123-XXXX");
+    });
+  });
+
+  it("shows an error when starting the payment session fails", async () => {
+    cartService.checkoutCart.mockResolvedValue({ id: "ABC123" });
+    clearCartMock.mockResolvedValue();
+    paymentService.createPaymentSession.mockRejectedValue({
+      response: { data: { message: "No se pudo iniciar el pago." } },
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/checkout/cart-1"]}>
+        <Routes>
+          <Route path="/checkout/:id" element={<CheckoutPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("Nombre"), {
+      target: { value: "Ana" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Apellido"), {
+      target: { value: "Lopez" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "ana@melik.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Tel/), {
+      target: { value: "3001234567" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Dire/), {
+      target: { value: "Calle 123" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Ciudad"), {
+      target: { value: "Bogota" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/postal/i), {
+      target: { value: "110111" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Pa/), {
+      target: { value: "Colombia" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar pedido" }));
+
+    expect(await screen.findByText("No se pudo iniciar el pago.")).toBeInTheDocument();
   });
 });

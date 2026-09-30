@@ -23,7 +23,8 @@ public class OrderMapper {
                                                         order.getClientEmail(),
                                                         order.getClientPhoneNumber(), 
                                                         orderItemMapper.toDtoList(order.getItems()), 
-                                                        order.getTotalAmount(), 
+                                                        order.getTotalAmount(),
+                                                        order.getShippingCost(),
                                                         order.getStatus(),
                                                         order.getCreatedAt(),
                                                         addressMapper.toSnapshotDto(order.getAddress()));

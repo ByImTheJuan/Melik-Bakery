@@ -3,6 +3,7 @@ import { useCart } from "../hooks/useCart";
 import CheckoutForm from "../components/checkout/CheckoutForm";
 import OrderSummary from "../components/checkout/OrderSummary";
 import { checkoutCart } from "../services/cartService";
+import { createPaymentSession } from "../services/paymentService";
 import { useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/checkoutPage.css";
@@ -152,15 +153,13 @@ const CheckoutPage = () => {
 
       await clearCart();
 
-      navigate(`/order/success/${order.id}`, {
-        state: { order },
-      });
+      const { checkoutUrl } = await createPaymentSession(order.id);
+      window.location.href = checkoutUrl;
     } catch (err) {
       if (import.meta.env.DEV) {
         console.error(err);
-        setErrors(getApiErrors(err));
       }
-    } finally {
+      setErrors(getApiErrors(err));
       setLoading(false);
     }
   };

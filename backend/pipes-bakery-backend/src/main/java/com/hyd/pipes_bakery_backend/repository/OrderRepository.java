@@ -4,7 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.hyd.pipes_bakery_backend.model.Order;
+import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +16,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByPublicId(String publicId);
 
     boolean existsByPublicId(String publicId);
+
+    List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime cutoff);
 }

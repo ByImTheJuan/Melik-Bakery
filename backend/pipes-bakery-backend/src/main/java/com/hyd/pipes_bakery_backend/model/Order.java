@@ -54,6 +54,9 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    @Column(nullable = false)
+    private BigDecimal shippingCost;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
@@ -66,15 +69,20 @@ public class Order {
     protected Order() {}
 
     public Order(String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber, AddressSnapshot shippingAddress, String receiverName) {
+        this(clientFirstName, clientLastName, clientEmail, clientPhoneNumber, shippingAddress, receiverName, BigDecimal.ZERO);
+    }
+
+    public Order(String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber, AddressSnapshot shippingAddress, String receiverName, BigDecimal shippingCost) {
         this.clientFirstName = clientFirstName;
         this.clientLastName = clientLastName;
         this.clientEmail = clientEmail;
         this.clientPhoneNumber = clientPhoneNumber;
         this.shippingAddress = shippingAddress;
         this.receiverName = receiverName;
-        this.status = OrderStatus.CREATED;
+        this.shippingCost = shippingCost != null ? shippingCost : BigDecimal.ZERO;
+        this.status = OrderStatus.PAYMENT_PENDING;
         this.createdAt = LocalDateTime.now();
-        this.totalAmount = new BigDecimal(0);
+        this.totalAmount = this.shippingCost;
     }
 
     public Long getId() {
@@ -111,6 +119,10 @@ public class Order {
 
     public BigDecimal getTotalAmount() {
         return totalAmount;
+    }
+
+    public BigDecimal getShippingCost() {
+        return shippingCost;
     }
 
     public OrderStatus getStatus() {
@@ -164,8 +176,9 @@ public class Order {
             subtotal = item.calculateTotalPrice().add(subtotal);
         }
 
-        this.totalAmount = subtotal;
-        return subtotal;
+        BigDecimal shipping = shippingCost != null ? shippingCost : BigDecimal.ZERO;
+        this.totalAmount = subtotal.add(shipping);
+        return totalAmount;
     }
 
     public void setStatus(OrderStatus status) {

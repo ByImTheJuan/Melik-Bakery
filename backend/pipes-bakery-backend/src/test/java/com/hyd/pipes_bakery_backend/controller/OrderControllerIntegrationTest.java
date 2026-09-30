@@ -50,29 +50,44 @@ class OrderControllerIntegrationTest {
 
     @Test
     void shouldListOrdersAndPatchOrderStatus() throws Exception {
-        Order savedOrder = saveOrder("ABC123", OrderStatus.CREATED);
+        Order savedOrder = saveOrder("ABC123", OrderStatus.PAID);
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("CREATED"));
+                .andExpect(jsonPath("$[0].status").value("PAID"));
 
         OrderStatusUpdateRequestDTO request = new OrderStatusUpdateRequestDTO();
-        request.setStatus(OrderStatus.SHIPPED);
+        request.setStatus(OrderStatus.PREPARING);
 
         mockMvc.perform(patch("/api/orders/{orderId}/status", savedOrder.getPublicId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("ABC123"))
-                .andExpect(jsonPath("$.status").value("SHIPPED"));
+                .andExpect(jsonPath("$.status").value("PREPARING"));
 
         mockMvc.perform(get("/api/orders/{orderId}", savedOrder.getPublicId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("SHIPPED"))
+                .andExpect(jsonPath("$.status").value("PREPARING"))
                 .andExpect(jsonPath("$.clientFirstName").value("Felipe"));
 
-        assertThat(orderRepository.findByPublicId("ABC123").orElseThrow().getStatus()).isEqualTo(OrderStatus.SHIPPED);
+        assertThat(orderRepository.findByPublicId("ABC123").orElseThrow().getStatus()).isEqualTo(OrderStatus.PREPARING);
+    }
+
+    @Test
+    void shouldRejectSkippedStatusTransition() throws Exception {
+        Order savedOrder = saveOrder("XYZ999", OrderStatus.PAID);
+
+        OrderStatusUpdateRequestDTO request = new OrderStatusUpdateRequestDTO();
+        request.setStatus(OrderStatus.DELIVERED);
+
+        mockMvc.perform(patch("/api/orders/{orderId}/status", savedOrder.getPublicId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        assertThat(orderRepository.findByPublicId("XYZ999").orElseThrow().getStatus()).isEqualTo(OrderStatus.PAID);
     }
 
     private Order saveOrder(String publicId, OrderStatus status) {

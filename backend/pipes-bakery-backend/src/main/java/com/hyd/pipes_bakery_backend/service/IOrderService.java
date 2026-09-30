@@ -17,6 +17,8 @@ public interface IOrderService {
 
     OrderResponseDTO cancelOrder(@NonNull String orderId);
 
+    OrderResponseDTO markOrderAsPaid(@NonNull String orderId);
+
     OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus status);
 
     OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request);
