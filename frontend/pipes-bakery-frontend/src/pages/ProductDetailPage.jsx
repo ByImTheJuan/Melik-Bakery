@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useProduct } from "../hooks/useProduct";
 import { formatCOP } from "../utils/formatPrice";
+import { getProductImageUrl } from "../utils/productImage";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAddToCart } from "../hooks/useAddToCart";
@@ -78,7 +79,7 @@ function ProductDetailPage() {
       <div className="product-back" onClick={() => navigate("/products")}>← Volver al catálogo</div>
       <div className="product-details-container">
         <div className="product-details-img">
-          <img src={`${import.meta.env.VITE_IMAGES_BASE_URL}${product.imageUrl}`} alt={product.name} />
+          <img src={getProductImageUrl(product.imageFile)} alt={product.name} />
         </div>
         <div className="product-details-info">
           <div className="product-details-header">

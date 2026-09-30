@@ -118,7 +118,7 @@ class OrderServiceTest {
     void shouldCheckoutSuccessfullyAndClearCart() {
         UUID cartId = UUID.randomUUID();
         ShoppingCart cart = new ShoppingCart(cartId);
-        cart.setItems(List.of(new CartItem(1L, "Croissant", 2, new BigDecimal("9500"), "/images/products/croissant.jpg")));
+        cart.setItems(List.of(new CartItem(1L, "Croissant", 2, new BigDecimal("9500"), "croissant.jpg")));
 
         Product product = new Product();
         product.setId(1L);
@@ -148,7 +148,7 @@ class OrderServiceTest {
     void shouldUseFrozenCartPriceWhenCheckingOut() {
         UUID cartId = UUID.randomUUID();
         ShoppingCart cart = new ShoppingCart(cartId);
-        cart.setItems(List.of(new CartItem(1L, "Croissant", 2, new BigDecimal("9500"), "/images/products/croissant.jpg")));
+        cart.setItems(List.of(new CartItem(1L, "Croissant", 2, new BigDecimal("9500"), "croissant.jpg")));
 
         Product product = new Product();
         product.setId(1L);

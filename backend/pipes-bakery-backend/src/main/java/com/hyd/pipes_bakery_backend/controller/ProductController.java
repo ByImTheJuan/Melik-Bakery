@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +12,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.hyd.pipes_bakery_backend.config.OpenApiConfig.SECURITY_SCHEME_NAME;
+import com.hyd.pipes_bakery_backend.dto.product.ProductImageUploadResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
 import com.hyd.pipes_bakery_backend.exception.ApiError;
+import com.hyd.pipes_bakery_backend.service.IImageStorageService;
 import com.hyd.pipes_bakery_backend.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,9 +43,11 @@ import jakarta.validation.Valid;
 public class ProductController {
 
     private final ProductService productService;
+    private final IImageStorageService imageStorageService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, IImageStorageService imageStorageService) {
         this.productService = productService;
+        this.imageStorageService = imageStorageService;
     }
 
     // GET /api/products
@@ -82,6 +89,31 @@ public class ProductController {
     })
     public ProductResponseDTO createProduct(@Valid @RequestBody ProductRequestDTO product) {
         return productService.createProduct(product);
+    }
+
+    // POST /api/products/images
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @Operation(
+            summary = "Subir imagen de producto",
+            description = "Guarda una imagen (JPG, PNG o WEBP) en el directorio de imagenes configurado y devuelve el nombre de fichero a usar como imageFile. Requiere JWT de administrador."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Imagen guardada",
+                    content = @Content(schema = @Schema(implementation = ProductImageUploadResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Fichero ausente o no es una imagen valida",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o no valido",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "El usuario no tiene permisos de administrador",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "413", description = "La imagen supera el tamano maximo permitido",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ProductImageUploadResponseDTO uploadProductImage(
+            @Parameter(description = "Fichero de imagen del producto") @RequestParam("file") MultipartFile file) {
+        return new ProductImageUploadResponseDTO(imageStorageService.store(file));
     }
 
     // UPDATE

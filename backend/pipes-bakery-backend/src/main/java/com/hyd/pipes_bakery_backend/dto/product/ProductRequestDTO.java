@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 @Schema(description = "Datos necesarios para crear o actualizar un producto.")
 public class ProductRequestDTO {
@@ -28,9 +29,10 @@ public class ProductRequestDTO {
     @NotEmpty(message = "Ingredients list cannot be empty")
     private List<@NotBlank(message = "Elements in ingredients list cannot be blank") String> ingredients;
 
-    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
-    @NotBlank(message = "Image URL is required")
-    private String imageUrl;
+    @Schema(description = "Nombre del fichero de imagen del producto.", example = "cinnamonRoll.jpg")
+    @NotBlank(message = "Image file is required")
+    @Pattern(regexp = "^[A-Za-z0-9_-][A-Za-z0-9._-]*$", message = "Image file must be a plain file name")
+    private String imageFile;
 
     public String getName() {
         return name;
@@ -62,10 +64,10 @@ public class ProductRequestDTO {
     public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageFile() {
+        return imageFile;
     }
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageFile(String imageFile) {
+        this.imageFile = imageFile;
     }
 }

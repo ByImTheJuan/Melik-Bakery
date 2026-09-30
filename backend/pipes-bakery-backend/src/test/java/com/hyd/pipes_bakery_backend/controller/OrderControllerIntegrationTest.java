@@ -81,7 +81,7 @@ class OrderControllerIntegrationTest {
         product.setDescription("Mantequilla");
         product.setPrice(new BigDecimal("9500"));
         product.setIngredients(List.of("Harina", "Mantequilla"));
-        product.setImageUrl("/images/products/croissant.jpg");
+        product.setImageFile("croissant.jpg");
         Product savedProduct = productRepository.save(product);
 
         Order order = new Order(

@@ -31,18 +31,19 @@ public class Product {
     @Column(name = "ingredient")
     private List<String> ingredients;
     
-    private String imageUrl;
+    @Column(name = "image_file")
+    private String imageFile;
     private int displayOrder;
 
     public Product() {
     }
     
-    public Product(String name, BigDecimal price, String description, List<String> ingredients, String imageUrl) {
+    public Product(String name, BigDecimal price, String description, List<String> ingredients, String imageFile) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.ingredients = ingredients;
-        this.imageUrl = imageUrl;
+        this.imageFile = imageFile;
     }
 
     public Long getId() {
@@ -85,12 +86,12 @@ public class Product {
         this.ingredients = ingredients;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageFile() {
+        return imageFile;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageFile(String imageFile) {
+        this.imageFile = imageFile;
     }
 
     public int getDisplayOrder() {

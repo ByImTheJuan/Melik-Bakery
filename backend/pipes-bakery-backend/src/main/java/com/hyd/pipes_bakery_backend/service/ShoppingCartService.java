@@ -50,7 +50,7 @@ public class ShoppingCartService implements IShoppingCartService {
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        CartItem item = new CartItem(product.getId(), product.getName(), dto.getQuantity(), product.getPrice(), product.getImageUrl()); // PRECIO CONGELADO AQUÍ
+        CartItem item = new CartItem(product.getId(), product.getName(), dto.getQuantity(), product.getPrice(), product.getImageFile()); // PRECIO CONGELADO AQUÍ
 
         cart.addItem(item);
 

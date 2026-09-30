@@ -30,7 +30,7 @@ public class ProductServiceIntegrationTest {
         request.setPrice(new BigDecimal(4000));
         request.setDescription("Relleno de chocolate");
         request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         ProductResponseDTO created = productService.createProduct(request);
 
@@ -41,6 +41,6 @@ public class ProductServiceIntegrationTest {
         assertThat(found.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(found.getDescription()).isEqualTo("Relleno de chocolate");
         assertThat(found.getIngredients()).containsExactly("Harina", "agua", "sal");
-        assertThat(found.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
+        assertThat(found.getImageFile()).isEqualTo("baguette.jpg");
     }
 }

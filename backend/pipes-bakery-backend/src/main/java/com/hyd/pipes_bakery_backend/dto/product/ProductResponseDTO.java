@@ -17,25 +17,25 @@ public class ProductResponseDTO {
     private BigDecimal price;
     @Schema(description = "Ingredientes principales del producto.", example = "[\"harina\", \"canela\", \"azucar\"]")
     private List<String> ingredients;
-    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
-    private String imageUrl;
+    @Schema(description = "Nombre del fichero de imagen del producto.", example = "cinnamonRoll.jpg")
+    private String imageFile;
     @Schema(description = "Posicion del producto en el catalogo.", example = "2")
     private int displayOrder;
 
     public ProductResponseDTO() {
     }
 
-    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, List<String> ingredients, String imageUrl) {
-        this(id, name, description, price, ingredients, imageUrl, 0);
+    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, List<String> ingredients, String imageFile) {
+        this(id, name, description, price, ingredients, imageFile, 0);
     }
 
-    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, List<String> ingredients, String imageUrl, int displayOrder) {
+    public ProductResponseDTO(Long id, String name, String description, BigDecimal price, List<String> ingredients, String imageFile, int displayOrder) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.ingredients = ingredients;
-        this.imageUrl = imageUrl;
+        this.imageFile = imageFile;
         this.displayOrder = displayOrder;
     }
 
@@ -77,11 +77,11 @@ public class ProductResponseDTO {
     public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageFile() {
+        return imageFile;
     }
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageFile(String imageFile) {
+        this.imageFile = imageFile;
     }
     public int getDisplayOrder() {
         return displayOrder;
