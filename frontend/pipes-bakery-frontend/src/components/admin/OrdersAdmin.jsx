@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getAllOrders,
   updateOrderStatus,
-  ORDER_STATUS_OPTIONS,
   ORDER_STATUS_LABELS,
+  ADMIN_NEXT_STATUS,
 } from "../../services/orderService";
 import { formatCOP } from "../../utils/formatPrice";
 import "../../styles/ordersAdmin.css";
@@ -22,7 +22,6 @@ export default function OrdersAdmin() {
   const [errorMessage, setErrorMessage] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("CREATED");
 
   const selectedOrder = useMemo(
     () => orders.find((order) => order.id === selectedOrderId) ?? null,
@@ -51,16 +50,14 @@ export default function OrdersAdmin() {
     loadOrders();
   }, [loadOrders]);
 
-  useEffect(() => {
-    if (selectedOrder) {
-      setSelectedStatus(selectedOrder.status);
-    }
-  }, [selectedOrder]);
-
-  async function handleStatusSubmit(event) {
-    event.preventDefault();
-
+  async function handleAdvanceStatus() {
     if (!selectedOrder) {
+      return;
+    }
+
+    const nextStatus = ADMIN_NEXT_STATUS[selectedOrder.status];
+
+    if (!nextStatus) {
       return;
     }
 
@@ -69,7 +66,7 @@ export default function OrdersAdmin() {
     setSubmitMessage("");
 
     try {
-      const updatedOrder = await updateOrderStatus(selectedOrder.id, selectedStatus);
+      const updatedOrder = await updateOrderStatus(selectedOrder.id, nextStatus);
 
       setOrders((current) =>
         current.map((order) => (order.id === updatedOrder.id ? updatedOrder : order))
@@ -236,29 +233,24 @@ export default function OrdersAdmin() {
                 </div>
               </div>
 
-              <form className="orders-admin-status-form" onSubmit={handleStatusSubmit}>
-                <label>
-                  <span className="orders-admin-label">Cambiar estado</span>
-                  <select
-                    value={selectedStatus}
-                    onChange={(event) => setSelectedStatus(event.target.value)}
+              <div className="orders-admin-status-form">
+                {ADMIN_NEXT_STATUS[selectedOrder.status] ? (
+                  <button
+                    type="button"
+                    className="orders-admin-primary"
+                    disabled={isUpdating}
+                    onClick={handleAdvanceStatus}
                   >
-                    {ORDER_STATUS_OPTIONS.map((statusOption) => (
-                      <option key={statusOption} value={statusOption}>
-                        {ORDER_STATUS_LABELS[statusOption]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <button
-                  type="submit"
-                  className="orders-admin-primary"
-                  disabled={isUpdating}
-                >
-                  {isUpdating ? "Actualizando..." : "Guardar estado"}
-                </button>
-              </form>
+                    {isUpdating
+                      ? "Actualizando..."
+                      : `Avanzar a "${ORDER_STATUS_LABELS[ADMIN_NEXT_STATUS[selectedOrder.status]]}"`}
+                  </button>
+                ) : (
+                  <p className="orders-admin-empty">
+                    Este pedido no admite cambios manuales de estado.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>

@@ -27,7 +27,9 @@ public class OrderResponseDTO {
     private List<OrderItemResponseDTO> items;
     @Schema(description = "Importe total del pedido.", example = "24.90")
     private BigDecimal totalAmount;
-    @Schema(description = "Estado actual del pedido.", example = "CREATED")
+    @Schema(description = "Costo de envio incluido en el importe total.", example = "10000")
+    private BigDecimal shippingCost;
+    @Schema(description = "Estado actual del pedido.", example = "PAYMENT_PENDING")
     private OrderStatus status;
     @Schema(description = "Fecha y hora de creacion del pedido.", example = "2026-05-07T14:30:00")
     private LocalDateTime createdAt;
@@ -35,7 +37,7 @@ public class OrderResponseDTO {
     private AddressSnapshotDTO shippingAddress;
 
     public OrderResponseDTO(String id, String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber,
-            List<OrderItemResponseDTO> items, BigDecimal totalAmount,
+            List<OrderItemResponseDTO> items, BigDecimal totalAmount, BigDecimal shippingCost,
             OrderStatus status, LocalDateTime createdAt, AddressSnapshotDTO shippingAddress) {
         this.id = id;
         this.clientFirstName = clientFirstName;
@@ -44,6 +46,7 @@ public class OrderResponseDTO {
         this.clientPhoneNumber = clientPhoneNumber;
         this.items = items;
         this.totalAmount = totalAmount;
+        this.shippingCost = shippingCost;
         this.status = status;
         this.createdAt = createdAt;
         this.shippingAddress = shippingAddress;
@@ -69,6 +72,9 @@ public class OrderResponseDTO {
     }
     public BigDecimal getTotalAmount() {
         return totalAmount;
+    }
+    public BigDecimal getShippingCost() {
+        return shippingCost;
     }
     public OrderStatus getStatus() {
         return status;
@@ -99,6 +105,9 @@ public class OrderResponseDTO {
     }
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+    public void setShippingCost(BigDecimal shippingCost) {
+        this.shippingCost = shippingCost;
     }
     public void setStatus(OrderStatus status) {
         this.status = status;

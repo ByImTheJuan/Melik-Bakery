@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T14:30:00+01:00",
+  "title": "Design System: Melik Bakery",
+  "extensions": {
+    "colorMeta": {
+      "roasted-cacao": { "role": "primary", "displayName": "Roasted Cacao", "canonical": "#5a2d0c", "tonalRamp": ["#2b1405", "#401f08", "#5a2d0c", "#7a4520", "#9b653f", "#bd8d6b", "#dcbfa8", "#f2e6dc"] },
+      "caramel-glaze": { "role": "secondary", "displayName": "Caramel Glaze", "canonical": "#c68642", "tonalRamp": ["#4a2c0d", "#6e4317", "#955b22", "#c68642", "#d6a26b", "#e3bd94", "#efd8bf", "#f9efe4"] },
+      "toffee": { "role": "secondary", "displayName": "Toffee", "canonical": "#a87b51", "tonalRamp": ["#3a2716", "#56391f", "#76522f", "#a87b51", "#bf9a77", "#d4b89d", "#e7d5c3", "#f6eee6"] },
+      "copper-crust": { "role": "tertiary", "displayName": "Copper Crust", "canonical": "#b97a56", "tonalRamp": ["#3d2416", "#5c3826", "#8c5a3d", "#b97a56", "#cc9878", "#dbb59c", "#ead2c1", "#f7ece4"] },
+      "copper-crust-deep": { "role": "tertiary", "displayName": "Copper Crust Deep", "canonical": "#8c5a3d" },
+      "flour-cream": { "role": "neutral", "displayName": "Flour Cream", "canonical": "#f8f4ef" },
+      "parchment": { "role": "neutral", "displayName": "Parchment", "canonical": "#f5e6d3" },
+      "biscuit": { "role": "neutral", "displayName": "Biscuit", "canonical": "#e9c99f" },
+      "milk-foam": { "role": "neutral", "displayName": "Milk Foam", "canonical": "#f1e3d3" },
+      "warm-white": { "role": "neutral", "displayName": "Warm White", "canonical": "#fffdfa" },
+      "pure-white": { "role": "neutral", "displayName": "Pure White", "canonical": "#ffffff" },
+      "oat-border": { "role": "neutral", "displayName": "Oat Border", "canonical": "#d8c8bc" },
+      "locked-field": { "role": "neutral", "displayName": "Locked Field", "canonical": "#f3ebe4" },
+      "error-red": { "role": "status", "displayName": "Error Red", "canonical": "#b00020" },
+      "success-green": { "role": "status", "displayName": "Success Green", "canonical": "#166534" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Section statements such as the about heading; ~2rem on mobile." },
+      "headline": { "displayName": "Headline", "purpose": "Page-level card titles (order confirmed, payment result)." },
+      "title": { "displayName": "Title", "purpose": "Product names and section titles inside cards." },
+      "body": { "displayName": "Body", "purpose": "Paragraph copy, about 52ch inside cards." },
+      "label": { "displayName": "Label", "purpose": "Uppercase captions in detail tiles." }
+    },
+    "shadows": [
+      { "name": "card-float", "value": "0 20px 45px rgba(90, 45, 12, 0.12)", "purpose": "Hero, result and confirmation cards." },
+      { "name": "button-lift", "value": "0 14px 28px rgba(90, 45, 12, 0.18)", "purpose": "Primary buttons." },
+      { "name": "navbar-scrolled", "value": "0 4px 20px rgba(0, 0, 0, 0.08)", "purpose": "Sticky navbar after scroll, with backdrop blur 8px." },
+      { "name": "focus-glow", "value": "0 0 0 4px rgba(185, 122, 86, 0.14)", "purpose": "Focused form fields." }
+    ],
+    "motion": [
+      { "name": "ease-state", "value": "0.2s ease", "purpose": "Hover lift, colour and border transitions." },
+      { "name": "ease-underline", "value": "0.3s ease", "purpose": "Nav underline growth and navbar background change." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "768px" },
+      { "name": "tablet", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on result and confirmation cards.",
+      "html": "<button class=\"ds-btn-primary\">Volver al inicio</button>",
+      "css": ".ds-btn-primary { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; border: none; border-radius: 14px; padding: 0.95rem 1.4rem; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--color-secondary-2, #a87b51); color: #fff; box-shadow: 0 14px 28px rgba(90, 45, 12, 0.18); transition: transform 0.2s ease, filter 0.2s ease; } .ds-btn-primary:hover { transform: translateY(-2px); filter: brightness(1.02); } .ds-btn-primary:focus-visible { outline: 2px solid #5a2d0c; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Alternative action paired with a primary button.",
+      "html": "<button class=\"ds-btn-secondary\">Seguir comprando</button>",
+      "css": ".ds-btn-secondary { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; border-radius: 14px; padding: 0.95rem 1.4rem; font-size: 1rem; font-weight: 700; cursor: pointer; background: #fff; color: var(--color-primary, #5a2d0c); border: 1px solid color-mix(in srgb, #a87b51 30%, white); transition: transform 0.2s ease, filter 0.2s ease; } .ds-btn-secondary:hover { transform: translateY(-2px); filter: brightness(1.02); } .ds-btn-secondary:focus-visible { outline: 2px solid #5a2d0c; outline-offset: 3px; }"
+    },
+    {
+      "name": "Checkout Button",
+      "kind": "button",
+      "refersTo": "button-checkout",
+      "description": "Full-width copper gradient for 'Confirmar pedido', the site's strongest call to action.",
+      "html": "<button class=\"ds-btn-checkout\">Confirmar pedido</button>",
+      "css": ".ds-btn-checkout { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; width: 100%; padding: 1rem; border: none; border-radius: 12px; background: linear-gradient(135deg, #b97a56 0%, #8c5a3d 100%); color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; } .ds-btn-checkout:hover { transform: translateY(-2px); filter: brightness(1.04); } .ds-btn-checkout:focus-visible { outline: 2px solid #5a2d0c; outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Checkout form field with a copper focus glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Nombre\" />",
+      "css": ".ds-input { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #d8c8bc; background: #fffdfa; color: #5a2d0c; font-size: 1rem; transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; } .ds-input:focus { outline: none; border-color: #b97a56; box-shadow: 0 0 0 4px rgba(185, 122, 86, 0.14); background: #fff; }"
+    },
+    {
+      "name": "Locked Field",
+      "kind": "input",
+      "refersTo": "input-field-locked",
+      "description": "Read-only field for fixed values such as City and Country.",
+      "html": "<input class=\"ds-input-locked\" type=\"text\" value=\"Bogotá\" readonly />",
+      "css": ".ds-input-locked { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #d8c8bc; background: #f3ebe4; color: #6b5446; font-size: 1rem; cursor: not-allowed; } .ds-input-locked:focus { outline: none; box-shadow: none; }"
+    },
+    {
+      "name": "State Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pill above card headlines naming the state.",
+      "html": "<span class=\"ds-badge\">Pedido confirmado</span>",
+      "css": ".ds-badge { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; display: inline-flex; align-items: center; padding: 0.45rem 0.85rem; border-radius: 999px; background: color-mix(in srgb, #c68642 18%, white); color: #5a2d0c; font-weight: 700; font-size: 0.9rem; }"
+    },
+    {
+      "name": "Navigation Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Navbar link with a Toffee underline that grows on hover.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#\">Productos</a><a class=\"ds-nav-link ds-nav-active\" href=\"#\">Carrito</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 2rem; padding: 1rem 1.5rem; background: linear-gradient(to top, #f5e6d3, #f8f4ef); font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; } .ds-nav-link { position: relative; color: #5a2d0c; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: color 0.2s ease; } .ds-nav-link::after { content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px; background: #a87b51; transition: width 0.3s ease; } .ds-nav-link:hover::after, .ds-nav-link:focus-visible::after { width: 100%; } .ds-nav-active { color: #a87b51; }"
+    },
+    {
+      "name": "Order Detail Card",
+      "kind": "card",
+      "refersTo": "card-hero",
+      "description": "Signature confirmation card: badge, headline, label/value tiles.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-card-badge\">Pedido confirmado</span><h2 class=\"ds-card-title\">Tu pedido ha sido completado</h2><div class=\"ds-card-tiles\"><div class=\"ds-card-tile\"><span class=\"ds-card-label\">Numero de pedido</span><strong>#AB12CD</strong></div><div class=\"ds-card-tile\"><span class=\"ds-card-label\">Cliente</span><strong>Ana Lopez</strong></div></div></div>",
+      "css": ".ds-card { font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif; padding: 2rem; border-radius: 24px; color: #5a2d0c; background: linear-gradient(145deg, #f8f4ef 0%, #f5e6d3 55%, color-mix(in srgb, #e9c99f 35%, white) 100%); border: 1px solid color-mix(in srgb, #a87b51 28%, white); box-shadow: 0 20px 45px rgba(90, 45, 12, 0.12); } .ds-card-badge { display: inline-flex; padding: 0.45rem 0.85rem; border-radius: 999px; background: color-mix(in srgb, #c68642 18%, white); font-weight: 700; font-size: 0.9rem; } .ds-card-title { margin: 0.9rem 0 1.2rem; font-size: 1.8rem; line-height: 1.1; } .ds-card-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; } .ds-card-tile { padding: 1rem 1.1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.72); border: 1px solid color-mix(in srgb, #a87b51 18%, white); } .ds-card-label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: color-mix(in srgb, #5a2d0c 70%, white); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Baker's Table",
+    "overview": "The site should feel like being served across Felipe's own table: warm wood-and-cacao browns, flour-dusted creams, and nothing between the customer and the maker. Every surface is a shade of something you'd find in the kitchen (cacao, caramel, toffee, parchment, biscuit), so the whole storefront reads as one warm material rather than a white page with brown accents.\n\nIt is soft and inviting rather than formal: generously rounded containers, gently lifted cards with brown-tinted shadows, pill-shaped badges, and buttons that rise a couple of pixels on hover. Density is comfortable, with roomy padding and short line lengths, because people ordering for a celebration or a gift should never feel rushed or crowded.\n\nIt must never feel cold or corporate (no greys, blues or stark white SaaS chrome), never childish or cartoonish (no candy colours or bubbly illustration), and never like a generic bakery template. Personality comes from the maker's voice, real product photography and the warm palette, not from decoration.",
+    "keyCharacteristics": [
+      "One warm brown family carries text, accents and surfaces; white appears only as a lifted card or button face.",
+      "Soft, generously rounded forms (8px fields up to 24px hero cards; pills for badges).",
+      "Brown-tinted ambient shadows, never neutral grey.",
+      "A single humanist sans (Tahoma) for everything; hierarchy comes from size and weight.",
+      "Gentle motion: 0.2–0.3s ease transitions, 2px hover lifts, underline-grow nav links."
+    ],
+    "rules": [
+      { "name": "The Kitchen Palette Rule", "body": "Every colour must be nameable as a baking material. If a new colour can't be (a grey, a blue, a neon), it doesn't belong.", "section": "colors" },
+      { "name": "The No-Black Rule", "body": "Text is Roasted Cacao (#5a2d0c), not #000 or neutral grey.", "section": "colors" },
+      { "name": "The One Voice Rule", "body": "A single typeface. Don't introduce a display serif or script to \"add personality\"; personality is the maker's words.", "section": "typography" },
+      { "name": "The Warm Shadow Rule", "body": "New shadows are tinted with Roasted Cacao (rgba(90, 45, 12, …)), not neutral black.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set text in Roasted Cacao (#5a2d0c) and build surfaces from Flour Cream, Parchment and Biscuit.",
+      "Do keep forms soft: 8px fields, 14px buttons, 16–24px containers, pill badges.",
+      "Do tint shadows and borders with the brand browns (rgba(90, 45, 12, …), Toffee mixes).",
+      "Do keep a single primary action per view and use the Copper Crust gradient only for checkout.",
+      "Do show locked values (fixed City/Country) as read-only Locked Field inputs, not hidden or plain text."
+    ],
+    "donts": [
+      "Don't use cold or corporate styling: greys, blues, stark white SaaS chrome or neutral-black shadows.",
+      "Don't go childish or cartoonish: no candy colours, bubbly illustrations or novelty fonts.",
+      "Don't make it look like a generic bakery template; let the maker's story, real photos and voice carry identity.",
+      "Don't introduce a second typeface or decorative script.",
+      "Don't use colour outside the kitchen palette except Error Red and Success Green for status text."
+    ]
+  }
+}

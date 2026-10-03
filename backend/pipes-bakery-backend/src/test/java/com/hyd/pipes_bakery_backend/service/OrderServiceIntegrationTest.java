@@ -38,14 +38,25 @@ class OrderServiceIntegrationTest {
 
     @Test
     void shouldRetrieveAndUpdateOrderStatusByPublicId() {
-        Order savedOrder = saveOrder("LMN456", OrderStatus.CREATED);
+        Order savedOrder = saveOrder("LMN456", OrderStatus.PAID);
 
         OrderResponseDTO found = orderService.getOrderById(savedOrder.getPublicId());
-        OrderResponseDTO updated = orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.DELIVERED);
+        OrderResponseDTO updated = orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.PREPARING);
 
         assertThat(found.getClientFirstName()).isEqualTo("Felipe");
-        assertThat(updated.getStatus()).isEqualTo(OrderStatus.DELIVERED);
-        assertThat(orderRepository.findByPublicId("LMN456").orElseThrow().getStatus()).isEqualTo(OrderStatus.DELIVERED);
+        assertThat(updated.getStatus()).isEqualTo(OrderStatus.PREPARING);
+        assertThat(orderRepository.findByPublicId("LMN456").orElseThrow().getStatus()).isEqualTo(OrderStatus.PREPARING);
+    }
+
+    @Test
+    void shouldAdvanceThroughFullManualLifecycle() {
+        Order savedOrder = saveOrder("LMN789", OrderStatus.PREPARING);
+
+        orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.SHIPPED);
+        OrderResponseDTO delivered = orderService.updateOrderStatus(savedOrder.getPublicId(), OrderStatus.DELIVERED);
+
+        assertThat(delivered.getStatus()).isEqualTo(OrderStatus.DELIVERED);
+        assertThat(orderRepository.findByPublicId("LMN789").orElseThrow().getStatus()).isEqualTo(OrderStatus.DELIVERED);
     }
 
     private Order saveOrder(String publicId, OrderStatus status) {

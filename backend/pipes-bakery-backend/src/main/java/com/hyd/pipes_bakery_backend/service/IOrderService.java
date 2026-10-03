@@ -7,6 +7,8 @@ import org.springframework.lang.NonNull;
 
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
+import com.hyd.pipes_bakery_backend.model.Order;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
 public interface IOrderService {
@@ -19,5 +21,9 @@ public interface IOrderService {
 
     OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus status);
 
-    OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request);
+    /** Validates the checkout data and cart, and captures them for a payment attempt. Creates nothing. */
+    CheckoutSnapshot buildCheckoutSnapshot(UUID cartId, CheckoutOrderRequestDTO request);
+
+    /** Creates the order for an approved payment, already in PAID status. */
+    Order createPaidOrder(CheckoutSnapshot snapshot);
 }
