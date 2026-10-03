@@ -96,7 +96,7 @@ class PaymentControllerIntegrationTest {
         product.setPrice(new BigDecimal("9500"));
         product.setDescription("Mantequilla");
         product.setIngredients(List.of("Harina"));
-        product.setImageUrl("croissant.jpg");
+        product.setImageFile("croissant.jpg");
         Product savedProduct = productRepository.save(product);
 
         cartId = UUID.randomUUID();
