@@ -125,7 +125,7 @@
   font-weight: 700;
 }
 
-.status-created {
+.status-payment_pending {
   background: rgba(168, 123, 81, 0.16);
   color: #7c552e;
 }
@@ -133,6 +133,11 @@
 .status-paid {
   background: rgba(59, 130, 246, 0.14);
   color: #1d4ed8;
+}
+
+.status-preparing {
+  background: rgba(139, 92, 246, 0.16);
+  color: #6d28d9;
 }
 
 .status-shipped {
@@ -204,28 +209,6 @@
   gap: 1rem;
   align-items: end;
   flex-wrap: wrap;
-}
-
-.orders-admin-status-form label {
-  flex: 1;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.orders-admin-status-form select {
-  width: 100%;
-  border: 1px solid rgba(90, 45, 12, 0.14);
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
-  font: inherit;
-  color: var(--color-text);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.orders-admin-status-form select:focus {
-  outline: none;
-  border-color: var(--color-secondary);
-  box-shadow: 0 0 0 4px rgba(198, 134, 66, 0.15);
 }
 
 .orders-admin-primary {

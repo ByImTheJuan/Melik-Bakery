@@ -61,7 +61,46 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
-    // IMAGE UPLOAD ERRORS (400)
+    @ExceptionHandler(InvalidOrderStatusTransitionException.class)
+    public ResponseEntity<ApiError> handleInvalidOrderStatusTransition(InvalidOrderStatusTransitionException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(PaymentNotRetryableException.class)
+    public ResponseEntity<ApiError> handlePaymentNotRetryable(PaymentNotRetryableException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    @ExceptionHandler(InvalidWebhookSignatureException.class)
+    public ResponseEntity<ApiError> handleInvalidWebhookSignature(InvalidWebhookSignatureException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+        // IMAGE UPLOAD ERRORS (400)
     @ExceptionHandler({InvalidImageException.class, MissingServletRequestPartException.class})
     public ResponseEntity<ApiError> handleInvalidImage(Exception ex) {
 

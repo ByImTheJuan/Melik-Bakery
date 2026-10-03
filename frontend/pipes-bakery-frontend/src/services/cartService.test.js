@@ -46,11 +46,12 @@ describe("cartService", () => {
 
   it("sends checkout data to the backend", async () => {
     const payload = { clientFirstName: "Ana" };
-    apiClient.post.mockResolvedValue({ data: { id: "ABC123" } });
+    const session = { checkoutUrl: "https://checkout.wompi.co/p/?reference=MB-XXXX", reference: "MB-XXXX" };
+    apiClient.post.mockResolvedValue({ data: session });
 
     const result = await checkoutCart("cart-1", payload);
 
     expect(apiClient.post).toHaveBeenCalledWith("/cart/cart-1/checkout", payload);
-    expect(result).toEqual({ id: "ABC123" });
+    expect(result).toEqual(session);
   });
 });

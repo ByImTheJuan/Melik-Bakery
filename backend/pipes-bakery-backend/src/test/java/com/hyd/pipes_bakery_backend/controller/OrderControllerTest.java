@@ -44,20 +44,20 @@ class OrderControllerTest {
 
     @Test
     void shouldGetAllOrdersSuccessfully() throws Exception {
-        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.CREATED)));
+        when(orderService.getAllOrders()).thenReturn(List.of(buildOrderResponse("ABC123", OrderStatus.PAYMENT_PENDING)));
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value("ABC123"))
-                .andExpect(jsonPath("$[0].status").value("CREATED"));
+                .andExpect(jsonPath("$[0].status").value("PAYMENT_PENDING"));
 
         verify(orderService).getAllOrders();
     }
 
     @Test
     void shouldGetOrderByIdSuccessfully() throws Exception {
-        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.CREATED));
+        when(orderService.getOrderById("ABC123")).thenReturn(buildOrderResponse("ABC123", OrderStatus.PAYMENT_PENDING));
 
         mockMvc.perform(get("/api/orders/{orderId}", "ABC123"))
                 .andExpect(status().isOk())
@@ -135,7 +135,8 @@ class OrderControllerTest {
                 "felipe@melik.com",
                 "3001234567",
                 List.of(new OrderItemResponseDTO(1L, 10L, "Croissant", 2, new BigDecimal("9500"))),
-                new BigDecimal("19000"),
+                new BigDecimal("29000"),
+                new BigDecimal("10000"),
                 status,
                 LocalDateTime.of(2026, 4, 30, 12, 0),
                 new AddressSnapshotDTO("Calle 123", "Apto 1", "Bogota", 110111, "Colombia")

@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
-import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.UpdateCartItemQuantityRequestDTO;
 import com.hyd.pipes_bakery_backend.exception.ApiError;
-import com.hyd.pipes_bakery_backend.service.OrderService;
+import com.hyd.pipes_bakery_backend.service.PaymentService;
 import com.hyd.pipes_bakery_backend.service.ShoppingCartService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,11 +38,11 @@ import jakarta.validation.Valid;
 public class ShoppingCartController {
 
     private final ShoppingCartService cartService;
-    private final OrderService orderService;
+    private final PaymentService paymentService;
 
-    public ShoppingCartController(ShoppingCartService cartService, OrderService orderService) {
+    public ShoppingCartController(ShoppingCartService cartService, PaymentService paymentService) {
         this.cartService = cartService;
-        this.orderService = orderService;
+        this.paymentService = paymentService;
     }
 
     //POST /api/cart
@@ -111,20 +111,20 @@ public class ShoppingCartController {
     //CHECKOUT /api/cart/{cartId}/checkout
     @PostMapping("/{cartId}/checkout")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Confirmar pedido", description = "Convierte un carrito en un pedido usando los datos de envio proporcionados.")
+    @Operation(summary = "Iniciar pago del carrito", description = "Valida los datos de envio y el carrito e inicia un intento de pago en Wompi. El pedido solo se crea cuando el pago es aprobado.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Pedido creado",
-                    content = @Content(schema = @Schema(implementation = OrderResponseDTO.class))),
+            @ApiResponse(responseCode = "201", description = "Sesion de pago creada",
+                    content = @Content(schema = @Schema(implementation = PaymentSessionResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Datos de entrada no validos o carrito vacio",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "404", description = "Carrito no encontrado",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
-    public OrderResponseDTO checkout(
+    public PaymentSessionResponseDTO checkout(
             @Parameter(description = "UUID del carrito", example = "f4a9b6de-0c5d-4cb2-9a47-8dc413951f0f") @PathVariable UUID cartId,
             @RequestBody @Valid CheckoutOrderRequestDTO dto)   {
 
-        return orderService.checkout(cartId, dto);
+        return paymentService.startCheckout(cartId, dto);
     }
 
     //DELETE /api/cart/{cartId}/items/{productId}

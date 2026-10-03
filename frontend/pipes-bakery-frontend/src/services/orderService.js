@@ -1,19 +1,27 @@
 import apiClient from "../api/apiClient";
 
 export const ORDER_STATUS_OPTIONS = [
-  "CREATED",
+  "PAYMENT_PENDING",
   "PAID",
+  "PREPARING",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
 ];
 
 export const ORDER_STATUS_LABELS = {
-  CREATED: "Creado",
+  PAYMENT_PENDING: "Pago pendiente",
   PAID: "Pagado",
+  PREPARING: "En preparación",
   SHIPPED: "Enviado",
   DELIVERED: "Entregado",
   CANCELLED: "Cancelado",
+};
+
+export const ADMIN_NEXT_STATUS = {
+  PAID: "PREPARING",
+  PREPARING: "SHIPPED",
+  SHIPPED: "DELIVERED",
 };
 
 export async function getAllOrders() {

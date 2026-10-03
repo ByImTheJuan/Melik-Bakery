@@ -3,6 +3,7 @@ package com.hyd.pipes_bakery_backend.service;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.security.SecureRandom;
 import java.util.UUID;
 
@@ -13,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
 import com.hyd.pipes_bakery_backend.exception.CartIsEmptyException;
 import com.hyd.pipes_bakery_backend.exception.InvalidAddressException;
+import com.hyd.pipes_bakery_backend.exception.InvalidOrderStatusTransitionException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.mapper.OrderMapper;
@@ -33,6 +36,12 @@ public class OrderService implements IOrderService {
     private static final String PUBLIC_ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int PUBLIC_ID_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
+
+    private static final Map<OrderStatus, OrderStatus> ADMIN_ALLOWED_TRANSITIONS = Map.of(
+            OrderStatus.PAID, OrderStatus.PREPARING,
+            OrderStatus.PREPARING, OrderStatus.SHIPPED,
+            OrderStatus.SHIPPED, OrderStatus.DELIVERED
+    );
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
@@ -71,23 +80,38 @@ public class OrderService implements IOrderService {
 
     @Override
     public OrderResponseDTO cancelOrder(@NonNull String orderId) {
-        return updateOrderStatus(orderId, OrderStatus.CANCELLED);
+        Order order = findOrderByPublicId(orderId);
+        return orderMapper.toDto(applyStatus(order, OrderStatus.CANCELLED));
     }
 
     @Override
-    public OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus status) {
+    public OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus requestedStatus) {
+        Order order = findOrderByPublicId(orderId);
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus allowedNext = ADMIN_ALLOWED_TRANSITIONS.get(currentStatus);
+
+        if (allowedNext == null || allowedNext != requestedStatus) {
+            throw new InvalidOrderStatusTransitionException(
+                    "Cannot transition order from " + currentStatus + " to " + requestedStatus
+            );
+        }
+
+        return orderMapper.toDto(applyStatus(order, requestedStatus));
+    }
+
+    private Order findOrderByPublicId(String orderId) {
         return orderRepository.findByPublicId(orderId)
-                .map(order -> {
-                    order.setStatus(status);
-                    return orderRepository.save(order);
-                })
-                .map(orderMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
     }
 
-    @Transactional
+    private Order applyStatus(Order order, OrderStatus status) {
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
     @Override
-    public OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request) {
+    public CheckoutSnapshot buildCheckoutSnapshot(UUID cartId, CheckoutOrderRequestDTO request) {
         validateShippingAddress(request.getShippingAddress());
 
         ShoppingCart cart = cartStorage.getCart(cartId);
@@ -95,34 +119,45 @@ public class OrderService implements IOrderService {
             throw new CartIsEmptyException("Cart is empty. Impossible to checkout");
         }
 
+        List<CheckoutSnapshot.Item> items = cart.getItems().stream()
+                .map(item -> new CheckoutSnapshot.Item(item.getProductId(), item.getQuantity(), item.getUnitPriceAtAdd()))
+                .toList();
+
+        return new CheckoutSnapshot(request, items, cart.getShippingCost());
+    }
+
+    @Transactional
+    @Override
+    public Order createPaidOrder(CheckoutSnapshot snapshot) {
+        CheckoutOrderRequestDTO request = snapshot.getRequest();
+
         Order order = new Order(
                 request.getClientFirstName(),
                 request.getClientLastName(),
                 request.getClientEmail(),
                 request.getClientPhoneNumber(),
                 addressMapper.toSnapshotEntity(request.getShippingAddress()),
-                request.getReceiverName()
+                request.getReceiverName(),
+                snapshot.getShippingCost()
         );
         order.setPublicId(generateUniquePublicId());
+        order.setStatus(OrderStatus.PAID);
 
-        List<OrderItem> items = cart.getItems().stream()
-                .map(itemDto -> {
-                    Product product = productRepository.findById(itemDto.getProductId())
+        List<OrderItem> items = snapshot.getItems().stream()
+                .map(item -> {
+                    Product product = productRepository.findById(item.getProductId())
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
-                                            "Product not found with id " + itemDto.getProductId()
+                                            "Product not found with id " + item.getProductId()
                                     )
                             );
 
-                    return new OrderItem(product, itemDto.getQuantity(), itemDto.getUnitPriceAtAdd());
+                    return new OrderItem(product, item.getQuantity(), item.getUnitPrice());
                 })
                 .toList();
 
         order.setItems(items);
-        orderRepository.save(order);
-        cartStorage.clearCart(cartId);
-
-        return orderMapper.toDto(order);
+        return orderRepository.save(order);
     }
 
     private void validateShippingAddress(AddressSnapshotDTO address) {

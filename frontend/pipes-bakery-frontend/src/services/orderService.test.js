@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "../api/apiClient";
 import {
+  ADMIN_NEXT_STATUS,
   getAllOrders,
   ORDER_STATUS_LABELS,
   ORDER_STATUS_OPTIONS,
@@ -21,8 +22,27 @@ describe("orderService", () => {
   });
 
   it("exposes the expected order status metadata", () => {
-    expect(ORDER_STATUS_OPTIONS).toContain("SHIPPED");
+    expect(ORDER_STATUS_OPTIONS).toEqual([
+      "PAYMENT_PENDING",
+      "PAID",
+      "PREPARING",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+    ]);
     expect(ORDER_STATUS_LABELS.CANCELLED).toBe("Cancelado");
+    expect(ORDER_STATUS_LABELS.PAYMENT_PENDING).toBe("Pago pendiente");
+  });
+
+  it("exposes the admin forward-only transition map", () => {
+    expect(ADMIN_NEXT_STATUS).toEqual({
+      PAID: "PREPARING",
+      PREPARING: "SHIPPED",
+      SHIPPED: "DELIVERED",
+    });
+    expect(ADMIN_NEXT_STATUS.PAYMENT_PENDING).toBeUndefined();
+    expect(ADMIN_NEXT_STATUS.DELIVERED).toBeUndefined();
+    expect(ADMIN_NEXT_STATUS.CANCELLED).toBeUndefined();
   });
 
   it("loads all orders", async () => {

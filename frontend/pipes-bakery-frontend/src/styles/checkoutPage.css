@@ -62,6 +62,18 @@
   background: #ffffff;
 }
 
+.checkout-form input:read-only {
+  background: #f3ebe4;
+  color: #6b5446;
+  cursor: not-allowed;
+}
+
+.checkout-form input:read-only:focus {
+  border-color: #d8c8bc;
+  box-shadow: none;
+  background: #f3ebe4;
+}
+
 /* RESUMEN */
 .order-summary-box {
   padding: 1.75rem;
