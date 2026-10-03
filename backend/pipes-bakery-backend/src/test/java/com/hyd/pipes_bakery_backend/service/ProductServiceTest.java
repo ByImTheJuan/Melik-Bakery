@@ -47,7 +47,7 @@ public class ProductServiceTest {
         request.setPrice(new BigDecimal(5000));
         request.setDescription("Pan artesanal hecho con ingredientes naturales");
         request.setIngredients(Arrays.asList("Agua", "harina", "masa madre", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         Product savedProduct = new Product();
         savedProduct.setId(1L);
@@ -55,7 +55,7 @@ public class ProductServiceTest {
         savedProduct.setPrice(new BigDecimal(5000));
         savedProduct.setDescription("Pan artesanal hecho con ingredientes naturales");
         savedProduct.setIngredients(Arrays.asList("Agua", "harina", "masa madre", "sal"));
-        savedProduct.setImageUrl("https://example.com/images/baguette.jpg");
+        savedProduct.setImageFile("baguette.jpg");
         savedProduct.setDisplayOrder(0);
 
         when(productRepository.findTopByOrderByDisplayOrderDesc()).thenReturn(java.util.Optional.empty());
@@ -70,7 +70,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(5000));
         assertThat(result.getDescription()).isEqualTo("Pan artesanal hecho con ingredientes naturales");
         assertThat(result.getIngredients()).containsExactly("Agua", "harina", "masa madre", "sal");
-        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
+        assertThat(result.getImageFile()).isEqualTo("baguette.jpg");
         assertThat(result.getDisplayOrder()).isEqualTo(0);
 
         verify(productRepository).findTopByOrderByDisplayOrderDesc();
@@ -89,7 +89,7 @@ public class ProductServiceTest {
         product.setPrice(new BigDecimal(3000));
         product.setDescription("Delicioso croissant francés");
         product.setIngredients(Arrays.asList("Harina", "mantequilla", "azúcar", "levadura", "sal"));
-        product.setImageUrl("https://example.com/images/baguette.jpg");
+        product.setImageFile("baguette.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(product));
 
@@ -103,7 +103,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(3000));
         assertThat(result.getDescription()).isEqualTo("Delicioso croissant francés");
         assertThat(result.getIngredients()).containsExactly("Harina", "mantequilla", "azúcar", "levadura", "sal");
-        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
+        assertThat(result.getImageFile()).isEqualTo("baguette.jpg");
 
         verify(productRepository).findById(productId);
     }
@@ -177,7 +177,7 @@ public class ProductServiceTest {
         updatedRequest.setPrice(new BigDecimal(4000));
         updatedRequest.setDescription("Delicioso pan relleno de chocolate");
         updatedRequest.setIngredients(Arrays.asList("Harina", "chocolate", "azúcar", "mantequilla", "levadura", "sal"));
-        updatedRequest.setImageUrl("https://example.com/images/baguette.jpg");
+        updatedRequest.setImageFile("baguette.jpg");
 
         Product existingProduct = new Product();
         existingProduct.setId(productId);
@@ -185,7 +185,7 @@ public class ProductServiceTest {
         existingProduct.setPrice(new BigDecimal(2000));
         existingProduct.setDescription("Pan básico sin relleno");
         existingProduct.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
-        existingProduct.setImageUrl("https://example.com/images/cake.jpg");
+        existingProduct.setImageFile("cake.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(existingProduct));
         when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
@@ -199,7 +199,7 @@ public class ProductServiceTest {
         assertThat(result.getPrice()).isEqualByComparingTo(new BigDecimal(4000));
         assertThat(result.getDescription()).isEqualTo("Delicioso pan relleno de chocolate");
         assertThat(result.getIngredients()).containsExactly("Harina", "chocolate", "azúcar", "mantequilla", "levadura", "sal");
-        assertThat(result.getImageUrl()).isEqualTo("https://example.com/images/baguette.jpg");
+        assertThat(result.getImageFile()).isEqualTo("baguette.jpg");
 
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
@@ -216,7 +216,7 @@ public class ProductServiceTest {
         updatedRequest.setPrice(new BigDecimal(0));
         updatedRequest.setDescription("Este pan no existe");
         updatedRequest.setIngredients(Arrays.asList("N/A"));
-        updatedRequest.setImageUrl("https://example.com/images/baguette.jpg");
+        updatedRequest.setImageFile("baguette.jpg");
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.empty());
 
@@ -241,7 +241,7 @@ public class ProductServiceTest {
         product1.setPrice(new BigDecimal(2500));
         product1.setDescription("Clásico pan francés");
         product1.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
-        product1.setImageUrl("https://example.com/images/baguette.jpg");
+        product1.setImageFile("baguette.jpg");
 
         Product product2 = new Product();
         product2.setId(2L);
@@ -249,7 +249,7 @@ public class ProductServiceTest {
         product2.setPrice(new BigDecimal(3500));
         product2.setDescription("Muffin suave con arándanos frescos");
         product2.setIngredients(Arrays.asList("Harina", "arándanos", "azúcar", "mantequilla", "huevos", "levadura"));
-        product2.setImageUrl("https://example.com/images/muffin.jpg");
+        product2.setImageFile("muffin.jpg");
 
         when(productRepository.findAllByOrderByDisplayOrderAscIdAsc()).thenReturn(java.util.List.of(product1, product2));
 
@@ -271,7 +271,7 @@ public class ProductServiceTest {
         product1.setPrice(new BigDecimal(2500));
         product1.setDescription("ClÃ¡sico pan francÃ©s");
         product1.setIngredients(Arrays.asList("Harina", "agua", "sal", "levadura"));
-        product1.setImageUrl("https://example.com/images/baguette.jpg");
+        product1.setImageFile("baguette.jpg");
         product1.setDisplayOrder(0);
 
         Product product2 = new Product();
@@ -280,7 +280,7 @@ public class ProductServiceTest {
         product2.setPrice(new BigDecimal(3500));
         product2.setDescription("Muffin suave con arÃ¡ndanos frescos");
         product2.setIngredients(Arrays.asList("Harina", "arÃ¡ndanos", "azÃºcar", "mantequilla", "huevos", "levadura"));
-        product2.setImageUrl("https://example.com/images/muffin.jpg");
+        product2.setImageFile("muffin.jpg");
         product2.setDisplayOrder(1);
 
         when(productRepository.findAll()).thenReturn(java.util.List.of(product1, product2));

@@ -1,5 +1,6 @@
 import { useCart } from "../../hooks/useCart";
 import { formatCOP } from "../../utils/formatPrice";
+import { getProductImageUrl } from "../../utils/productImage";
 import "../../styles/global.css";
 
 
@@ -12,7 +13,7 @@ function CartItemCard({ cartItem }) {
                 X
             </div>
             <div className="cart-item-image">
-                <img src={`${import.meta.env.VITE_IMAGES_BASE_URL}${cartItem.productImage}`} alt={cartItem.productName} />
+                <img src={getProductImageUrl(cartItem.productImage)} alt={cartItem.productName} />
             </div>
             <div className="cart-item-name">{cartItem.productName}</div>
             <div className="cart-item-price">${formatCOP(cartItem.unitPriceAtAdd)}</div>

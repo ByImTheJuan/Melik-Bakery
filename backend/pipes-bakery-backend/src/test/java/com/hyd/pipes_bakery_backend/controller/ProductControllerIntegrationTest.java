@@ -42,7 +42,7 @@ public class ProductControllerIntegrationTest {
         request.setPrice(new BigDecimal(4000));
         request.setDescription("Relleno de chocolate");
         request.setIngredients(Arrays.asList("Harina", "chocolate"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         MvcResult creationResult = mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -64,6 +64,6 @@ public class ProductControllerIntegrationTest {
             .andExpect(jsonPath("$.ingredients").isArray())
             .andExpect(jsonPath("$.ingredients[0]").value("Harina"))
             .andExpect(jsonPath("$.ingredients[1]").value("chocolate"))
-            .andExpect(jsonPath("$.imageUrl").value("https://example.com/images/baguette.jpg"));
+            .andExpect(jsonPath("$.imageFile").value("baguette.jpg"));
     }
 }

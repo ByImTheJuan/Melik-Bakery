@@ -312,3 +312,91 @@
     height: 220px;
   }
 }
+
+/* IMAGE DROPZONE */
+.products-admin-image-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.products-admin-image-field > span {
+  color: var(--color-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.products-admin-dropzone {
+  display: grid;
+  place-items: center;
+  min-height: 190px;
+  padding: 1rem;
+  border: 2px dashed rgba(90, 45, 12, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.products-admin-dropzone:hover,
+.products-admin-dropzone:focus-visible {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 4px rgba(198, 134, 66, 0.15);
+}
+
+.products-admin-dropzone.is-drag-active {
+  border-color: var(--color-secondary);
+  background: var(--color-bg-2);
+}
+
+.products-admin-dropzone.has-image {
+  padding: 0.5rem;
+}
+
+.products-admin-dropzone-placeholder {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-primary);
+  pointer-events: none;
+}
+
+.products-admin-dropzone-placeholder small {
+  color: color-mix(in srgb, var(--color-text) 68%, white);
+}
+
+.products-admin-dropzone-preview {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 12px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.products-admin-dropzone-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.products-admin-dropzone-footer small {
+  color: color-mix(in srgb, var(--color-text) 68%, white);
+  overflow-wrap: anywhere;
+}
+
+.products-admin-dropzone-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.products-admin-dropzone-actions button {
+  padding: 0.55rem 0.9rem;
+}
+
+.products-admin-dropzone-error {
+  margin: 0;
+  color: #a23b2a;
+  font-size: 0.9rem;
+}

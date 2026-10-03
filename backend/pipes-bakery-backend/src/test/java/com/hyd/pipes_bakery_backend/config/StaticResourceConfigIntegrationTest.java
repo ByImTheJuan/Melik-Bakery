@@ -33,7 +33,6 @@ class StaticResourceConfigIntegrationTest {
     @DynamicPropertySource
     static void imageProperties(DynamicPropertyRegistry registry) {
         registry.add("app.images.path", imageDirectory::toString);
-        registry.add("app.images.url-pattern", () -> "/images/products/**");
     }
 
     @BeforeAll
@@ -43,7 +42,7 @@ class StaticResourceConfigIntegrationTest {
 
     @Test
     void shouldServeAProductImageFromAFlatConfiguredDirectory() throws Exception {
-        mockMvc.perform(get("/images/products/sample.jpg"))
+        mockMvc.perform(get("/images/sample.jpg"))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes(new byte[] {1, 2, 3}));
     }

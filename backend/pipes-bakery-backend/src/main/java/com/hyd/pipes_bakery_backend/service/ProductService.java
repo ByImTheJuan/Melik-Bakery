@@ -69,7 +69,7 @@ public class ProductService implements IProductService {
                     product.setPrice(updatedProduct.getPrice());
                     product.setDescription(updatedProduct.getDescription());
                     product.setIngredients(updatedProduct.getIngredients());
-                    product.setImageUrl(updatedProduct.getImageUrl());
+                    product.setImageFile(updatedProduct.getImageFile());
                     return productRepository.save(product);
                 })
                 .map(productMapper::toDto)

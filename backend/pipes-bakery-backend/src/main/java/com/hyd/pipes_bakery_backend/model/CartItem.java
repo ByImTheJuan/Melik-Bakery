@@ -21,7 +21,7 @@ public class CartItem {
     @Schema(description = "Precio unitario en el momento de anadirlo al carrito.", example = "4.50")
     private BigDecimal unitPriceAtAdd;
 
-    @Schema(description = "URL o ruta publica de la imagen del producto.", example = "/images/products/cinnamonRoll.jpg")
+    @Schema(description = "Nombre del fichero de imagen del producto.", example = "cinnamonRoll.jpg")
     private String productImage;
 
     public CartItem() {}

@@ -7,25 +7,32 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -49,6 +56,18 @@ import jakarta.servlet.http.Cookie;
 @ActiveProfiles("test")
 @Transactional
 class AdminSecurityFlowIntegrationTest {
+
+    private static final byte[] PNG_BYTES = {
+            (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0x0D
+    };
+
+    @TempDir
+    static Path imageDirectory;
+
+    @DynamicPropertySource
+    static void imageProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.images.path", imageDirectory::toString);
+    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -130,7 +149,7 @@ class AdminSecurityFlowIntegrationTest {
                 .andExpect(jsonPath("$.authenticated").value(true));
 
         Product product = new Product("Croissant", new BigDecimal("9500"), "Original",
-                List.of("Harina"), "/images/products/croissant.jpg");
+                List.of("Harina"), "croissant.jpg");
         Product savedProduct = productRepository.save(product);
 
         ProductRequestDTO update = new ProductRequestDTO();
@@ -138,7 +157,7 @@ class AdminSecurityFlowIntegrationTest {
         update.setDescription("Actualizado");
         update.setPrice(new BigDecimal("10500"));
         update.setIngredients(List.of("Harina", "Mantequilla"));
-        update.setImageUrl("/images/products/croissant-premium.jpg");
+        update.setImageFile("croissant-premium.jpg");
 
         mockMvc.perform(put("/api/products/{id}", savedProduct.getId())
                         .cookie(authCookie, adminCsrf)
@@ -174,6 +193,69 @@ class AdminSecurityFlowIntegrationTest {
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Authentication is required."));
+    }
+
+    @Test
+    void shouldUploadProductImageAsAdminAndServeIt() throws Exception {
+        Cookie authCookie = login();
+        Cookie adminCsrf = fetchCsrfToken(authCookie);
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "Tarta limon.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
+
+        MvcResult result = mockMvc.perform(multipart("/api/products/images")
+                        .file(file)
+                        .cookie(authCookie, adminCsrf)
+                        .header("X-XSRF-TOKEN", adminCsrf.getValue()))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String imageFile = objectMapper.readTree(result.getResponse().getContentAsString())
+                .get("imageFile").asText();
+
+        assertThat(imageFile).matches("Tarta-limon-[0-9a-f]{8}\\.png");
+        assertThat(Files.readAllBytes(imageDirectory.resolve(imageFile))).isEqualTo(PNG_BYTES);
+
+        mockMvc.perform(get("/images/" + imageFile))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldRejectProductImageUploadWithoutCsrfToken() throws Exception {
+        Cookie authCookie = login();
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "croissant.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
+
+        mockMvc.perform(multipart("/api/products/images").file(file).cookie(authCookie))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldRejectAnonymousProductImageUpload() throws Exception {
+        Cookie anonymousCsrf = fetchCsrfToken(null);
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "croissant.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
+
+        mockMvc.perform(multipart("/api/products/images")
+                        .file(file)
+                        .cookie(anonymousCsrf)
+                        .header("X-XSRF-TOKEN", anonymousCsrf.getValue()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    private Cookie login() throws Exception {
+        Cookie preLoginCsrf = fetchCsrfToken(null);
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .cookie(preLoginCsrf)
+                        .header("X-XSRF-TOKEN", preLoginCsrf.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest())))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cookie authCookie = loginResult.getResponse().getCookie("ADMIN_AUTH_TOKEN");
+        assertThat(authCookie).isNotNull();
+        return authCookie;
     }
 
     private Cookie fetchCsrfToken(Cookie authCookie) throws Exception {

@@ -15,6 +15,18 @@ export const createProduct = async (productData) => {
   return response.data;
 };
 
+export const uploadProductImage = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  // Override the client's JSON default so axios sends real multipart data
+  // (the browser adds the boundary to the header).
+  const response = await apiClient.post("/products/images", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+};
+
 export const updateProduct = async (id, productData) => {
   const response = await apiClient.put(`/products/${id}`, productData);
   return response.data;

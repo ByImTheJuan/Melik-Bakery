@@ -8,6 +8,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
@@ -96,6 +98,52 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(apiError);
+    }
+
+        // IMAGE UPLOAD ERRORS (400)
+    @ExceptionHandler({InvalidImageException.class, MissingServletRequestPartException.class})
+    public ResponseEntity<ApiError> handleInvalidImage(Exception ex) {
+
+        String message = ex instanceof InvalidImageException
+                ? ex.getMessage()
+                : "Image file is required";
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message,
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    // IMAGE TOO LARGE (413)
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                HttpStatus.PAYLOAD_TOO_LARGE.getReasonPhrase(),
+                "Image file is too large",
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(apiError);
+    }
+
+    // IMAGE STORAGE FAILURE (500)
+    @ExceptionHandler(ImageStorageException.class)
+    public ResponseEntity<ApiError> handleImageStorage(ImageStorageException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "Could not store image file",
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

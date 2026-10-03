@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import { useAddToCart } from "../../hooks/useAddToCart";
 import { formatCOP } from "../../utils/formatPrice";
+import { getProductImageUrl } from "../../utils/productImage";
 
 
 function ProductCard({ product }) {
@@ -20,7 +21,7 @@ function ProductCard({ product }) {
   return (
     <div onClick={handleDetailsClick} className="product-card">
       <div className="product-image">
-        <img src={`${import.meta.env.VITE_IMAGES_BASE_URL}${product.imageUrl}`} alt={product.name} />
+        <img src={getProductImageUrl(product.imageFile)} alt={product.name} />
       </div>
       <div className="product-info">
         <div className="product-header">

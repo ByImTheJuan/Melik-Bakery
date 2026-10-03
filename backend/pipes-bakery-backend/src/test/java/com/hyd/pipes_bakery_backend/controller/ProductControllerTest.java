@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -28,7 +30,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyd.pipes_bakery_backend.dto.product.ProductOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.product.ProductResponseDTO;
+import com.hyd.pipes_bakery_backend.exception.InvalidImageException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.service.IImageStorageService;
 import com.hyd.pipes_bakery_backend.service.ProductService;
 
 @SuppressWarnings("null")
@@ -42,6 +46,9 @@ public class ProductControllerTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private IImageStorageService imageStorageService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -54,7 +61,7 @@ public class ProductControllerTest {
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         ProductResponseDTO response = new ProductResponseDTO(
                 1L,
@@ -62,7 +69,7 @@ public class ProductControllerTest {
                 "Pan artesanal",
                 new BigDecimal(3000),
                 Arrays.asList("Harina", "agua", "sal"),
-                "https://example.com/images/baguette.jpg"
+                "baguette.jpg"
         );
 
         when(productService.createProduct(any(ProductRequestDTO.class)))
@@ -90,7 +97,7 @@ public class ProductControllerTest {
         request.setPrice(new BigDecimal(-100)); // Invalid price
         request.setDescription("Pan artesanal");
         request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         // Act + Assert
         mockMvc.perform(post("/api/products")
@@ -117,7 +124,7 @@ public class ProductControllerTest {
                 "Pan artesanal",
                 new BigDecimal(3000),
                 Arrays.asList("Harina", "agua", "sal"),
-                "https://example.com/images/baguette.jpg"
+                "baguette.jpg"
         );
 
         when(productService.getProductById(productId)).thenReturn(response);
@@ -166,7 +173,7 @@ public class ProductControllerTest {
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         ProductResponseDTO response = new ProductResponseDTO(
                 productId,
@@ -174,7 +181,7 @@ public class ProductControllerTest {
                 "Pan artesanal",
                 new BigDecimal(3000),
                 Arrays.asList("Harina", "agua", "sal"),
-                "https://example.com/images/baguette.jpg"
+                "baguette.jpg"
         );
 
         when(productService.updateProduct(anyLong(), any(ProductRequestDTO.class)))
@@ -202,7 +209,7 @@ public class ProductControllerTest {
         request.setPrice(new BigDecimal(3000));
         request.setDescription("Pan artesanal");
         request.setIngredients(Arrays.asList("Harina", "agua", "sal"));
-        request.setImageUrl("https://example.com/images/baguette.jpg");
+        request.setImageFile("baguette.jpg");
 
         when(productService.updateProduct(anyLong(), any(ProductRequestDTO.class)))
                 .thenThrow(new ResourceNotFoundException("Product not found with id " + productId));
@@ -265,8 +272,8 @@ public class ProductControllerTest {
 
         when(productService.updateProductOrder(List.of(2L, 1L)))
                 .thenReturn(List.of(
-                        new ProductResponseDTO(2L, "Baguette", "Pan artesanal", new BigDecimal(3000), Arrays.asList("Harina"), "/images/products/baguette.jpg", 0),
-                        new ProductResponseDTO(1L, "Croissant", "Mantequilla", new BigDecimal(9500), Arrays.asList("Harina", "Mantequilla"), "/images/products/croissant.jpg", 1)
+                        new ProductResponseDTO(2L, "Baguette", "Pan artesanal", new BigDecimal(3000), Arrays.asList("Harina"), "baguette.jpg", 0),
+                        new ProductResponseDTO(1L, "Croissant", "Mantequilla", new BigDecimal(9500), Arrays.asList("Harina", "Mantequilla"), "croissant.jpg", 1)
                 ));
 
         mockMvc.perform(put("/api/products/order")
@@ -280,5 +287,51 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$[1].displayOrder").value(1));
 
         verify(productService).updateProductOrder(List.of(2L, 1L));
+    }
+
+    @Test
+    void shouldUploadProductImageAndReturnStoredFileName() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "croissant.png", MediaType.IMAGE_PNG_VALUE, new byte[] {1, 2, 3});
+
+        when(imageStorageService.store(any())).thenReturn("croissant-1a2b3c4d.png");
+
+        mockMvc.perform(multipart("/api/products/images").file(file))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.imageFile").value("croissant-1a2b3c4d.png"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUploadedImageIsInvalid() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "notes.txt", MediaType.TEXT_PLAIN_VALUE, new byte[] {1, 2, 3});
+
+        when(imageStorageService.store(any()))
+                .thenThrow(new InvalidImageException("Only JPG, PNG and WEBP images are allowed"));
+
+        mockMvc.perform(multipart("/api/products/images").file(file))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Only JPG, PNG and WEBP images are allowed"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenImagePartIsMissing() throws Exception {
+        mockMvc.perform(multipart("/api/products/images"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Image file is required"));
+    }
+
+    @Test
+    void shouldRejectProductWithImageFileContainingPath() throws Exception {
+        ProductRequestDTO request = new ProductRequestDTO();
+        request.setName("Baguette");
+        request.setPrice(new BigDecimal(3000));
+        request.setIngredients(Arrays.asList("Harina"));
+        request.setImageFile("/images/products/baguette.jpg");
+
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 }

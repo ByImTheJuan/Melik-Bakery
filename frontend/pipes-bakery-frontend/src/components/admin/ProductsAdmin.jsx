@@ -5,8 +5,11 @@ import {
   getAllProducts,
   updateProductOrder,
   updateProduct,
+  uploadProductImage,
 } from "../../services/productService";
 import { formatCOP } from "../../utils/formatPrice";
+import { getProductImageUrl } from "../../utils/productImage";
+import ImageDropzone from "./ImageDropzone";
 import "../../styles/productsAdmin.css";
 
 const emptyForm = {
@@ -14,7 +17,8 @@ const emptyForm = {
   description: "",
   price: "",
   ingredients: [""],
-  imageUrl: "",
+  imageFile: "",
+  pendingImage: null,
 };
 
 function mapProductToForm(product) {
@@ -23,11 +27,12 @@ function mapProductToForm(product) {
     description: product.description ?? "",
     price: product.price?.toString() ?? "",
     ingredients: product.ingredients.length > 0 ? [...product.ingredients] : [""],
-    imageUrl: product.imageUrl,
+    imageFile: product.imageFile ?? "",
+    pendingImage: null,
   };
 }
 
-function buildPayload(formData) {
+function buildPayload(formData, imageFile) {
   return {
     name: formData.name.trim(),
     description: formData.description.trim(),
@@ -35,7 +40,7 @@ function buildPayload(formData) {
     ingredients: formData.ingredients
       .map((ingredient) => ingredient.trim())
       .filter(Boolean),
-    imageUrl: formData.imageUrl.trim(),
+    imageFile,
   };
 }
 
@@ -110,6 +115,20 @@ export default function ProductsAdmin() {
         ingredients: nextIngredients.length > 0 ? nextIngredients : [""],
       };
     });
+  }
+
+  function handleImageSelected(file) {
+    setFormData((current) => ({
+      ...current,
+      pendingImage: file,
+    }));
+  }
+
+  function handleImageCleared() {
+    setFormData((current) => ({
+      ...current,
+      pendingImage: null,
+    }));
   }
 
   function handleEdit(product) {
@@ -196,12 +215,31 @@ export default function ProductsAdmin() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setIsSubmitting(true);
     setSubmitMessage("");
     setErrorMessage("");
 
+    if (!formData.pendingImage && !formData.imageFile) {
+      setErrorMessage("Añade una imagen del producto.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      const payload = buildPayload(formData);
+      let imageFile = formData.imageFile;
+
+      // Upload only on submit so cancelled edits don't leave orphan files on the server.
+      if (formData.pendingImage) {
+        const uploadedImage = await uploadProductImage(formData.pendingImage);
+        imageFile = uploadedImage.imageFile;
+        setFormData((current) => ({
+          ...current,
+          imageFile,
+          pendingImage: null,
+        }));
+      }
+
+      const payload = buildPayload(formData, imageFile);
 
       if (editingProductId) {
         await updateProduct(editingProductId, payload);
@@ -305,7 +343,7 @@ export default function ProductsAdmin() {
                 >
                   <div className="products-admin-item-image">
                     <img
-                      src={`${import.meta.env.VITE_IMAGES_BASE_URL}${product.imageUrl}`}
+                      src={getProductImageUrl(product.imageFile)}
                       alt={product.name}
                     />
                   </div>
@@ -427,16 +465,12 @@ export default function ProductsAdmin() {
               </div>
             </div>
 
-            <label>
-              <span>Archivo de imagen</span>
-              <input
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleChange}
-                placeholder="nombre-del-archivo.jpg"
-                required
-              />
-            </label>
+            <ImageDropzone
+              currentImageFile={formData.imageFile}
+              pendingImage={formData.pendingImage}
+              onImageSelected={handleImageSelected}
+              onImageCleared={handleImageCleared}
+            />
 
             <div className="products-admin-form-actions">
               {editingProductId && (
