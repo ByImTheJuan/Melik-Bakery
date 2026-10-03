@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "../api/apiClient";
-import { createPaymentSession, isOrderPayable } from "./paymentService";
+import { getPaymentStatus, retryPayment } from "./paymentService";
 
 vi.mock("../api/apiClient", () => ({
   default: {
@@ -15,32 +15,36 @@ describe("paymentService", () => {
     apiClient.get.mockReset();
   });
 
-  it("creates a payment session for an order", async () => {
+  it("retries a failed payment by reference", async () => {
     apiClient.post.mockResolvedValue({
-      data: { checkoutUrl: "https://checkout.wompi.co/p/?reference=ABC123-XXXX", reference: "ABC123-XXXX" },
+      data: { checkoutUrl: "https://checkout.wompi.co/p/?reference=MB-NEW", reference: "MB-NEW" },
     });
 
-    const result = await createPaymentSession("ABC123");
+    const result = await retryPayment("MB-OLD");
 
-    expect(apiClient.post).toHaveBeenCalledWith("/payments/orders/ABC123/sessions");
+    expect(apiClient.post).toHaveBeenCalledWith("/payments/MB-OLD/retry");
     expect(result).toEqual({
-      checkoutUrl: "https://checkout.wompi.co/p/?reference=ABC123-XXXX",
-      reference: "ABC123-XXXX",
+      checkoutUrl: "https://checkout.wompi.co/p/?reference=MB-NEW",
+      reference: "MB-NEW",
     });
   });
 
-  it("returns the payable boolean for an order", async () => {
-    apiClient.get.mockResolvedValue({ data: { payable: true } });
+  it("gets the payment status passing Wompi's transaction id", async () => {
+    apiClient.get.mockResolvedValue({ data: { status: "APPROVED", orderId: "ABC123" } });
 
-    const result = await isOrderPayable("ABC123");
+    const result = await getPaymentStatus("MB-REF", "txn-1");
 
-    expect(apiClient.get).toHaveBeenCalledWith("/payments/orders/ABC123/payable");
-    expect(result).toBe(true);
+    expect(apiClient.get).toHaveBeenCalledWith("/payments/MB-REF", {
+      params: { transactionId: "txn-1" },
+    });
+    expect(result).toEqual({ status: "APPROVED", orderId: "ABC123" });
   });
 
-  it("returns false when the order is not payable", async () => {
-    apiClient.get.mockResolvedValue({ data: { payable: false } });
+  it("gets the payment status without a transaction id", async () => {
+    apiClient.get.mockResolvedValue({ data: { status: "PENDING", orderId: null } });
 
-    await expect(isOrderPayable("ABC123")).resolves.toBe(false);
+    await getPaymentStatus("MB-REF", null);
+
+    expect(apiClient.get).toHaveBeenCalledWith("/payments/MB-REF", { params: undefined });
   });
 });

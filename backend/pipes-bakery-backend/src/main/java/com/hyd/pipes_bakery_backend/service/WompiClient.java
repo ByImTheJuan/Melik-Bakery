@@ -7,7 +7,7 @@ public interface WompiClient {
 
     String buildIntegritySignature(String reference, long amountInCents, String currency);
 
-    String buildCheckoutUrl(String reference, long amountInCents, String currency, String orderId);
+    String buildCheckoutUrl(String reference, long amountInCents, String currency);
 
     boolean verifyEventChecksum(WompiWebhookEventDTO event);
 

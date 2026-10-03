@@ -4,11 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,12 +28,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyd.pipes_bakery_backend.dto.payment.WompiWebhookEventDTO;
-import com.hyd.pipes_bakery_backend.model.AddressSnapshot;
+import com.hyd.pipes_bakery_backend.model.CartItem;
 import com.hyd.pipes_bakery_backend.model.Order;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
+import com.hyd.pipes_bakery_backend.model.PaymentTransaction;
+import com.hyd.pipes_bakery_backend.model.Product;
+import com.hyd.pipes_bakery_backend.model.ShoppingCart;
 import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 import com.hyd.pipes_bakery_backend.repository.PaymentTransactionRepository;
+import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 import com.hyd.pipes_bakery_backend.service.WompiClient;
+import com.hyd.pipes_bakery_backend.storage.CartStorage;
 
 import jakarta.transaction.Transactional;
 
@@ -39,6 +48,23 @@ import jakarta.transaction.Transactional;
 @ActiveProfiles("test")
 @Transactional
 class PaymentControllerIntegrationTest {
+
+    private static final String CHECKOUT_BODY = """
+            {
+              "clientFirstName": "Felipe",
+              "clientLastName": "Hernandez",
+              "clientEmail": "felipe@melik.com",
+              "clientPhoneNumber": "3001234567",
+              "receiverName": "Laura",
+              "shippingAddress": {
+                "street": "Calle 123",
+                "additionalInformation": "Apto 1",
+                "city": "Bogota",
+                "zipCode": 110111,
+                "country": "Colombia"
+              }
+            }
+            """;
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,73 +76,138 @@ class PaymentControllerIntegrationTest {
     private OrderRepository orderRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     private PaymentTransactionRepository paymentTransactionRepository;
 
     @MockitoBean
     private WompiClient wompiClient;
 
-    @Test
-    void shouldCreateSessionAndConfirmPaymentViaWebhook() throws Exception {
-        Order order = saveOrder("AB12CD", OrderStatus.PAYMENT_PENDING);
+    @MockitoBean
+    private CartStorage cartStorage;
 
-        mockMvc.perform(get("/api/payments/orders/{orderId}/payable", "AB12CD"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.payable").value(true));
+    private UUID cartId;
 
-        when(wompiClient.buildCheckoutUrl(anyString(), anyLong(), anyString(), anyString()))
-                .thenReturn("https://checkout.wompi.co/p/?reference=AB12CD-XXXX");
+    @BeforeEach
+    void setUp() {
+        Product product = new Product();
+        product.setName("Croissant");
+        product.setPrice(new BigDecimal("9500"));
+        product.setDescription("Mantequilla");
+        product.setIngredients(List.of("Harina"));
+        product.setImageUrl("croissant.jpg");
+        Product savedProduct = productRepository.save(product);
 
-        String sessionResponse = mockMvc.perform(post("/api/payments/orders/{orderId}/sessions", "AB12CD"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.checkoutUrl").value("https://checkout.wompi.co/p/?reference=AB12CD-XXXX"))
-                .andReturn().getResponse().getContentAsString();
+        cartId = UUID.randomUUID();
+        ShoppingCart cart = new ShoppingCart(cartId);
+        cart.setItems(List.of(new CartItem(savedProduct.getId(), "Croissant", 2, new BigDecimal("9500"), "croissant.jpg")));
+        when(cartStorage.getCart(cartId)).thenReturn(cart);
 
-        String reference = objectMapper.readTree(sessionResponse).get("reference").asText();
-        assertThat(paymentTransactionRepository.findByWompiReference(reference)).isPresent();
-
+        when(wompiClient.buildCheckoutUrl(anyString(), anyLong(), anyString()))
+                .thenReturn("https://checkout.wompi.co/p/?reference=MB-XXXX");
         when(wompiClient.verifyEventChecksum(any(WompiWebhookEventDTO.class))).thenReturn(true);
-
-        String webhookPayload = String.format(
-                "{\"event\":\"transaction.updated\",\"timestamp\":1700000000," +
-                "\"data\":{\"transaction\":{\"id\":\"txn-1\",\"reference\":\"%s\",\"status\":\"APPROVED\"}}," +
-                "\"signature\":{\"properties\":[\"transaction.id\"],\"checksum\":\"whatever\"}}",
-                reference);
-
-        mockMvc.perform(post("/api/payments/webhook")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(webhookPayload))
-                .andExpect(status().isOk());
-
-        assertThat(orderRepository.findByPublicId("AB12CD").orElseThrow().getStatus()).isEqualTo(OrderStatus.PAID);
-
-        mockMvc.perform(get("/api/payments/orders/{orderId}/payable", "AB12CD"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.payable").value(false));
     }
 
     @Test
-    void shouldRejectSessionCreationForNonPendingOrder() throws Exception {
-        saveOrder("XY99ZZ", OrderStatus.PAID);
+    void shouldCreateOrderOnlyWhenPaymentIsApproved() throws Exception {
+        long ordersBefore = orderRepository.count();
 
-        mockMvc.perform(post("/api/payments/orders/{orderId}/sessions", "XY99ZZ"))
+        String reference = startCheckout();
+
+        assertThat(orderRepository.count()).isEqualTo(ordersBefore);
+        PaymentTransaction transaction = paymentTransactionRepository.findByWompiReference(reference).orElseThrow();
+        assertThat(transaction.getOrder()).isNull();
+        assertThat(transaction.getAmountInCents()).isEqualTo(2900000L);
+
+        mockMvc.perform(get("/api/payments/{reference}", reference))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.order").doesNotExist());
+
+        sendWebhook(reference, "txn-1", "APPROVED");
+
+        assertThat(orderRepository.count()).isEqualTo(ordersBefore + 1);
+        verify(cartStorage).clearCart(cartId);
+
+        String statusResponse = mockMvc.perform(get("/api/payments/{reference}", reference))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("APPROVED"))
+                .andExpect(jsonPath("$.order.clientFirstName").value("Felipe"))
+                .andExpect(jsonPath("$.order.clientEmail").value("felipe@melik.com"))
+                .andExpect(jsonPath("$.order.items[0].productName").value("Croissant"))
+                .andExpect(jsonPath("$.order.items[0].quantity").value(2))
+                .andExpect(jsonPath("$.order.totalAmount").value(29000))
+                .andReturn().getResponse().getContentAsString();
+
+        String orderId = objectMapper.readTree(statusResponse).get("orderId").asText();
+        Order order = orderRepository.findByPublicId(orderId).orElseThrow();
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(order.getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
+
+        // A repeated webhook must not create a second order
+        sendWebhook(reference, "txn-1", "APPROVED");
+        assertThat(orderRepository.count()).isEqualTo(ordersBefore + 1);
+    }
+
+    @Test
+    void shouldNotCreateOrderWhenPaymentFailsAndAllowRetry() throws Exception {
+        long ordersBefore = orderRepository.count();
+
+        String reference = startCheckout();
+        sendWebhook(reference, "txn-1", "DECLINED");
+
+        assertThat(orderRepository.count()).isEqualTo(ordersBefore);
+        verify(cartStorage, never()).clearCart(any());
+
+        mockMvc.perform(get("/api/payments/{reference}", reference))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("FAILED"));
+
+        String retryResponse = mockMvc.perform(post("/api/payments/{reference}/retry", reference))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String newReference = objectMapper.readTree(retryResponse).get("reference").asText();
+        assertThat(newReference).isNotEqualTo(reference);
+        assertThat(paymentTransactionRepository.findByWompiReference(newReference)).isPresent();
+    }
+
+    @Test
+    void shouldRejectRetryOfPendingPayment() throws Exception {
+        String reference = startCheckout();
+
+        mockMvc.perform(post("/api/payments/{reference}/retry", reference))
                 .andExpect(status().isConflict());
     }
 
     @Test
-    void shouldReturnPayableFalseForUnknownOrderIdWithoutLeakingNotFound() throws Exception {
-        mockMvc.perform(get("/api/payments/orders/{orderId}/payable", "NOPE00"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.payable").value(false));
+    void shouldReturnNotFoundForUnknownPaymentReference() throws Exception {
+        mockMvc.perform(get("/api/payments/{reference}", "MB-NOPE"))
+                .andExpect(status().isNotFound());
     }
 
-    private Order saveOrder(String publicId, OrderStatus status) {
-        Order order = new Order(
-                "Felipe", "Hernandez", "felipe@melik.com", "3001234567",
-                new AddressSnapshot("Calle 123", "Apto 1", "Bogota", 110111, "Colombia"),
-                "Laura", new BigDecimal("10000")
-        );
-        order.setPublicId(publicId);
-        order.setStatus(status);
-        return orderRepository.save(order);
+    private String startCheckout() throws Exception {
+        String response = mockMvc.perform(post("/api/cart/{cartId}/checkout", cartId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CHECKOUT_BODY))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.checkoutUrl").value("https://checkout.wompi.co/p/?reference=MB-XXXX"))
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get("reference").asText();
+    }
+
+    private void sendWebhook(String reference, String transactionId, String status) throws Exception {
+        String payload = String.format(
+                "{\"event\":\"transaction.updated\",\"timestamp\":1700000000," +
+                "\"data\":{\"transaction\":{\"id\":\"%s\",\"reference\":\"%s\",\"status\":\"%s\"}}," +
+                "\"signature\":{\"properties\":[\"transaction.id\"],\"checksum\":\"whatever\"}}",
+                transactionId, reference, status);
+
+        mockMvc.perform(post("/api/payments/webhook")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk());
     }
 }

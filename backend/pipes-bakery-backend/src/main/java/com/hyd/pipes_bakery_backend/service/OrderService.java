@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
 import com.hyd.pipes_bakery_backend.exception.CartIsEmptyException;
 import com.hyd.pipes_bakery_backend.exception.InvalidAddressException;
 import com.hyd.pipes_bakery_backend.exception.InvalidOrderStatusTransitionException;
@@ -84,15 +85,6 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public OrderResponseDTO markOrderAsPaid(@NonNull String orderId) {
-        Order order = findOrderByPublicId(orderId);
-        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
-            return orderMapper.toDto(order);
-        }
-        return orderMapper.toDto(applyStatus(order, OrderStatus.PAID));
-    }
-
-    @Override
     public OrderResponseDTO updateOrderStatus(@NonNull String orderId, OrderStatus requestedStatus) {
         Order order = findOrderByPublicId(orderId);
 
@@ -118,15 +110,26 @@ public class OrderService implements IOrderService {
         return orderRepository.save(order);
     }
 
-    @Transactional
     @Override
-    public OrderResponseDTO checkout(UUID cartId, CheckoutOrderRequestDTO request) {
+    public CheckoutSnapshot buildCheckoutSnapshot(UUID cartId, CheckoutOrderRequestDTO request) {
         validateShippingAddress(request.getShippingAddress());
 
         ShoppingCart cart = cartStorage.getCart(cartId);
         if (cart.isEmpty()) {
             throw new CartIsEmptyException("Cart is empty. Impossible to checkout");
         }
+
+        List<CheckoutSnapshot.Item> items = cart.getItems().stream()
+                .map(item -> new CheckoutSnapshot.Item(item.getProductId(), item.getQuantity(), item.getUnitPriceAtAdd()))
+                .toList();
+
+        return new CheckoutSnapshot(request, items, cart.getShippingCost());
+    }
+
+    @Transactional
+    @Override
+    public Order createPaidOrder(CheckoutSnapshot snapshot) {
+        CheckoutOrderRequestDTO request = snapshot.getRequest();
 
         Order order = new Order(
                 request.getClientFirstName(),
@@ -135,28 +138,26 @@ public class OrderService implements IOrderService {
                 request.getClientPhoneNumber(),
                 addressMapper.toSnapshotEntity(request.getShippingAddress()),
                 request.getReceiverName(),
-                cart.getShippingCost()
+                snapshot.getShippingCost()
         );
         order.setPublicId(generateUniquePublicId());
+        order.setStatus(OrderStatus.PAID);
 
-        List<OrderItem> items = cart.getItems().stream()
-                .map(itemDto -> {
-                    Product product = productRepository.findById(itemDto.getProductId())
+        List<OrderItem> items = snapshot.getItems().stream()
+                .map(item -> {
+                    Product product = productRepository.findById(item.getProductId())
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
-                                            "Product not found with id " + itemDto.getProductId()
+                                            "Product not found with id " + item.getProductId()
                                     )
                             );
 
-                    return new OrderItem(product, itemDto.getQuantity(), itemDto.getUnitPriceAtAdd());
+                    return new OrderItem(product, item.getQuantity(), item.getUnitPrice());
                 })
                 .toList();
 
         order.setItems(items);
-        orderRepository.save(order);
-        cartStorage.clearCart(cartId);
-
-        return orderMapper.toDto(order);
+        return orderRepository.save(order);
     }
 
     private void validateShippingAddress(AddressSnapshotDTO address) {

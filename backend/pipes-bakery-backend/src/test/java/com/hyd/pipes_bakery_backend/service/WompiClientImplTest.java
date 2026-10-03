@@ -31,7 +31,7 @@ class WompiClientImplTest {
         wompiProperties.setEventsSecret("test-events-secret");
         wompiProperties.setApiBaseUrl("https://sandbox.wompi.co/v1");
         wompiProperties.setCheckoutBaseUrl("https://checkout.wompi.co/p/");
-        wompiProperties.setRedirectUrl("http://localhost:5173/payment/pending");
+        wompiProperties.setRedirectUrl("http://localhost:5173/payment/result");
         objectMapper = new ObjectMapper();
     }
 
@@ -61,14 +61,14 @@ class WompiClientImplTest {
     void shouldBuildCheckoutUrlWithExpectedQueryParameters() {
         WompiClientImpl client = new WompiClientImpl(wompiProperties, RestClient.builder());
 
-        String url = client.buildCheckoutUrl("REF123", 1000000L, "COP", "AB12CD");
+        String url = client.buildCheckoutUrl("REF123", 1000000L, "COP");
 
         assertThat(url).startsWith("https://checkout.wompi.co/p/");
         assertThat(url).contains("public-key=pub_test_key");
         assertThat(url).contains("currency=COP");
         assertThat(url).contains("amount-in-cents=1000000");
         assertThat(url).contains("reference=REF123");
-        assertThat(url).contains("redirect-url=http://localhost:5173/payment/pending/AB12CD");
+        assertThat(url).contains("redirect-url=http://localhost:5173/payment/result/REF123");
         assertThat(url).contains("signature:integrity=80df7d7462b22583472c3bf5ee391c7bcd41442d7b49ff61e4747515c2ed46ac");
     }
 

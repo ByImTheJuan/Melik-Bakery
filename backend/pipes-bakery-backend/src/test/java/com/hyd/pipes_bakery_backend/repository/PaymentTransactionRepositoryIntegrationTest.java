@@ -29,23 +29,34 @@ class PaymentTransactionRepositoryIntegrationTest {
 
     @Test
     void shouldSaveAndFindByWompiReference() {
-        Order order = saveOrder("REF001");
-
-        PaymentTransaction transaction = new PaymentTransaction(order, "REF001-ABCD1234", 2900000L);
+        PaymentTransaction transaction = new PaymentTransaction("cart-1", "REF001-ABCD1234", 2900000L, "{}");
         paymentTransactionRepository.save(transaction);
 
         assertThat(paymentTransactionRepository.existsByWompiReference("REF001-ABCD1234")).isTrue();
         PaymentTransaction found = paymentTransactionRepository.findByWompiReference("REF001-ABCD1234").orElseThrow();
-        assertThat(found.getOrder().getPublicId()).isEqualTo("REF001");
+        assertThat(found.getOrder()).isNull();
+        assertThat(found.getCartId()).isEqualTo("cart-1");
+        assertThat(found.getCheckoutData()).isEqualTo("{}");
         assertThat(found.getAmountInCents()).isEqualTo(2900000L);
     }
 
     @Test
-    void shouldEnforceUniqueWompiReference() {
-        Order order = saveOrder("REF002");
-        paymentTransactionRepository.save(new PaymentTransaction(order, "REF002-DUP", 1000L));
+    void shouldLinkOrderOnceCreatedAndFindForUpdate() {
+        PaymentTransaction transaction = paymentTransactionRepository.save(
+                new PaymentTransaction("cart-1", "REF003-LINK", 2900000L, "{}"));
 
-        PaymentTransaction duplicate = new PaymentTransaction(order, "REF002-DUP", 2000L);
+        transaction.setOrder(saveOrder("REF003"));
+        paymentTransactionRepository.saveAndFlush(transaction);
+
+        PaymentTransaction found = paymentTransactionRepository.findByWompiReferenceForUpdate("REF003-LINK").orElseThrow();
+        assertThat(found.getOrder().getPublicId()).isEqualTo("REF003");
+    }
+
+    @Test
+    void shouldEnforceUniqueWompiReference() {
+        paymentTransactionRepository.save(new PaymentTransaction("cart-1", "REF002-DUP", 1000L, "{}"));
+
+        PaymentTransaction duplicate = new PaymentTransaction("cart-2", "REF002-DUP", 2000L, "{}");
 
         org.junit.jupiter.api.Assertions.assertThrows(Exception.class, () -> {
             paymentTransactionRepository.saveAndFlush(duplicate);

@@ -31,10 +31,10 @@ public class WompiClientImpl implements WompiClient {
     }
 
     @Override
-    public String buildCheckoutUrl(String reference, long amountInCents, String currency, String orderId) {
+    public String buildCheckoutUrl(String reference, long amountInCents, String currency) {
         String signature = buildIntegritySignature(reference, amountInCents, currency);
         String redirectUrl = UriComponentsBuilder.fromUriString(wompiProperties.getRedirectUrl())
-                .pathSegment(orderId)
+                .pathSegment(reference)
                 .toUriString();
 
         return UriComponentsBuilder.fromUriString(wompiProperties.getCheckoutBaseUrl())
@@ -44,6 +44,7 @@ public class WompiClientImpl implements WompiClient {
                 .queryParam("reference", reference)
                 .queryParam("redirect-url", redirectUrl)
                 .queryParam("signature:integrity", signature)
+                .encode()
                 .toUriString();
     }
 

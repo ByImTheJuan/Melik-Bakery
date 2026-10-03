@@ -58,24 +58,29 @@ const CheckoutForm = ({ formData, onChange }) => {
 
       <input
         type="text"
-        placeholder="Ciudad"
-        value={formData.shippingAddress.city}
-        onChange={(e) => onChange("shippingAddress", "city", e.target.value)}
-      />
-
-      <input
-        type="text"
         inputMode="numeric"
         placeholder="Código postal"
         value={formData.shippingAddress.zipCode}
         onChange={(e) => onChange("shippingAddress", "zipCode", e.target.value)}
       />
 
+      {/* For now we only ship within Bogotá, Colombia, so city and country are fixed */}
+      <input
+        type="text"
+        placeholder="Ciudad"
+        aria-label="Ciudad"
+        value={formData.shippingAddress.city}
+        readOnly
+        title="Por ahora solo realizamos envíos a Bogotá"
+      />
+
       <input
         type="text"
         placeholder="País"
+        aria-label="País"
         value={formData.shippingAddress.country}
-        onChange={(e) => onChange("shippingAddress", "country", e.target.value)}
+        readOnly
+        title="Por ahora solo realizamos envíos dentro de Colombia"
       />
     </div>
   );

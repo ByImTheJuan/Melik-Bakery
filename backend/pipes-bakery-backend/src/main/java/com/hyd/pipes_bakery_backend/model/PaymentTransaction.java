@@ -21,9 +21,16 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Null until the payment is approved and the order is created from checkoutData
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     private Order order;
+
+    @Column(name = "cart_id", length = 36, updatable = false)
+    private String cartId;
+
+    @Column(name = "checkout_data", columnDefinition = "TEXT", updatable = false)
+    private String checkoutData;
 
     @Column(name = "wompi_reference", nullable = false, unique = true, updatable = false)
     private String wompiReference;
@@ -47,8 +54,9 @@ public class PaymentTransaction {
     protected PaymentTransaction() {
     }
 
-    public PaymentTransaction(Order order, String wompiReference, Long amountInCents) {
-        this.order = order;
+    public PaymentTransaction(String cartId, String wompiReference, Long amountInCents, String checkoutData) {
+        this.cartId = cartId;
+        this.checkoutData = checkoutData;
         this.wompiReference = wompiReference;
         this.amountInCents = amountInCents;
         this.status = PaymentTransactionStatus.PENDING;
@@ -62,6 +70,14 @@ public class PaymentTransaction {
 
     public Order getOrder() {
         return order;
+    }
+
+    public String getCartId() {
+        return cartId;
+    }
+
+    public String getCheckoutData() {
+        return checkoutData;
     }
 
     public String getWompiReference() {
@@ -86,6 +102,11 @@ public class PaymentTransaction {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void setWompiTransactionId(String wompiTransactionId) {

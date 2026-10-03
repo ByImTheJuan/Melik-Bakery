@@ -3,7 +3,6 @@ import { useCart } from "../hooks/useCart";
 import CheckoutForm from "../components/checkout/CheckoutForm";
 import OrderSummary from "../components/checkout/OrderSummary";
 import { checkoutCart } from "../services/cartService";
-import { createPaymentSession } from "../services/paymentService";
 import { useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/checkoutPage.css";
@@ -17,9 +16,9 @@ const initialFormData = {
   shippingAddress: {
     street: "",
     additionalInformation: "",
-    city: "",
+    city: "Bogotá",
     zipCode: "",
-    country: "",
+    country: "Colombia",
   },
 };
 
@@ -29,7 +28,7 @@ const colombiaRegex = /^colombia$/i;
 const zipCodeRegex = /^11\d{4}$/;
 
 const CheckoutPage = () => {
-  const { cart, cartId, clearCart } = useCart();
+  const { cart, cartId } = useCart();
   const navigate = useNavigate();
   useDocumentTitle("Checkout");
 
@@ -149,11 +148,9 @@ const CheckoutPage = () => {
       setLoading(true);
       setErrors([]);
 
-      const order = await checkoutCart(cartId, buildCheckoutPayload());
-
-      await clearCart();
-
-      const { checkoutUrl } = await createPaymentSession(order.id);
+      // No order exists yet: it is created only once Wompi approves the payment,
+      // so the cart is kept until then (it is cleared on the payment result page).
+      const { checkoutUrl } = await checkoutCart(cartId, buildCheckoutPayload());
       window.location.href = checkoutUrl;
     } catch (err) {
       if (import.meta.env.DEV) {

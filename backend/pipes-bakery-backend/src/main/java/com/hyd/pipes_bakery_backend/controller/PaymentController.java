@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hyd.pipes_bakery_backend.dto.payment.PayableResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.PaymentStatusResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.WompiWebhookEventDTO;
 import com.hyd.pipes_bakery_backend.exception.ApiError;
 import com.hyd.pipes_bakery_backend.service.PaymentService;
@@ -35,33 +36,36 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    //POST /api/payments/orders/{orderId}/sessions
-    @PostMapping("/orders/{orderId}/sessions")
+    //POST /api/payments/{reference}/retry
+    @PostMapping("/{reference}/retry")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Iniciar sesion de pago", description = "Crea un nuevo intento de pago en Wompi para un pedido pendiente de pago.")
+    @Operation(summary = "Reintentar pago", description = "Crea un nuevo intento de pago en Wompi con los mismos datos de un intento fallido.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Sesion de pago creada",
+            @ApiResponse(responseCode = "201", description = "Nueva sesion de pago creada",
                     content = @Content(schema = @Schema(implementation = PaymentSessionResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Pedido no encontrado",
+            @ApiResponse(responseCode = "404", description = "Intento de pago no encontrado",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
-            @ApiResponse(responseCode = "409", description = "El pedido ya no admite pagos",
+            @ApiResponse(responseCode = "409", description = "El intento de pago no ha fallado y no puede reintentarse",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
-    public PaymentSessionResponseDTO createSession(
-            @Parameter(description = "ID publico del pedido", example = "AB12CD") @NonNull @PathVariable String orderId) {
-        return paymentService.createPaymentSession(orderId);
+    public PaymentSessionResponseDTO retry(
+            @Parameter(description = "Referencia del intento de pago", example = "MB-AB12CD34EF56") @NonNull @PathVariable String reference) {
+        return paymentService.retryPayment(reference);
     }
 
-    //GET /api/payments/orders/{orderId}/payable
-    @GetMapping("/orders/{orderId}/payable")
-    @Operation(summary = "Consultar si un pedido admite pago", description = "Devuelve unicamente si el pedido sigue pendiente de pago, sin exponer ningun otro dato.")
+    //GET /api/payments/{reference}
+    @GetMapping("/{reference}")
+    @Operation(summary = "Consultar resultado de un pago", description = "Devuelve si el intento de pago esta pendiente, aprobado (con el ID del pedido creado) o fallido.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Resultado de la consulta",
-                    content = @Content(schema = @Schema(implementation = PayableResponseDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Estado del intento de pago",
+                    content = @Content(schema = @Schema(implementation = PaymentStatusResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Intento de pago no encontrado",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
-    public PayableResponseDTO isPayable(
-            @Parameter(description = "ID publico del pedido", example = "AB12CD") @NonNull @PathVariable String orderId) {
-        return paymentService.isOrderPayable(orderId);
+    public PaymentStatusResponseDTO status(
+            @Parameter(description = "Referencia del intento de pago", example = "MB-AB12CD34EF56") @NonNull @PathVariable String reference,
+            @Parameter(description = "ID de la transaccion que Wompi anade a la URL de redireccion") @RequestParam(required = false) String transactionId) {
+        return paymentService.getPaymentStatus(reference, transactionId);
     }
 
     //POST /api/payments/webhook

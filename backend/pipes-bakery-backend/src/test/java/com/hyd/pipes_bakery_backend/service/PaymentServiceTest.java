@@ -1,7 +1,9 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -11,33 +13,37 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hyd.pipes_bakery_backend.dto.payment.PayableResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
+import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.PaymentStatusResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.WompiTransactionDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.WompiWebhookEventDTO;
 import com.hyd.pipes_bakery_backend.exception.InvalidWebhookSignatureException;
-import com.hyd.pipes_bakery_backend.exception.OrderNotPayableException;
+import com.hyd.pipes_bakery_backend.exception.PaymentNotRetryableException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
+import com.hyd.pipes_bakery_backend.mapper.OrderMapper;
 import com.hyd.pipes_bakery_backend.model.AddressSnapshot;
 import com.hyd.pipes_bakery_backend.model.Order;
-import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.model.PaymentTransaction;
 import com.hyd.pipes_bakery_backend.model.PaymentTransactionStatus;
-import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 import com.hyd.pipes_bakery_backend.repository.PaymentTransactionRepository;
+import com.hyd.pipes_bakery_backend.storage.CartStorage;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 
-    @Mock
-    private OrderRepository orderRepository;
+    private static final UUID CART_ID = UUID.fromString("f4a9b6de-0c5d-4cb2-9a47-8dc413951f0f");
 
     @Mock
     private PaymentTransactionRepository paymentTransactionRepository;
@@ -48,74 +54,145 @@ class PaymentServiceTest {
     @Mock
     private OrderService orderService;
 
+    @Mock
+    private CartStorage cartStorage;
+
+    @Mock
+    private OrderMapper orderMapper;
+
     private PaymentService paymentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentService(orderRepository, paymentTransactionRepository, wompiClient, orderService);
+        paymentService = new PaymentService(paymentTransactionRepository, wompiClient, orderService, cartStorage, objectMapper, orderMapper);
     }
 
     @Test
-    void shouldCreatePaymentSessionForPendingOrder() {
-        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING, new BigDecimal("29000"));
-
-        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+    void shouldStartCheckoutWithoutCreatingOrder() {
+        CheckoutOrderRequestDTO request = buildCheckoutRequest();
+        when(orderService.buildCheckoutSnapshot(CART_ID, request)).thenReturn(buildSnapshot(request));
         when(paymentTransactionRepository.existsByWompiReference(anyString())).thenReturn(false);
-        when(wompiClient.buildCheckoutUrl(anyString(), eq(2900000L), eq("COP"), eq("ABC123")))
-                .thenReturn("https://checkout.wompi.co/p/?reference=ABC123-XXXX");
+        when(wompiClient.buildCheckoutUrl(anyString(), eq(2900000L), eq("COP")))
+                .thenReturn("https://checkout.wompi.co/p/?reference=MB-XXXX");
 
-        PaymentSessionResponseDTO result = paymentService.createPaymentSession("ABC123");
+        PaymentSessionResponseDTO result = paymentService.startCheckout(CART_ID, request);
 
-        assertThat(result.getCheckoutUrl()).isEqualTo("https://checkout.wompi.co/p/?reference=ABC123-XXXX");
-        assertThat(result.getReference()).startsWith("ABC123-");
-        verify(paymentTransactionRepository).save(any(PaymentTransaction.class));
+        assertThat(result.getCheckoutUrl()).isEqualTo("https://checkout.wompi.co/p/?reference=MB-XXXX");
+        assertThat(result.getReference()).matches("MB-[A-Z0-9]{12}");
+
+        ArgumentCaptor<PaymentTransaction> saved = ArgumentCaptor.forClass(PaymentTransaction.class);
+        verify(paymentTransactionRepository).save(saved.capture());
+        assertThat(saved.getValue().getOrder()).isNull();
+        assertThat(saved.getValue().getCartId()).isEqualTo(CART_ID.toString());
+        assertThat(saved.getValue().getAmountInCents()).isEqualTo(2900000L);
+        assertThat(saved.getValue().getCheckoutData()).contains("felipe@melik.com");
+        verify(orderService, never()).createPaidOrder(any());
+        verify(cartStorage, never()).clearCart(any());
     }
 
     @Test
-    void shouldThrowWhenOrderNotFoundForPaymentSession() {
-        when(orderRepository.findByPublicId("MISSING")).thenReturn(Optional.empty());
+    void shouldRetryFailedPaymentWithSameCheckoutData() throws Exception {
+        PaymentTransaction failed = buildTransaction("MB-FAILED00001");
+        failed.setStatus(PaymentTransactionStatus.DECLINED);
 
-        assertThatThrownBy(() -> paymentService.createPaymentSession("MISSING"))
+        when(paymentTransactionRepository.findByWompiReference("MB-FAILED00001")).thenReturn(Optional.of(failed));
+        when(paymentTransactionRepository.existsByWompiReference(anyString())).thenReturn(false);
+        when(wompiClient.buildCheckoutUrl(anyString(), eq(2900000L), eq("COP")))
+                .thenReturn("https://checkout.wompi.co/p/?reference=MB-NEW");
+
+        PaymentSessionResponseDTO result = paymentService.retryPayment("MB-FAILED00001");
+
+        assertThat(result.getReference()).isNotEqualTo("MB-FAILED00001");
+        ArgumentCaptor<PaymentTransaction> saved = ArgumentCaptor.forClass(PaymentTransaction.class);
+        verify(paymentTransactionRepository).save(saved.capture());
+        assertThat(saved.getValue().getStatus()).isEqualTo(PaymentTransactionStatus.PENDING);
+        assertThat(saved.getValue().getCartId()).isEqualTo(CART_ID.toString());
+        assertThat(saved.getValue().getCheckoutData()).isEqualTo(failed.getCheckoutData());
+    }
+
+    @Test
+    void shouldRejectRetryOfPendingPayment() throws Exception {
+        PaymentTransaction pending = buildTransaction("MB-PENDING0001");
+        when(paymentTransactionRepository.findByWompiReference("MB-PENDING0001")).thenReturn(Optional.of(pending));
+
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-PENDING0001"))
+                .isInstanceOf(PaymentNotRetryableException.class);
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenRetryingUnknownPayment() {
+        when(paymentTransactionRepository.findByWompiReference("MB-MISSING")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-MISSING"))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
-    void shouldRejectPaymentSessionForNonPendingOrder() {
-        Order order = buildOrder("ABC123", OrderStatus.PAID, new BigDecimal("29000"));
-        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+    void shouldReportPendingStatusWithoutTransactionId() throws Exception {
+        PaymentTransaction pending = buildTransaction("REF123");
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(pending));
 
-        assertThatThrownBy(() -> paymentService.createPaymentSession("ABC123"))
-                .isInstanceOf(OrderNotPayableException.class);
+        PaymentStatusResponseDTO result = paymentService.getPaymentStatus("REF123", null);
+
+        assertThat(result.getStatus()).isEqualTo(PaymentStatusResponseDTO.Status.PENDING);
+        verify(wompiClient, never()).fetchTransaction(anyString());
     }
 
     @Test
-    void shouldReportPayableTrueForPendingOrder() {
-        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING, new BigDecimal("29000"));
-        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+    void shouldReconcileApprovedStatusFromWompiAndCreateOrder() throws Exception {
+        PaymentTransaction pending = buildTransaction("REF123");
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(pending));
+        when(wompiClient.fetchTransaction("txn-1")).thenReturn(buildWompiTransaction("txn-1", "REF123", "APPROVED"));
+        Order order = buildOrder("ABC123");
+        OrderResponseDTO orderDto = org.mockito.Mockito.mock(OrderResponseDTO.class);
+        when(orderService.createPaidOrder(any(CheckoutSnapshot.class))).thenReturn(order);
+        when(paymentTransactionRepository.save(pending)).thenReturn(pending);
+        when(orderMapper.toDto(order)).thenReturn(orderDto);
 
-        PayableResponseDTO result = paymentService.isOrderPayable("ABC123");
+        PaymentStatusResponseDTO result = paymentService.getPaymentStatus("REF123", "txn-1");
 
-        assertThat(result.isPayable()).isTrue();
+        assertThat(result.getStatus()).isEqualTo(PaymentStatusResponseDTO.Status.APPROVED);
+        assertThat(result.getOrderId()).isEqualTo("ABC123");
+        assertThat(result.getOrder()).isSameAs(orderDto);
+        verify(cartStorage).clearCart(CART_ID);
     }
 
     @Test
-    void shouldReportPayableFalseForPaidOrder() {
-        Order order = buildOrder("ABC123", OrderStatus.PAID, new BigDecimal("29000"));
-        when(orderRepository.findByPublicId("ABC123")).thenReturn(Optional.of(order));
+    void shouldReconcileDeclinedStatusFromWompiWithoutCreatingOrder() throws Exception {
+        PaymentTransaction pending = buildTransaction("REF123");
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(pending));
+        when(wompiClient.fetchTransaction("txn-1")).thenReturn(buildWompiTransaction("txn-1", "REF123", "DECLINED"));
+        when(paymentTransactionRepository.save(pending)).thenReturn(pending);
 
-        PayableResponseDTO result = paymentService.isOrderPayable("ABC123");
+        PaymentStatusResponseDTO result = paymentService.getPaymentStatus("REF123", "txn-1");
 
-        assertThat(result.isPayable()).isFalse();
+        assertThat(result.getStatus()).isEqualTo(PaymentStatusResponseDTO.Status.FAILED);
+        assertThat(result.getOrderId()).isNull();
+        assertThat(result.getOrder()).isNull();
+        verify(orderService, never()).createPaidOrder(any());
+        verify(cartStorage, never()).clearCart(any());
     }
 
     @Test
-    void shouldReportPayableFalseForUnknownOrder() {
-        when(orderRepository.findByPublicId("MISSING")).thenReturn(Optional.empty());
+    void shouldIgnoreWompiTransactionForADifferentReference() throws Exception {
+        PaymentTransaction pending = buildTransaction("REF123");
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(pending));
+        when(wompiClient.fetchTransaction("txn-other")).thenReturn(buildWompiTransaction("txn-other", "OTHER", "APPROVED"));
 
-        PayableResponseDTO result = paymentService.isOrderPayable("MISSING");
+        PaymentStatusResponseDTO result = paymentService.getPaymentStatus("REF123", "txn-other");
 
-        assertThat(result.isPayable()).isFalse();
+        assertThat(result.getStatus()).isEqualTo(PaymentStatusResponseDTO.Status.PENDING);
+        verify(orderService, never()).createPaidOrder(any());
+    }
+
+    @Test
+    void shouldThrowWhenStatusRequestedForUnknownReference() {
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("MB-MISSING")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> paymentService.getPaymentStatus("MB-MISSING", null))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -142,71 +219,109 @@ class PaymentServiceTest {
     void shouldIgnoreWebhookForUnknownReference() throws Exception {
         WompiWebhookEventDTO event = buildWebhookEvent("transaction.updated", "REF123", "txn-1", "APPROVED");
         when(wompiClient.verifyEventChecksum(event)).thenReturn(true);
-        when(paymentTransactionRepository.findByWompiReference("REF123")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.empty());
 
         paymentService.handleWompiWebhook(event);
 
-        verify(orderService, never()).markOrderAsPaid(anyString());
+        verify(orderService, never()).createPaidOrder(any());
     }
 
     @Test
-    void shouldMarkOrderPaidOnApprovedWebhook() throws Exception {
-        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING, new BigDecimal("29000"));
-        PaymentTransaction transaction = new PaymentTransaction(order, "REF123", 2900000L);
+    void shouldCreatePaidOrderAndClearCartOnApprovedWebhook() throws Exception {
+        PaymentTransaction transaction = buildTransaction("REF123");
+        Order order = buildOrder("ABC123");
 
         WompiWebhookEventDTO event = buildWebhookEvent("transaction.updated", "REF123", "txn-1", "APPROVED");
         when(wompiClient.verifyEventChecksum(event)).thenReturn(true);
-        when(paymentTransactionRepository.findByWompiReference("REF123")).thenReturn(Optional.of(transaction));
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(transaction));
+        when(orderService.createPaidOrder(any(CheckoutSnapshot.class))).thenReturn(order);
 
         paymentService.handleWompiWebhook(event);
 
+        ArgumentCaptor<CheckoutSnapshot> snapshot = ArgumentCaptor.forClass(CheckoutSnapshot.class);
+        verify(orderService).createPaidOrder(snapshot.capture());
+        assertThat(snapshot.getValue().getRequest().getClientEmail()).isEqualTo("felipe@melik.com");
+        assertThat(snapshot.getValue().getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
+
         assertThat(transaction.getStatus()).isEqualTo(PaymentTransactionStatus.APPROVED);
         assertThat(transaction.getWompiTransactionId()).isEqualTo("txn-1");
+        assertThat(transaction.getOrder()).isSameAs(order);
         verify(paymentTransactionRepository).save(transaction);
-        verify(orderService).markOrderAsPaid("ABC123");
+        verify(cartStorage).clearCart(CART_ID);
     }
 
     @Test
-    void shouldNotTouchOrderOnDeclinedWebhook() throws Exception {
-        Order order = buildOrder("ABC123", OrderStatus.PAYMENT_PENDING, new BigDecimal("29000"));
-        PaymentTransaction transaction = new PaymentTransaction(order, "REF123", 2900000L);
+    void shouldNotCreateOrderOnDeclinedWebhook() throws Exception {
+        PaymentTransaction transaction = buildTransaction("REF123");
 
         WompiWebhookEventDTO event = buildWebhookEvent("transaction.updated", "REF123", "txn-1", "DECLINED");
         when(wompiClient.verifyEventChecksum(event)).thenReturn(true);
-        when(paymentTransactionRepository.findByWompiReference("REF123")).thenReturn(Optional.of(transaction));
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(transaction));
 
         paymentService.handleWompiWebhook(event);
 
         assertThat(transaction.getStatus()).isEqualTo(PaymentTransactionStatus.DECLINED);
-        verify(orderService, never()).markOrderAsPaid(anyString());
+        assertThat(transaction.getOrder()).isNull();
+        verify(orderService, never()).createPaidOrder(any());
+        verify(cartStorage, never()).clearCart(any());
     }
 
     @Test
-    void shouldDedupeDuplicateApprovedWebhook() throws Exception {
-        Order order = buildOrder("ABC123", OrderStatus.PAID, new BigDecimal("29000"));
-        PaymentTransaction transaction = new PaymentTransaction(order, "REF123", 2900000L);
+    void shouldIgnoreDuplicateApprovedWebhook() throws Exception {
+        PaymentTransaction transaction = buildTransaction("REF123");
         transaction.setWompiTransactionId("txn-1");
         transaction.setStatus(PaymentTransactionStatus.APPROVED);
+        transaction.setOrder(buildOrder("ABC123"));
 
         WompiWebhookEventDTO event = buildWebhookEvent("transaction.updated", "REF123", "txn-1", "APPROVED");
         when(wompiClient.verifyEventChecksum(event)).thenReturn(true);
-        when(paymentTransactionRepository.findByWompiReference("REF123")).thenReturn(Optional.of(transaction));
+        when(paymentTransactionRepository.findByWompiReferenceForUpdate("REF123")).thenReturn(Optional.of(transaction));
 
         paymentService.handleWompiWebhook(event);
 
         verify(paymentTransactionRepository, never()).save(any());
-        verify(orderService, never()).markOrderAsPaid(anyString());
+        verify(orderService, never()).createPaidOrder(any());
     }
 
-    private Order buildOrder(String publicId, OrderStatus status, BigDecimal totalAmount) {
+    private CheckoutOrderRequestDTO buildCheckoutRequest() {
+        CheckoutOrderRequestDTO request = new CheckoutOrderRequestDTO();
+        request.setClientFirstName("Felipe");
+        request.setClientLastName("Hernandez");
+        request.setClientEmail("felipe@melik.com");
+        request.setClientPhoneNumber("3001234567");
+        request.setReceiverName("Laura");
+        request.setShippingAddress(new AddressSnapshotDTO("Calle 123", "Apto 1", "Bogota", 110111, "Colombia"));
+        return request;
+    }
+
+    private CheckoutSnapshot buildSnapshot(CheckoutOrderRequestDTO request) {
+        return new CheckoutSnapshot(
+                request,
+                List.of(new CheckoutSnapshot.Item(1L, 2, new BigDecimal("9500"))),
+                new BigDecimal("10000")
+        );
+    }
+
+    private PaymentTransaction buildTransaction(String reference) throws Exception {
+        String checkoutData = objectMapper.writeValueAsString(buildSnapshot(buildCheckoutRequest()));
+        return new PaymentTransaction(CART_ID.toString(), reference, 2900000L, checkoutData);
+    }
+
+    private WompiTransactionDTO buildWompiTransaction(String id, String reference, String status) {
+        WompiTransactionDTO transaction = new WompiTransactionDTO();
+        transaction.setId(id);
+        transaction.setReference(reference);
+        transaction.setStatus(status);
+        return transaction;
+    }
+
+    private Order buildOrder(String publicId) {
         Order order = new Order(
                 "Felipe", "Hernandez", "felipe@melik.com", "3001234567",
                 new AddressSnapshot("Calle 123", "Apto 1", "Bogota", 110111, "Colombia"),
                 "Laura", new BigDecimal("10000")
         );
         order.setPublicId(publicId);
-        order.setStatus(status);
-        ReflectionTestUtils.setField(order, "totalAmount", totalAmount);
         return order;
     }
 

@@ -72,8 +72,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
-    @ExceptionHandler(OrderNotPayableException.class)
-    public ResponseEntity<ApiError> handleOrderNotPayable(OrderNotPayableException ex) {
+    @ExceptionHandler(PaymentNotRetryableException.class)
+    public ResponseEntity<ApiError> handlePaymentNotRetryable(PaymentNotRetryableException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.CONFLICT.value(),
