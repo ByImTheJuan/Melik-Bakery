@@ -10,12 +10,12 @@ public enum OrderEmailType {
     RECEIVED(OrderStatus.PAID,
             "Recibimos tu pedido #%s",
             "¡Recibimos tu pedido!",
-            "Tu pago fue aprobado y ya tenemos tu pedido. Te escribiremos cada vez que avance."),
+            "Tu pago fue aprobado y ya tenemos tu pedido. Te notificaremos conforme se acerce el día de entrega."),
 
     PREPARING(OrderStatus.PREPARING,
             "Tu pedido #%s está en preparación",
             "Tu pedido está en preparación",
-            "Nuestro equipo ya está horneando y preparando tu pedido con mucho cariño."),
+            "Nuestro equipo ya está horneando y preparando tu pedido."),
 
     SHIPPED(OrderStatus.SHIPPED,
             "Tu pedido #%s va en camino",

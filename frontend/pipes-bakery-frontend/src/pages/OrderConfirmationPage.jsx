@@ -65,8 +65,8 @@ const OrderConfirmationPage = () => {
         </div>
         <p className="order-confirmation-text">
           {order?.deliveryDate
-            ? `Ya recibimos tu pago. Prepararemos tu pedido para entregarlo el ${formatDeliveryDate(order.deliveryDate)} ${slotPhrase(order.deliverySlot)}.`
-            : "Ya recibimos tu pago y comenzaremos a preparar tu pedido."}
+            ? `Ya recibimos tu pago y te enviamos un email de confirmación. Prepararemos tu pedido para entregarlo el ${formatDeliveryDate(order.deliveryDate)} ${slotPhrase(order.deliverySlot)}.`
+            : "Ya recibimos tu pago y te enviamos un email de confirmación. Comenzaremos a preparar tu pedido."}
         </p>
 
         <div className="order-confirmation-details">

@@ -18,8 +18,11 @@
 
                 <!-- Header -->
                 <tr>
-                    <td style="background-color:#5a2d0c; padding:24px; text-align:center;">
-                        <span style="font-size:26px; font-weight:bold; color:#f5e6d3; letter-spacing:1px;">Melik Bakery</span>
+                    <!-- Logo embedded in the email (cid), see OrderNotificationService.LOGO_CONTENT_ID.
+                         The cell colour matches the logo's background so it blends at any width. -->
+                    <td style="background-color:#ebc89d; padding:0; text-align:center; line-height:0;">
+                        <img src="cid:melik-logo" alt="Melik Bakery" width="600"
+                             style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none; color:#5a2d0c; font-size:26px; font-weight:bold; line-height:1.2;">
                     </td>
                 </tr>
 

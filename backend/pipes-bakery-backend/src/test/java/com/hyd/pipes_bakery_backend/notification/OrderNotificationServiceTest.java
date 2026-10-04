@@ -78,8 +78,14 @@ class OrderNotificationServiceTest {
         assertThat(message.to()).isEqualTo("felipe@melik.com");
         assertThat(message.subject()).isEqualTo(subject);
         assertThat(message.idempotencyKey()).isEqualTo("order-ABC123-" + status.name());
+        assertThat(message.inlineImages()).singleElement().satisfies(logo -> {
+            assertThat(logo.contentId()).isEqualTo("melik-logo");
+            assertThat(logo.contentType()).isEqualTo("image/jpeg");
+            assertThat(logo.content()).isNotEmpty();
+        });
         assertThat(message.html())
                 .contains(headline)
+                .contains("src=\"cid:melik-logo\"")
                 .contains("Hola <span>Felipe</span>")
                 .contains("#ABC123")
                 .contains("2 × Croissant")

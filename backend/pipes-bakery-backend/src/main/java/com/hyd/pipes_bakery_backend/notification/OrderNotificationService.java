@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.notification;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.thymeleaf.context.Context;
 
 import com.hyd.pipes_bakery_backend.email.EmailMessage;
 import com.hyd.pipes_bakery_backend.email.EmailSender;
+import com.hyd.pipes_bakery_backend.email.InlineImage;
 import com.hyd.pipes_bakery_backend.model.Order;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.repository.OrderRepository;
@@ -20,12 +22,15 @@ import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 public class OrderNotificationService {
 
     static final String TEMPLATE = "email/order-status";
+    /** Referenced by the template as cid:melik-logo. */
+    static final String LOGO_CONTENT_ID = "melik-logo";
 
     private static final Logger log = LoggerFactory.getLogger(OrderNotificationService.class);
 
     private final OrderRepository orderRepository;
     private final EmailSender emailSender;
     private final ITemplateEngine templateEngine;
+    private final InlineImage logo = InlineImage.fromClasspath("email-assets/melik-logo.jpg", LOGO_CONTENT_ID, "image/jpeg");
 
     public OrderNotificationService(OrderRepository orderRepository, EmailSender emailSender, ITemplateEngine templateEngine) {
         this.orderRepository = orderRepository;
@@ -52,7 +57,8 @@ public class OrderNotificationService {
                 type.get().subject(order.getPublicId()),
                 renderHtml(type.get(), view),
                 renderText(type.get(), view),
-                "order-" + order.getPublicId() + "-" + status.name()
+                "order-" + order.getPublicId() + "-" + status.name(),
+                List.of(logo)
         ));
         log.info("Sent {} email for order {}", status, orderPublicId);
     }

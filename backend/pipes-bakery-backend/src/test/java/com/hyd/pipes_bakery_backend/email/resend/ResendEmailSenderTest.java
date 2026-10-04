@@ -8,6 +8,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -19,6 +22,7 @@ import org.springframework.web.client.RestClient;
 import com.hyd.pipes_bakery_backend.email.EmailMessage;
 import com.hyd.pipes_bakery_backend.email.EmailProperties;
 import com.hyd.pipes_bakery_backend.email.EmailSendException;
+import com.hyd.pipes_bakery_backend.email.InlineImage;
 
 class ResendEmailSenderTest {
 
@@ -60,6 +64,29 @@ class ResendEmailSenderTest {
                 .andRespond(withSuccess("{\"id\":\"email-1\"}", MediaType.APPLICATION_JSON));
 
         sender.send(new EmailMessage("laura@example.com", "Recibimos tu pedido #ABC123", "<p>Hola</p>", "Hola", "order-ABC123-PAID"));
+
+        server.verify();
+    }
+
+    @Test
+    void shouldSendInlineImagesAsAttachmentsWithAContentId() {
+        ResendEmailSender sender = new ResendEmailSender(emailProperties, builder);
+
+        server.expect(requestTo("https://api.resend.com/emails"))
+                .andExpect(content().json("""
+                        {
+                          "attachments": [{
+                            "filename": "logo.jpg",
+                            "content": "bG9nbw==",
+                            "content_type": "image/jpeg",
+                            "content_id": "melik-logo"
+                          }]
+                        }
+                        """))
+                .andRespond(withSuccess("{\"id\":\"email-1\"}", MediaType.APPLICATION_JSON));
+
+        InlineImage logo = new InlineImage("melik-logo", "logo.jpg", "image/jpeg", "logo".getBytes(StandardCharsets.UTF_8));
+        sender.send(new EmailMessage("laura@example.com", "s", "<img src=\"cid:melik-logo\">", "t", null, List.of(logo)));
 
         server.verify();
     }
