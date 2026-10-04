@@ -7,24 +7,25 @@ import { checkAdminSession, logoutAdmin } from "../services/authService";
 import "../styles/global.css";
 import "../styles/adminMainPage.css";
 
+// Orders come first: they are what the bakery has to act on every day
 const sections = [
-  { id: "products", label: "Gestión de Productos" },
   { id: "orders", label: "Gestión de Pedidos" },
+  { id: "products", label: "Gestión de Productos" },
 ];
 
 export default function AdminMainPage() {
   const navigate = useNavigate();
   const [authStatus, setAuthStatus] = useState("checking");
-  const [activeSection, setActiveSection] = useState("products");
+  const [activeSection, setActiveSection] = useState("orders");
 
   useDocumentTitle("Panel de administración");
 
   const activeContent = useMemo(() => {
-    if (activeSection === "orders") {
-      return <OrdersAdmin />;
+    if (activeSection === "products") {
+      return <ProductsAdmin />;
     }
 
-    return <ProductsAdmin />;
+    return <OrdersAdmin />;
   }, [activeSection]);
 
   useEffect(() => {

@@ -58,7 +58,13 @@ describe("AdminMainPage", () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByText("Products admin content")).toBeInTheDocument();
+    // Orders are the first section and the one shown on arrival
+    expect(await screen.findByText("Orders admin content")).toBeInTheDocument();
+    const navButtons = screen.getAllByRole("button", { name: /^Gestión de/ });
+    expect(navButtons.map((button) => button.textContent)).toEqual(["Gestión de Pedidos", "Gestión de Productos"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Gestión de Productos" }));
+    expect(screen.getByText("Products admin content")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Gestión de Pedidos" }));
     expect(screen.getByText("Orders admin content")).toBeInTheDocument();

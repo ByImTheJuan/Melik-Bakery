@@ -11,6 +11,8 @@ import java.security.SecureRandom;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ import com.hyd.pipes_bakery_backend.model.OrderItem;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
+import com.hyd.pipes_bakery_backend.notification.OrderStatusChangedEvent;
 import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 import com.hyd.pipes_bakery_backend.storage.CartStorage;
@@ -60,6 +63,7 @@ public class OrderService implements IOrderService {
     private final CartStorage cartStorage;
     private final OrderMapper orderMapper;
     private final AddressMapper addressMapper;
+    private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
     @Autowired
@@ -68,9 +72,10 @@ public class OrderService implements IOrderService {
             ProductRepository productRepository,
             CartStorage cartStorage,
             OrderMapper orderMapper,
-            AddressMapper addressMapper
+            AddressMapper addressMapper,
+            ApplicationEventPublisher eventPublisher
     ) {
-        this(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, Clock.system(BAKERY_ZONE));
+        this(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, eventPublisher, Clock.system(BAKERY_ZONE));
     }
 
     public OrderService(
@@ -79,6 +84,7 @@ public class OrderService implements IOrderService {
             CartStorage cartStorage,
             OrderMapper orderMapper,
             AddressMapper addressMapper,
+            ApplicationEventPublisher eventPublisher,
             Clock clock
     ) {
         this.clock = clock;
@@ -87,11 +93,13 @@ public class OrderService implements IOrderService {
         this.cartStorage = cartStorage;
         this.orderMapper = orderMapper;
         this.addressMapper = addressMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAll()
+        // Most recent first: new orders are the ones the bakery has to act on
+        return orderRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
                 .map(orderMapper::toDto)
                 .toList();
@@ -133,7 +141,9 @@ public class OrderService implements IOrderService {
 
     private Order applyStatus(Order order, OrderStatus status) {
         order.setStatus(status);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(saved.getPublicId(), status));
+        return saved;
     }
 
     @Override
@@ -194,7 +204,10 @@ public class OrderService implements IOrderService {
                 .toList();
 
         order.setItems(items);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        // The "order received" email goes out once the payment transaction commits
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(saved.getPublicId(), OrderStatus.PAID));
+        return saved;
     }
 
     @Override

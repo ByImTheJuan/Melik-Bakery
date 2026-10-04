@@ -21,6 +21,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
@@ -42,6 +44,7 @@ import com.hyd.pipes_bakery_backend.model.Order;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.model.Product;
 import com.hyd.pipes_bakery_backend.model.ShoppingCart;
+import com.hyd.pipes_bakery_backend.notification.OrderStatusChangedEvent;
 import com.hyd.pipes_bakery_backend.repository.OrderRepository;
 import com.hyd.pipes_bakery_backend.repository.ProductRepository;
 import com.hyd.pipes_bakery_backend.storage.CartStorage;
@@ -59,6 +62,9 @@ class OrderServiceTest {
     @Mock
     private CartStorage cartStorage;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private OrderService orderService;
 
     @BeforeEach
@@ -67,12 +73,13 @@ class OrderServiceTest {
         OrderMapper orderMapper = new OrderMapper(new OrderItemMapper(), addressMapper);
         // 22:00 on 4 Oct in Bogota, already 5 Oct in UTC: "today" must be the Bogota date
         Clock clock = Clock.fixed(Instant.parse("2026-10-05T03:00:00Z"), OrderService.BAKERY_ZONE);
-        orderService = new OrderService(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, clock);
+        orderService = new OrderService(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, eventPublisher, clock);
     }
 
     @Test
     void shouldGetAllOrdersSuccessfully() {
-        when(orderRepository.findAll()).thenReturn(List.of(buildOrder("ABC123", OrderStatus.PAYMENT_PENDING)));
+        when(orderRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")))
+                .thenReturn(List.of(buildOrder("ABC123", OrderStatus.PAYMENT_PENDING)));
 
         List<OrderResponseDTO> result = orderService.getAllOrders();
 
@@ -102,6 +109,7 @@ class OrderServiceTest {
 
         assertThat(result.getStatus()).isEqualTo(OrderStatus.PREPARING);
         verify(orderRepository).save(order);
+        verify(eventPublisher).publishEvent(new OrderStatusChangedEvent("ABC123", OrderStatus.PREPARING));
     }
 
     @Test
@@ -114,6 +122,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.SHIPPED);
 
         assertThat(result.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+        verify(eventPublisher).publishEvent(new OrderStatusChangedEvent("ABC123", OrderStatus.SHIPPED));
     }
 
     @Test
@@ -126,6 +135,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.updateOrderStatus("ABC123", OrderStatus.DELIVERED);
 
         assertThat(result.getStatus()).isEqualTo(OrderStatus.DELIVERED);
+        verify(eventPublisher).publishEvent(new OrderStatusChangedEvent("ABC123", OrderStatus.DELIVERED));
     }
 
     @Test
@@ -136,6 +146,7 @@ class OrderServiceTest {
 
         assertThatThrownBy(() -> orderService.updateOrderStatus("ABC123", OrderStatus.DELIVERED))
                 .isInstanceOf(InvalidOrderStatusTransitionException.class);
+        verify(eventPublisher, never()).publishEvent(any(Object.class));
     }
 
     @Test
@@ -188,6 +199,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.cancelOrder("ABC123");
 
         assertThat(result.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        verify(eventPublisher).publishEvent(new OrderStatusChangedEvent("ABC123", OrderStatus.CANCELLED));
     }
 
     @Test
@@ -244,6 +256,7 @@ class OrderServiceTest {
         assertThat(result.getItems().get(0).getUnitPriceAtPurchase()).isEqualByComparingTo(new BigDecimal("9500"));
         assertThat(result.getShippingCost()).isEqualByComparingTo(new BigDecimal("10000"));
         assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
+        verify(eventPublisher).publishEvent(new OrderStatusChangedEvent(result.getPublicId(), OrderStatus.PAID));
     }
 
     @Test
