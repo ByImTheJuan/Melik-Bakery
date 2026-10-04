@@ -34,9 +34,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
-    // ADDRESS VALIDATION ERRORS (400)
-    @ExceptionHandler(InvalidAddressException.class)
-    public ResponseEntity<ApiError> handleAddressValidationErrors(InvalidAddressException ex) {
+    // ADDRESS AND DELIVERY DATE VALIDATION ERRORS (400)
+    @ExceptionHandler({InvalidAddressException.class, InvalidDeliveryDateException.class})
+    public ResponseEntity<ApiError> handleAddressValidationErrors(RuntimeException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -99,6 +99,20 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    // ORIGINAL DELIVERY DATE NO LONGER VALID ON RETRY (422)
+    @ExceptionHandler(DeliveryDateExpiredException.class)
+    public ResponseEntity<ApiError> handleDeliveryDateExpired(DeliveryDateExpiredException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(apiError);
     }
 
     @ExceptionHandler(InvalidWebhookSignatureException.class)

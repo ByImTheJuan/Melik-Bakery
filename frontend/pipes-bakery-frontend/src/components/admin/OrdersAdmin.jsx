@@ -8,6 +8,7 @@ import {
 import { formatCOP } from "../../utils/formatPrice";
 import { getProductImageUrl } from "../../utils/productImage";
 import { formatDecorativeTiers, formatServings, isCustomCake } from "../../utils/customCake";
+import { formatDeliveryDate, slotLabel } from "../../utils/delivery";
 import "../../styles/ordersAdmin.css";
 
 function formatDate(dateValue) {
@@ -191,7 +192,11 @@ export default function OrdersAdmin() {
                   </p>
 
                   <div className="orders-admin-list-meta">
-                    <span>{formatDate(order.createdAt)}</span>
+                    <span>
+                      {order.deliveryDate
+                        ? `Entrega: ${formatDeliveryDate(order.deliveryDate, { withYear: false })} · ${slotLabel(order.deliverySlot)}`
+                        : formatDate(order.createdAt)}
+                    </span>
                     <span>${formatCOP(order.totalAmount)}</span>
                   </div>
                 </button>
@@ -230,6 +235,15 @@ export default function OrdersAdmin() {
                 <div>
                   <span className="orders-admin-label">Teléfono</span>
                   <strong>{selectedOrder.clientPhoneNumber}</strong>
+                </div>
+
+                <div>
+                  <span className="orders-admin-label">Entrega</span>
+                  <strong>
+                    {selectedOrder.deliveryDate
+                      ? `${formatDeliveryDate(selectedOrder.deliveryDate)} · ${slotLabel(selectedOrder.deliverySlot)}`
+                      : "Sin fecha (pedido anterior)"}
+                  </strong>
                 </div>
 
                 <div>

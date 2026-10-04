@@ -66,6 +66,7 @@ class CustomCakeIntegrationTest {
             }
             """;
 
+    // Delivery five days from now (Bogota time): always past the 4-day minimum
     private static final String CHECKOUT_BODY = """
             {
               "clientFirstName": "Felipe",
@@ -73,6 +74,8 @@ class CustomCakeIntegrationTest {
               "clientEmail": "felipe@melik.com",
               "clientPhoneNumber": "3001234567",
               "receiverName": "Laura",
+              "deliveryDate": "%s",
+              "deliverySlot": "AFTERNOON",
               "shippingAddress": {
                 "street": "Calle 123",
                 "additionalInformation": "Apto 1",
@@ -81,7 +84,7 @@ class CustomCakeIntegrationTest {
                 "country": "Colombia"
               }
             }
-            """;
+            """.formatted(java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota")).plusDays(5));
 
     @Autowired
     private MockMvc mockMvc;

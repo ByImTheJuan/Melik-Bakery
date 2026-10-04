@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getPaymentStatus, retryPayment } from "../services/paymentService";
 import { useCart } from "../hooks/useCart";
+import DeliveryDialog from "../components/checkout/DeliveryDialog";
+import { MIN_DELIVERY_LEAD_DAYS, bakeryToday } from "../utils/delivery";
+import "../styles/checkoutPage.css";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/global.css";
 import "../styles/paymentResultPage.css";
@@ -21,6 +24,8 @@ const PaymentResultPage = () => {
   const [status, setStatus] = useState("PENDING");
   const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState("");
+  // Set when the delivery date chosen at checkout is now too close: a new one is needed to pay again
+  const [needsNewDate, setNeedsNewDate] = useState(false);
 
   useDocumentTitle(status === "FAILED" ? "Pago no completado" : "Confirmando tu pago");
 
@@ -69,17 +74,22 @@ const PaymentResultPage = () => {
     };
   }, [reference, transactionId, clearCart, navigate]);
 
-  const handleRetryPayment = async () => {
+  const handleRetryPayment = async (newDelivery) => {
     try {
       setRetrying(true);
       setError("");
-      const { checkoutUrl } = await retryPayment(reference);
+      setNeedsNewDate(false);
+      const { checkoutUrl } = await retryPayment(reference, newDelivery);
       window.location.href = checkoutUrl;
     } catch (err) {
+      setRetrying(false);
+      if (err.response?.status === 422) {
+        setNeedsNewDate(true);
+        return;
+      }
       setError(
         err.response?.data?.message ?? "No se pudo iniciar el pago. Intentalo de nuevo."
       );
-      setRetrying(false);
     }
   };
 
@@ -104,7 +114,7 @@ const PaymentResultPage = () => {
           <div className="payment-result-actions">
             <button
               className="payment-result-primary"
-              onClick={handleRetryPayment}
+              onClick={() => handleRetryPayment()}
               disabled={retrying}
             >
               {retrying ? "Redirigiendo…" : "Reintentar pago"}
@@ -118,6 +128,17 @@ const PaymentResultPage = () => {
             </button>
           </div>
         </div>
+
+        {needsNewDate && (
+          <DeliveryDialog
+            current={null}
+            today={bakeryToday()}
+            dismissible
+            notice={`La fecha de entrega que elegiste ya no está disponible: necesitamos al menos ${MIN_DELIVERY_LEAD_DAYS} días para preparar tu pedido. Elige una nueva para continuar con el pago.`}
+            onConfirm={(delivery) => handleRetryPayment(delivery)}
+            onClose={() => setNeedsNewDate(false)}
+          />
+        )}
       </div>
     );
   }

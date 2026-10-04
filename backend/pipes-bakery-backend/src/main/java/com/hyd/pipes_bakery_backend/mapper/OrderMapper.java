@@ -28,6 +28,8 @@ public class OrderMapper {
                                                         order.getStatus(),
                                                         order.getCreatedAt(),
                                                         addressMapper.toSnapshotDto(order.getAddress()));
+        dto.setDeliveryDate(order.getDeliveryDate());
+        dto.setDeliverySlot(order.getDeliverySlot());
         return dto;
     }
 }

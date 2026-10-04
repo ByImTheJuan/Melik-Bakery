@@ -1,12 +1,16 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.text.Normalizer;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.security.SecureRandom;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
 import com.hyd.pipes_bakery_backend.exception.CartIsEmptyException;
 import com.hyd.pipes_bakery_backend.exception.InvalidAddressException;
+import com.hyd.pipes_bakery_backend.exception.InvalidDeliveryDateException;
 import com.hyd.pipes_bakery_backend.exception.InvalidOrderStatusTransitionException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
@@ -37,6 +42,13 @@ public class OrderService implements IOrderService {
     private static final int PUBLIC_ID_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    /** The bakery works on Bogota time: "today" for the delivery rules is today in Bogota. */
+    public static final ZoneId BAKERY_ZONE = ZoneId.of("America/Bogota");
+    /** Orders need this many days of preparation: the earliest delivery is today + 4 days. */
+    public static final int MIN_DELIVERY_LEAD_DAYS = 4;
+    /** How far ahead a delivery can be booked. */
+    public static final int MAX_DELIVERY_LEAD_DAYS = 90;
+
     private static final Map<OrderStatus, OrderStatus> ADMIN_ALLOWED_TRANSITIONS = Map.of(
             OrderStatus.PAID, OrderStatus.PREPARING,
             OrderStatus.PREPARING, OrderStatus.SHIPPED,
@@ -48,7 +60,9 @@ public class OrderService implements IOrderService {
     private final CartStorage cartStorage;
     private final OrderMapper orderMapper;
     private final AddressMapper addressMapper;
+    private final Clock clock;
 
+    @Autowired
     public OrderService(
             OrderRepository orderRepository,
             ProductRepository productRepository,
@@ -56,6 +70,18 @@ public class OrderService implements IOrderService {
             OrderMapper orderMapper,
             AddressMapper addressMapper
     ) {
+        this(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, Clock.system(BAKERY_ZONE));
+    }
+
+    public OrderService(
+            OrderRepository orderRepository,
+            ProductRepository productRepository,
+            CartStorage cartStorage,
+            OrderMapper orderMapper,
+            AddressMapper addressMapper,
+            Clock clock
+    ) {
+        this.clock = clock;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.cartStorage = cartStorage;
@@ -113,6 +139,7 @@ public class OrderService implements IOrderService {
     @Override
     public CheckoutSnapshot buildCheckoutSnapshot(UUID cartId, CheckoutOrderRequestDTO request) {
         validateShippingAddress(request.getShippingAddress());
+        validateDeliveryDate(request.getDeliveryDate());
 
         ShoppingCart cart = cartStorage.getCart(cartId);
         if (cart.isEmpty()) {
@@ -144,6 +171,8 @@ public class OrderService implements IOrderService {
         );
         order.setPublicId(generateUniquePublicId());
         order.setStatus(OrderStatus.PAID);
+        order.setDeliveryDate(request.getDeliveryDate());
+        order.setDeliverySlot(request.getDeliverySlot());
 
         List<OrderItem> items = snapshot.getItems().stream()
                 .map(item -> {
@@ -166,6 +195,23 @@ public class OrderService implements IOrderService {
 
         order.setItems(items);
         return orderRepository.save(order);
+    }
+
+    @Override
+    public void validateDeliveryDate(LocalDate deliveryDate) {
+        if (deliveryDate == null) {
+            throw new InvalidDeliveryDateException("Delivery date is required");
+        }
+
+        LocalDate today = LocalDate.now(clock.withZone(BAKERY_ZONE));
+        if (deliveryDate.isBefore(today.plusDays(MIN_DELIVERY_LEAD_DAYS))) {
+            throw new InvalidDeliveryDateException(
+                    "Delivery date must be at least " + MIN_DELIVERY_LEAD_DAYS + " days from today");
+        }
+        if (deliveryDate.isAfter(today.plusDays(MAX_DELIVERY_LEAD_DAYS))) {
+            throw new InvalidDeliveryDateException(
+                    "Delivery date must be within the next " + MAX_DELIVERY_LEAD_DAYS + " days");
+        }
     }
 
     private void validateShippingAddress(AddressSnapshotDTO address) {

@@ -1,6 +1,7 @@
 package com.hyd.pipes_bakery_backend.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,14 @@ public class Order {
     private LocalDateTime createdAt;
 
     private String receiverName;
+
+    // Chosen by the customer at checkout; null on orders placed before delivery dates existed
+    @Column(name = "delivery_date")
+    private LocalDate deliveryDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_slot", length = 20)
+    private DeliverySlot deliverySlot;
 
     protected Order() {}
 
@@ -183,6 +192,22 @@ public class Order {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public DeliverySlot getDeliverySlot() {
+        return deliverySlot;
+    }
+
+    public void setDeliverySlot(DeliverySlot deliverySlot) {
+        this.deliverySlot = deliverySlot;
     }
 
     public void setReceiverName(String receiverName) {

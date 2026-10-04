@@ -8,7 +8,7 @@ export default function HeroSection() {
     <section id="hero" className="hero">
         <div className="hero-content">
             <img src="/images/logo.webp" alt="Logo" />
-            <p>Postres de autor horneados con amor.</p>
+            <p>Crea tu torta perfecta para cumpleaños, bodas, comuniones y cualquier ocasión especial.</p>
             <div className="hero-actions">
               <button className="hero-primary" onClick={() => navigate("/personalizar")}>
                 Diseña tu torta

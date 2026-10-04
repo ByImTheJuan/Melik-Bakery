@@ -1,5 +1,12 @@
 package com.hyd.pipes_bakery_backend.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.ArgumentCaptor;
+import com.hyd.pipes_bakery_backend.model.DeliverySlot;
+import com.hyd.pipes_bakery_backend.exception.DeliveryDateExpiredException;
+import com.hyd.pipes_bakery_backend.dto.payment.RetryPaymentRequestDTO;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +42,7 @@ class PaymentControllerTest {
 
     @Test
     void shouldRetryFailedPayment() throws Exception {
-        when(paymentService.retryPayment("MB-OLD"))
+        when(paymentService.retryPayment(eq("MB-OLD"), any()))
                 .thenReturn(new PaymentSessionResponseDTO("https://checkout.wompi.co/p/?reference=MB-NEW", "MB-NEW"));
 
         mockMvc.perform(post("/api/payments/{reference}/retry", "MB-OLD"))
@@ -43,12 +50,12 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("$.checkoutUrl").value("https://checkout.wompi.co/p/?reference=MB-NEW"))
                 .andExpect(jsonPath("$.reference").value("MB-NEW"));
 
-        verify(paymentService).retryPayment("MB-OLD");
+        verify(paymentService).retryPayment(eq("MB-OLD"), any());
     }
 
     @Test
     void shouldReturnNotFoundWhenRetryingUnknownPayment() throws Exception {
-        when(paymentService.retryPayment("MISSING"))
+        when(paymentService.retryPayment(eq("MISSING"), any()))
                 .thenThrow(new ResourceNotFoundException("Payment not found with reference MISSING"));
 
         mockMvc.perform(post("/api/payments/{reference}/retry", "MISSING"))
@@ -57,11 +64,37 @@ class PaymentControllerTest {
 
     @Test
     void shouldReturnConflictWhenPaymentIsNotRetryable() throws Exception {
-        when(paymentService.retryPayment("MB-PENDING"))
+        when(paymentService.retryPayment(eq("MB-PENDING"), any()))
                 .thenThrow(new PaymentNotRetryableException("Payment MB-PENDING cannot be retried in its current status"));
 
         mockMvc.perform(post("/api/payments/{reference}/retry", "MB-PENDING"))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldAskForANewDateWhenTheOriginalOneHasExpired() throws Exception {
+        when(paymentService.retryPayment(eq("MB-OLD"), any()))
+                .thenThrow(new DeliveryDateExpiredException("The delivery date is no longer available. Please choose a new one"));
+
+        mockMvc.perform(post("/api/payments/{reference}/retry", "MB-OLD"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message").value("The delivery date is no longer available. Please choose a new one"));
+    }
+
+    @Test
+    void shouldPassTheNewDeliveryDateToTheRetry() throws Exception {
+        when(paymentService.retryPayment(eq("MB-OLD"), any()))
+                .thenReturn(new PaymentSessionResponseDTO("https://checkout.wompi.co/p/?reference=MB-NEW", "MB-NEW"));
+
+        mockMvc.perform(post("/api/payments/{reference}/retry", "MB-OLD")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"deliveryDate\": \"2026-10-12\", \"deliverySlot\": \"MORNING\"}"))
+                .andExpect(status().isCreated());
+
+        ArgumentCaptor<RetryPaymentRequestDTO> body = ArgumentCaptor.forClass(RetryPaymentRequestDTO.class);
+        verify(paymentService).retryPayment(eq("MB-OLD"), body.capture());
+        assertThat(body.getValue().getDeliveryDate()).isEqualTo(java.time.LocalDate.of(2026, 10, 12));
+        assertThat(body.getValue().getDeliverySlot()).isEqualTo(DeliverySlot.MORNING);
     }
 
     @Test

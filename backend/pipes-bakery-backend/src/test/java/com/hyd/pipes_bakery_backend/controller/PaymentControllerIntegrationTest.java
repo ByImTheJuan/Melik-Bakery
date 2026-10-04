@@ -49,6 +49,7 @@ import jakarta.transaction.Transactional;
 @Transactional
 class PaymentControllerIntegrationTest {
 
+    // Delivery five days from now (Bogota time): always past the 4-day minimum
     private static final String CHECKOUT_BODY = """
             {
               "clientFirstName": "Felipe",
@@ -56,6 +57,8 @@ class PaymentControllerIntegrationTest {
               "clientEmail": "felipe@melik.com",
               "clientPhoneNumber": "3001234567",
               "receiverName": "Laura",
+              "deliveryDate": "%s",
+              "deliverySlot": "AFTERNOON",
               "shippingAddress": {
                 "street": "Calle 123",
                 "additionalInformation": "Apto 1",
@@ -64,7 +67,7 @@ class PaymentControllerIntegrationTest {
                 "country": "Colombia"
               }
             }
-            """;
+            """.formatted(java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota")).plusDays(5));
 
     @Autowired
     private MockMvc mockMvc;
@@ -138,6 +141,9 @@ class PaymentControllerIntegrationTest {
                 .andExpect(jsonPath("$.order.items[0].productName").value("Croissant"))
                 .andExpect(jsonPath("$.order.items[0].quantity").value(2))
                 .andExpect(jsonPath("$.order.totalAmount").value(29000))
+                .andExpect(jsonPath("$.order.deliveryDate").value(
+                        java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota")).plusDays(5).toString()))
+                .andExpect(jsonPath("$.order.deliverySlot").value("AFTERNOON"))
                 .andReturn().getResponse().getContentAsString();
 
         String orderId = objectMapper.readTree(statusResponse).get("orderId").asText();
@@ -171,6 +177,23 @@ class PaymentControllerIntegrationTest {
         String newReference = objectMapper.readTree(retryResponse).get("reference").asText();
         assertThat(newReference).isNotEqualTo(reference);
         assertThat(paymentTransactionRepository.findByWompiReference(newReference)).isPresent();
+    }
+
+    @Test
+    void shouldRejectCheckoutWithADeliveryLessThanFourDaysAway() throws Exception {
+        String tomorrow = java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota")).plusDays(3).toString();
+        String body = CHECKOUT_BODY.replaceFirst("\"deliveryDate\": \"[0-9-]+\"", "\"deliveryDate\": \"" + tomorrow + "\"");
+
+        mockMvc.perform(post("/api/cart/{cartId}/checkout", cartId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Delivery date must be at least 4 days from today"));
+
+        mockMvc.perform(post("/api/cart/{cartId}/checkout", cartId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CHECKOUT_BODY.replace("\"deliverySlot\": \"AFTERNOON\",", "")))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

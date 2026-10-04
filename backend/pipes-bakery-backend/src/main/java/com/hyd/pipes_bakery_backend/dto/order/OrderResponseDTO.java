@@ -1,11 +1,13 @@
 package com.hyd.pipes_bakery_backend.dto.order;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 import com.hyd.pipes_bakery_backend.dto.orderItem.OrderItemResponseDTO;
+import com.hyd.pipes_bakery_backend.model.DeliverySlot;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +37,23 @@ public class OrderResponseDTO {
     private LocalDateTime createdAt;
     @Schema(description = "Direccion de envio guardada para el pedido.")
     private AddressSnapshotDTO shippingAddress;
+    @Schema(description = "Fecha de entrega elegida por el cliente (nula en pedidos antiguos).", example = "2026-10-10")
+    private LocalDate deliveryDate;
+    @Schema(description = "Franja horaria de entrega (nula en pedidos antiguos).", example = "MORNING")
+    private DeliverySlot deliverySlot;
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+    public DeliverySlot getDeliverySlot() {
+        return deliverySlot;
+    }
+    public void setDeliverySlot(DeliverySlot deliverySlot) {
+        this.deliverySlot = deliverySlot;
+    }
 
     public OrderResponseDTO(String id, String clientFirstName, String clientLastName, String clientEmail, String clientPhoneNumber,
             List<OrderItemResponseDTO> items, BigDecimal totalAmount, BigDecimal shippingCost,

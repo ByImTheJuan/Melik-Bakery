@@ -1,6 +1,6 @@
 ---
 name: Melik Bakery
-description: Postres de autor horneados con amor. Warm, personal storefront for a one-person artisan bakery in Bogotá.
+description: Postres de autor horneados con amor. Crea tu torta perfecta para cumpleaños, bodas, comuniones y cualquier ocasión especial. Warm, personal storefront for a one-person artisan bakery in Bogotá.
 colors:
   roasted-cacao: "#5a2d0c"
   caramel-glaze: "#c68642"

@@ -16,7 +16,7 @@ Visitors arrive on both mobile and desktop in roughly equal measure; neither is 
 
 ## Product Purpose
 
-Melik Bakery is the online shop of a one-person artisan bakery in Bogotá. Customers browse a catalog of "postres de autor", add items to a cart, pay online and have them delivered within Bogotá, with no account needed. Success is a customer confidently ordering a dessert for a celebration or gift, paying, and knowing exactly what was ordered and that it was received.
+Melik Bakery is the online shop of a one-person artisan bakery in Bogotá. Customers browse a catalog of "postres de autor" or customize a cake of their own, add items to a cart, pay online and have them delivered within Bogotá, with no account needed. Success is a customer confidently ordering a dessert for a celebration or gift, paying, and knowing exactly what was ordered and that it was received.
 
 ## Positioning
 

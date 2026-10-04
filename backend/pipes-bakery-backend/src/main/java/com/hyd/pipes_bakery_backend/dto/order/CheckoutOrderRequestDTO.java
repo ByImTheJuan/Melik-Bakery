@@ -1,5 +1,8 @@
 package com.hyd.pipes_bakery_backend.dto.order;
 
+import java.time.LocalDate;
+
+import com.hyd.pipes_bakery_backend.model.DeliverySlot;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
 
@@ -36,6 +39,30 @@ public class CheckoutOrderRequestDTO {
 
     @Schema(description = "Nombre de la persona que recibira el pedido si es distinta del cliente.", example = "Lucia Garcia")
     private String receiverName;
+
+    @Schema(description = "Fecha de entrega elegida; minimo 3 dias despues de hoy (hora de Bogota).", example = "2026-10-10")
+    @NotNull(message = "Delivery date is required")
+    private LocalDate deliveryDate;
+
+    @Schema(description = "Franja horaria de entrega.", example = "MORNING")
+    @NotNull(message = "Delivery time slot is required")
+    private DeliverySlot deliverySlot;
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public DeliverySlot getDeliverySlot() {
+        return deliverySlot;
+    }
+
+    public void setDeliverySlot(DeliverySlot deliverySlot) {
+        this.deliverySlot = deliverySlot;
+    }
 
     
     public AddressSnapshotDTO getShippingAddress() {
