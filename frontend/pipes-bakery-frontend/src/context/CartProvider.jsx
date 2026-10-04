@@ -1,7 +1,15 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { CartContext } from "./cartContext";
 
-import { getCart, addItem, removeItem, updateItemQuantity } from "../services/cartService";
+import {
+  getCart,
+  addItem,
+  removeItem,
+  updateItemQuantity,
+  addCustomCake as addCustomCakeRequest,
+  removeCustomCake as removeCustomCakeRequest,
+  updateCustomCakeQuantity as updateCustomCakeQuantityRequest,
+} from "../services/cartService";
 import { clearCartId, ensureCartId, getCartId } from "../services/cartStorage";
 
 
@@ -84,6 +92,32 @@ export function CartProvider({ children }) {
     setCart(data);
   }, [cartId]);
 
+  // Tortas personalizadas: cada una es una linea propia identificada por lineId
+  const addCustomCake = useCallback(async (configuration, quantity) => {
+    const id = cartId || await ensureCartId();
+
+    if (!cartId) {
+      setCartId(id);
+    }
+
+    const data = await addCustomCakeRequest(id, configuration, quantity);
+    setCart(data);
+  }, [cartId]);
+
+  const removeCustomCake = useCallback(async (lineId) => {
+    if (!cartId) return;
+
+    const data = await removeCustomCakeRequest(cartId, lineId);
+    setCart(data);
+  }, [cartId]);
+
+  const updateCustomCakeQuantity = useCallback(async (lineId, quantity) => {
+    if (!cartId) return;
+
+    const data = await updateCustomCakeQuantityRequest(cartId, lineId, quantity);
+    setCart(data);
+  }, [cartId]);
+
   const clearCart = useCallback(() => {
     clearCartId();
     setCartId(null);
@@ -98,6 +132,9 @@ export function CartProvider({ children }) {
     addToCart,
     removeFromCart,
     updateQuantity,
+    addCustomCake,
+    removeCustomCake,
+    updateCustomCakeQuantity,
     clearCart,
   }), [
     cartId,
@@ -107,6 +144,9 @@ export function CartProvider({ children }) {
     addToCart,
     removeFromCart,
     updateQuantity,
+    addCustomCake,
+    removeCustomCake,
+    updateCustomCakeQuantity,
     clearCart,
   ]);
 

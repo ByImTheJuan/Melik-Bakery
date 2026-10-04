@@ -55,6 +55,24 @@ export async function updateItemQuantity(cartId, productId, quantity) {
   return await response.data;
 }
 
+export async function addCustomCake(cartId, configuration, quantity) {
+  const response = await apiClient.post(`/cart/${cartId}/custom-cakes`, {
+    configuration,
+    quantity,
+  });
+  return response.data;
+}
+
+export async function updateCustomCakeQuantity(cartId, lineId, quantity) {
+  const response = await apiClient.put(`/cart/${cartId}/custom-cakes/${lineId}`, { quantity });
+  return response.data;
+}
+
+export async function removeCustomCake(cartId, lineId) {
+  const response = await apiClient.delete(`/cart/${cartId}/custom-cakes/${lineId}`);
+  return response.data;
+}
+
 export async function clearCart(cartId) {
   const response = await apiClient.delete(`/cart/${cartId}`);
   return await response.data;

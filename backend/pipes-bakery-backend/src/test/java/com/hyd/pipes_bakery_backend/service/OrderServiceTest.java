@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
@@ -236,6 +237,58 @@ class OrderServiceTest {
         assertThat(result.getItems().get(0).getUnitPriceAtPurchase()).isEqualByComparingTo(new BigDecimal("9500"));
         assertThat(result.getShippingCost()).isEqualByComparingTo(new BigDecimal("10000"));
         assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("29000"));
+    }
+
+    @Test
+    void shouldCarryCustomCakeLinesIntoCheckoutSnapshot() {
+        UUID cartId = UUID.randomUUID();
+        ShoppingCart cart = new ShoppingCart(cartId);
+        cart.addItem(new CartItem(1L, "Croissant", 1, new BigDecimal("9500"), "croissant.jpg"));
+        cart.addItem(CartItem.customCake("line-1", "Torta personalizada", 1, new BigDecimal("140000"), buildCakeDetails()));
+
+        when(cartStorage.getCart(cartId)).thenReturn(cart);
+
+        CheckoutSnapshot snapshot = orderService.buildCheckoutSnapshot(cartId, buildCheckoutRequest("Bogota", "Colombia", 110111));
+
+        assertThat(snapshot.getItems()).hasSize(2);
+        CheckoutSnapshot.Item cake = snapshot.getItems().get(1);
+        assertThat(cake.isCustomCakeLine()).isTrue();
+        assertThat(cake.getName()).isEqualTo("Torta personalizada");
+        assertThat(cake.getCustomCake().getFlavourId()).isEqualTo("chocolate");
+        assertThat(snapshot.getTotalAmount()).isEqualByComparingTo(new BigDecimal("159500"));
+    }
+
+    @Test
+    void shouldCreatePaidOrderWithCustomCakeWithoutLookingUpAProduct() {
+        CheckoutSnapshot snapshot = new CheckoutSnapshot(
+                buildCheckoutRequest("Bogota", "Colombia", 110111),
+                List.of(CheckoutSnapshot.Item.customCake("Torta personalizada", 2, new BigDecimal("140000"), buildCakeDetails())),
+                new BigDecimal("10000")
+        );
+
+        when(orderRepository.existsByPublicId(anyString())).thenReturn(false);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order result = orderService.createPaidOrder(snapshot);
+
+        assertThat(result.getItems()).hasSize(1);
+        assertThat(result.getItems().get(0).getProduct()).isNull();
+        assertThat(result.getItems().get(0).getItemName()).isEqualTo("Torta personalizada");
+        assertThat(result.getItems().get(0).getCustomCakeDetails().getDecorativeTiers()).isEqualTo(2);
+        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("290000"));
+        verify(productRepository, never()).findById(any());
+    }
+
+    private CustomCakeDetails buildCakeDetails() {
+        CustomCakeDetails details = new CustomCakeDetails();
+        details.setSizeId("M");
+        details.setSizeLabel("Mediana");
+        details.setFlavourId("chocolate");
+        details.setFlavourLabel("Chocolate");
+        details.setDecorativeTiers(2);
+        details.setColorId("fresa");
+        details.setColorLabel("Rosa fresa");
+        return details;
     }
 
     @Test

@@ -78,22 +78,63 @@
   color: var(--color-primary);
 }
 
-.hero button {
-  padding: 1.1rem 2.2rem;
-  background: var(--color-secondary-2);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  font-size: 1rem;
-  transition: all 0.3s ease;
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
 }
 
-.hero button:hover {
+.hero button {
+  padding: 1.1rem 2.2rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+/* Diseñar una torta es la accion principal de la web */
+.hero-primary {
+  background: var(--color-secondary-2);
+  color: white;
+  border: 1px solid transparent;
+  box-shadow: 0 14px 28px rgba(90, 45, 12, 0.18);
+}
+
+.hero-primary:hover {
   transform: translateY(-4px);
   background: color-mix(in srgb, var(--color-secondary-2) 90%, black);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  box-shadow: 0 18px 36px rgba(90, 45, 12, 0.24);
+}
+
+.hero-secondary {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-secondary-2) 45%, white);
+}
+
+.hero-secondary:hover {
+  transform: translateY(-4px);
+  background: var(--color-white);
+  box-shadow: 0 12px 26px rgba(90, 45, 12, 0.12);
+}
+
+.hero button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-secondary-2) 55%, white);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero button {
+    width: 100%;
+  }
 }
 
 .hero img {

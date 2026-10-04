@@ -2,6 +2,9 @@ package com.hyd.pipes_bakery_backend.dto.orderItem;
 
 import java.math.BigDecimal;
 
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
+import com.hyd.pipes_bakery_backend.model.CartItemType;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Linea de pedido devuelta por la API.")
@@ -17,6 +20,10 @@ public class OrderItemResponseDTO {
     private int quantity;
     @Schema(description = "Precio unitario aplicado en el momento de la compra.", example = "4.50")
     private BigDecimal unitPriceAtPurchase;
+    @Schema(description = "Tipo de linea: producto del catalogo o torta personalizada.", example = "PRODUCT")
+    private CartItemType type = CartItemType.PRODUCT;
+    @Schema(description = "Detalle de la torta personalizada; nulo para productos del catalogo.")
+    private CustomCakeDetails customCake;
 
     public OrderItemResponseDTO(long id, long productId, String productName, int quantity, BigDecimal unitPriceAtPurchase) {
         this.id = id;
@@ -55,5 +62,17 @@ public class OrderItemResponseDTO {
     }
     public void setProductName(String productName){
         this.productName = productName;
+    }
+    public CartItemType getType() {
+        return type;
+    }
+    public void setType(CartItemType type) {
+        this.type = type;
+    }
+    public CustomCakeDetails getCustomCake() {
+        return customCake;
+    }
+    public void setCustomCake(CustomCakeDetails customCake) {
+        this.customCake = customCake;
     }
 }

@@ -3,6 +3,7 @@ import { formatCOP } from "../utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import CartItemCard from "../components/shoppingCart/CartItemCard";
+import { getCartItemKey } from "../utils/customCake";
 
 import "../styles/global.css";
 import "../styles/shoppingCartPage.css";
@@ -54,7 +55,7 @@ function ShoppingCartPage() {
         {cart.items.map((item) => (
 
           <CartItemCard
-            key={item.productId}
+            key={getCartItemKey(item)}
             cartItem={item}
           />
 

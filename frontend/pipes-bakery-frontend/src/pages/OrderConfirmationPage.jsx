@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from "react-rout
 import { getPaymentStatus } from "../services/paymentService";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { formatCOP } from "../utils/formatPrice";
+import { describeCustomCake, isCustomCake } from "../utils/customCake";
 import "../styles/global.css";
 import "../styles/orderConfirmationPage.css";
 
@@ -101,6 +102,9 @@ const OrderConfirmationPage = () => {
                 <li key={item.id ?? item.productId} className="order-confirmation-item">
                   <div>
                     <span className="order-confirmation-item-name">{item.productName}</span>
+                    {isCustomCake(item) && (
+                      <span className="order-confirmation-item-meta">{describeCustomCake(item.customCake)}</span>
+                    )}
                     <span className="order-confirmation-item-meta">
                       {item.quantity} × ${formatCOP(item.unitPriceAtPurchase)}
                     </span>

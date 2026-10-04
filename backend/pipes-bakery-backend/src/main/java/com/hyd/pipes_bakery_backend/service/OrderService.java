@@ -120,7 +120,9 @@ public class OrderService implements IOrderService {
         }
 
         List<CheckoutSnapshot.Item> items = cart.getItems().stream()
-                .map(item -> new CheckoutSnapshot.Item(item.getProductId(), item.getQuantity(), item.getUnitPriceAtAdd()))
+                .map(item -> item.isCustomCakeLine()
+                        ? CheckoutSnapshot.Item.customCake(item.getProductName(), item.getQuantity(), item.getUnitPriceAtAdd(), item.getCustomCake())
+                        : new CheckoutSnapshot.Item(item.getProductId(), item.getQuantity(), item.getUnitPriceAtAdd()))
                 .toList();
 
         return new CheckoutSnapshot(request, items, cart.getShippingCost());
@@ -145,6 +147,10 @@ public class OrderService implements IOrderService {
 
         List<OrderItem> items = snapshot.getItems().stream()
                 .map(item -> {
+                    if (item.isCustomCakeLine()) {
+                        return OrderItem.customCake(item.getName(), item.getQuantity(), item.getUnitPrice(), item.getCustomCake());
+                    }
+
                     Product product = productRepository.findById(item.getProductId())
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
@@ -152,7 +158,9 @@ public class OrderService implements IOrderService {
                                     )
                             );
 
-                    return new OrderItem(product, item.getQuantity(), item.getUnitPrice());
+                    OrderItem orderItem = new OrderItem(product, item.getQuantity(), item.getUnitPrice());
+                    orderItem.setItemName(product.getName());
+                    return orderItem;
                 })
                 .toList();
 

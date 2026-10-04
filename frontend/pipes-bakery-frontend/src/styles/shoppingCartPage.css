@@ -134,6 +134,25 @@
   font-weight: 500;
 }
 
+.cart-item-detail {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #876a58;
+}
+
+.cart-item-cake-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-secondary) 18%, white);
+  color: var(--color-primary);
+  font-size: 1.6rem;
+}
+
 
 /* ===== PRICE ===== */
 

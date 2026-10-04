@@ -100,6 +100,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/payments/*/retry").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/payments/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/custom-cakes/options").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/custom-cakes/images").permitAll()
                         .requestMatchers("/api/clients", "/api/clients/**").hasRole("ADMIN")
                         .requestMatchers("/api/addresses", "/api/addresses/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

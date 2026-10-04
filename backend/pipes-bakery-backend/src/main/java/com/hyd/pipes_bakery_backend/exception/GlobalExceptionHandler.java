@@ -61,6 +61,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
+    // CUSTOM CAKE VALIDATION ERRORS (400)
+    @ExceptionHandler(InvalidCustomCakeException.class)
+    public ResponseEntity<ApiError> handleInvalidCustomCake(InvalidCustomCakeException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
     @ExceptionHandler(InvalidOrderStatusTransitionException.class)
     public ResponseEntity<ApiError> handleInvalidOrderStatusTransition(InvalidOrderStatusTransitionException ex) {
 
@@ -159,8 +173,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
-    @ExceptionHandler(LoginRateLimitException.class)
-    public ResponseEntity<ApiError> handleLoginRateLimit(LoginRateLimitException ex) {
+    @ExceptionHandler({LoginRateLimitException.class, UploadRateLimitException.class})
+    public ResponseEntity<ApiError> handleRateLimit(RuntimeException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.TOO_MANY_REQUESTS.value(),

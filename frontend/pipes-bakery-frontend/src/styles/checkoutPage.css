@@ -154,6 +154,12 @@
   color: #2f241f;
 }
 
+.item-detail {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: #876a58;
+}
+
 .item-quantity {
   margin: 0;
   font-size: 0.9rem;
