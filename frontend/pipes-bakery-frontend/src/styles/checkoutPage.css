@@ -194,6 +194,30 @@
   letter-spacing: -0.02em;
 }
 
+.checkout-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.checkout-consent input {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.1rem;
+  accent-color: #8c5a3d;
+  cursor: pointer;
+}
+
+.checkout-consent a {
+  color: #8c5a3d;
+  font-weight: 600;
+}
+
 .checkout-button {
   width: 100%;
   margin-top: 1.25rem;

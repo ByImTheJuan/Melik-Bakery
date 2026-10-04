@@ -227,227 +227,301 @@
 
 /*--------------------------------------------------FOOTER------------------------------------------------------------------*/
 
+/* Gold and espresso sampled from the logo: wheat ear and wordmark */
 .footer {
+  --footer-gold: #d4ad5c;
+  --footer-ink: var(--color-primary);
+  --footer-muted: color-mix(in srgb, var(--color-primary) 80%, var(--color-bg-2));
+  --footer-espresso: #3b1d08;
+  --footer-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
   position: relative;
-
-  background: linear-gradient(
-    to top,
-    #4a240a,
-    var(--color-primary)
-  );
-
-  color: white;
-
-  padding: 4rem 2rem 2rem;
-
-  text-align: center;
-
-  overflow: hidden;
+  background: var(--color-bg-2);
+  color: var(--footer-ink);
 }
 
-
-/* decorative line */
-
-.footer::before {
-  content: "";
-
-  position: absolute;
-
-  top: 2rem;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  width: 80px;
-  height: 2px;
-
-  background-color: var(--color-secondary-2);
-
-  opacity: 0.7;
-}
-
-
-/* ==================================================
-   CONTENT
-================================================== */
-
-.footer-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-
-/* ==================================================
-   TITLE
-================================================== */
-
-.footer-content h3 {
-  font-size: 2rem;
-  font-weight: 500;
-
-  margin-bottom: 2.5rem;
-
-  opacity: 0;
-  transform: translateY(10px);
-
-  transition: all 0.8s ease;
-}
-
-.footer.show .footer-content h3 {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-
-/* ==================================================
-   CONTACT LIST
-================================================== */
-
-.footer-contact-list {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1rem;
-
-  margin: 0 auto 2.5rem auto;
-
-  width: fit-content;
-
-  transform: translateX(12px);
-}
-
-
-/* ==================================================
-   CONTACT ITEM
-================================================== */
-
-.footer-contact-item {
+/* Opening ornament: the logo's gold rule with its centre diamond */
+.footer-ornament {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  gap: 0.9rem;
 
-  gap: 0.8rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
 
-  color: white;
-  text-decoration: none;
-
-  font-size: 1rem;
-  font-weight: 500;
-
-  opacity: 0;
-  transform: translateY(10px);
-
-  transition:
-    color 0.25s ease,
-    transform 0.25s ease;
+  transform: translateY(-50%);
 }
 
-.footer.show .footer-contact-item {
-  animation: footerFadeUp 0.5s ease forwards;
+.footer-ornament-line {
+  flex: 1;
+  height: 1px;
+  transform: scaleX(0.4);
+  transition: transform 1.4s var(--footer-ease);
 }
 
-
-/* stagger animation */
-
-.footer.show .footer-contact-item:nth-child(1) {
-  animation-delay: 0.2s;
+.footer-ornament-line:first-child {
+  background: linear-gradient(to left, var(--footer-gold) 45%, transparent);
+  transform-origin: right center;
 }
 
-.footer.show .footer-contact-item:nth-child(2) {
-  animation-delay: 0.35s;
+.footer-ornament-line:last-child {
+  background: linear-gradient(to right, var(--footer-gold) 45%, transparent);
+  transform-origin: left center;
 }
 
-.footer.show .footer-contact-item:nth-child(3) {
-  animation-delay: 0.5s;
+.footer-ornament-diamond {
+  width: 9px;
+  height: 9px;
+  background: var(--footer-gold);
+  transform: rotate(45deg);
 }
 
-.footer.show .footer-contact-item:nth-child(4) {
-  animation-delay: 0.65s;
+.footer.show .footer-ornament-line {
+  transform: scaleX(1);
 }
 
+/* ---------- main row ---------- */
 
-.footer-contact-item svg {
-  font-size: 1.3rem;
-  color: var(--color-secondary-2);
-  width: 24px;
-  min-width: 24px;
+.footer-main {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  align-items: start;
+  gap: 3rem;
 
-  text-align: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.75rem 2rem 3.5rem;
 }
 
-
-.footer-contact-item:hover {
-  transform: translateY(-3px);
-  color: var(--color-secondary-2);
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
-
-/* ==================================================
-   LOCATION
-================================================== */
+.footer-logo {
+  width: 150px;
+  height: auto;
+}
 
 .footer-location {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 0.45rem;
+  margin: 0;
 
-  gap: 0.5rem;
-
-  margin-bottom: 2rem;
-
-  opacity: 0.85;
-
+  color: var(--footer-muted);
   font-size: 0.95rem;
 }
 
 .footer-location svg {
-  color: var(--color-secondary-2);
+  font-size: 0.95rem;
 }
 
+.footer-column h2 {
+  margin: 0.5rem 0 1.5rem;
 
-/* ==================================================
-   COPYRIGHT
-================================================== */
+  color: var(--footer-ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  color: var(--footer-ink);
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.footer-link-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  width: 2.6rem;
+  height: 2.6rem;
+
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border-radius: 50%;
+
+  font-size: 1.15rem;
+
+  transition: background-color 0.3s var(--footer-ease), color 0.3s var(--footer-ease),
+    border-color 0.3s var(--footer-ease);
+}
+
+.footer-link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.footer-link-label {
+  color: var(--footer-muted);
+  font-size: 0.82rem;
+}
+
+.footer-link-value {
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+
+  transition: text-decoration-color 0.3s var(--footer-ease);
+}
+
+.footer-link:hover .footer-link-icon,
+.footer-link:focus-visible .footer-link-icon {
+  background: var(--footer-ink);
+  border-color: var(--footer-ink);
+  color: var(--color-bg-2);
+}
+
+.footer-link:hover .footer-link-value,
+.footer-link:focus-visible .footer-link-value {
+  text-decoration-color: var(--footer-gold);
+}
+
+.footer-link:focus-visible {
+  outline: 2px solid var(--footer-ink);
+  outline-offset: 6px;
+}
+
+/* ---------- legal bar ---------- */
+
+.footer-bottom {
+  background: var(--footer-espresso);
+  color: color-mix(in srgb, var(--color-bg-2) 78%, transparent);
+}
+
+.footer-bottom-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 2rem;
+
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.1rem 2rem;
+
+  font-size: 0.82rem;
+}
 
 .footer-copy {
-  font-size: 0.9rem;
-  opacity: 0.7;
+  margin: 0;
+}
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.75rem;
+}
+
+.footer-legal a {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  border-radius: 4px;
+
+  transition: color 0.25s var(--footer-ease);
+}
+
+.footer-legal a:hover,
+.footer-legal a:focus-visible {
+  color: var(--footer-gold);
+  text-decoration: underline;
+}
+
+.footer-legal a:focus-visible {
+  outline: 2px solid var(--footer-gold);
+  outline-offset: 3px;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 860px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 2rem;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    align-items: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-ornament {
+    padding: 0 1rem;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    padding: 2.25rem 1.5rem 2.75rem;
+    text-align: center;
+  }
+
+  .footer-logo {
+    width: 124px;
+  }
+
+  .footer-column h2 {
+    margin: 0 0 1.1rem;
+  }
+
+  /* Centre the list as a block but keep its icons on one vertical axis */
+  .footer-links {
+    width: fit-content;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .footer-bottom-inner {
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.1rem 1.5rem 1.4rem;
+    text-align: center;
+  }
+
+  .footer-legal {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-ornament-line {
+    transform: none;
+    transition: none;
+  }
 }
 
 
-/* ==================================================
-   ANIMATIONS
-================================================== */
-
-@keyframes footerFadeUp {
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-}
-
-
-/* ==================================================
-   RESPONSIVE
-================================================== */
-
-@media (max-width: 768px) {
-
-  .footer {
-    padding: 3rem 1.5rem 2rem;
-  }
-
-  .footer-content h3 {
-    font-size: 1.7rem;
-  }
-
-  .footer-contact-item {
-    font-size: 0.95rem;
-  }
-
-}
 /* Fallback while a lazy-loaded page (e.g. the 3D cake builder) downloads */
 .route-loading {
   display: grid;

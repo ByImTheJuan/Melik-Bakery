@@ -54,4 +54,29 @@ describe("OrderSummary", () => {
     expect(screen.getByText("El email es obligatorio.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Procesando..." })).toBeDisabled();
   });
+
+  it("renders the data consent checkbox linked to the privacy policy", () => {
+    const onDataConsentChange = vi.fn();
+
+    render(
+      <OrderSummary
+        cart={cart}
+        onCheckout={vi.fn()}
+        loading={false}
+        dataConsent={false}
+        onDataConsentChange={onDataConsentChange}
+      />
+    );
+
+    const checkbox = screen.getByRole("checkbox", { name: /Autorizo a HYD S.A.S./ });
+    expect(checkbox).not.toBeChecked();
+    expect(screen.getByRole("link", { name: "Política de Privacidad" })).toHaveAttribute(
+      "href",
+      "/politica-de-privacidad"
+    );
+
+    fireEvent.click(checkbox);
+
+    expect(onDataConsentChange).toHaveBeenCalledWith(true);
+  });
 });

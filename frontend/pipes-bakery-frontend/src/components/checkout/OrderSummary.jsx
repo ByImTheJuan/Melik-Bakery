@@ -2,7 +2,14 @@ import CartSummaryItem from "../shoppingCart/CartSummaryItem";
 import { formatCOP } from "../../utils/formatPrice.js";
 import { getCartItemKey } from "../../utils/customCake.js";
 
-const OrderSummary = ({ cart, onCheckout, loading, errors = [] }) => {
+const OrderSummary = ({
+  cart,
+  onCheckout,
+  loading,
+  errors = [],
+  dataConsent = false,
+  onDataConsentChange = () => {},
+}) => {
   const itemsTotal = cart.itemsTotal || 0;
   const shippingCost = cart.shippingCost || 0;
   const total = cart.totalPrice || 0;
@@ -48,6 +55,23 @@ const OrderSummary = ({ cart, onCheckout, loading, errors = [] }) => {
           </ul>
         </div>
       )}
+
+      <label className="checkout-consent">
+        <input
+          type="checkbox"
+          checked={dataConsent}
+          onChange={(event) => onDataConsentChange(event.target.checked)}
+        />
+        <span>
+          Autorizo a HYD S.A.S. el tratamiento de mis datos personales, incluidos
+          los datos sobre restricciones alimentarias que indique, conforme a la{" "}
+          {/* New tab so the customer doesn't lose the filled-in form */}
+          <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">
+            Política de Privacidad
+          </a>
+          .
+        </span>
+      </label>
 
       <button className="checkout-button" onClick={onCheckout} disabled={loading}>
         {loading ? "Procesando..." : "Confirmar pedido"}

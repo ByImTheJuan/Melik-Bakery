@@ -112,6 +112,9 @@ describe("CheckoutPage", () => {
 
     expect(await screen.findByText("El nombre es obligatorio.")).toBeInTheDocument();
     expect(screen.getByText("Elige la fecha y la franja de entrega.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Debes autorizar el tratamiento de tus datos personales para continuar.")
+    ).toBeInTheDocument();
     expect(cartService.checkoutCart).not.toHaveBeenCalled();
   });
 
@@ -149,6 +152,7 @@ describe("CheckoutPage", () => {
       target: { value: "110111" },
     });
 
+    fireEvent.click(screen.getByRole("checkbox", { name: /Autorizo a HYD S.A.S./ }));
     fireEvent.click(screen.getByRole("button", { name: "Confirmar pedido" }));
 
     await waitFor(() => {
@@ -270,6 +274,7 @@ describe("CheckoutPage", () => {
       target: { value: "110111" },
     });
 
+    fireEvent.click(screen.getByRole("checkbox", { name: /Autorizo a HYD S.A.S./ }));
     fireEvent.click(screen.getByRole("button", { name: "Confirmar pedido" }));
 
     expect(await screen.findByText("No se pudo iniciar el pago.")).toBeInTheDocument();
