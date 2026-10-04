@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
+import com.hyd.pipes_bakery_backend.dto.payment.RetryPaymentRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentStatusResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.WompiWebhookEventDTO;
 import com.hyd.pipes_bakery_backend.exception.ApiError;
@@ -45,12 +46,17 @@ public class PaymentController {
                     content = @Content(schema = @Schema(implementation = PaymentSessionResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Intento de pago no encontrado",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "400", description = "La nueva fecha de entrega no es valida",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "409", description = "El intento de pago no ha fallado y no puede reintentarse",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "422", description = "La fecha de entrega original ya no cumple el plazo minimo: hay que elegir otra",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public PaymentSessionResponseDTO retry(
-            @Parameter(description = "Referencia del intento de pago", example = "MB-AB12CD34EF56") @NonNull @PathVariable String reference) {
-        return paymentService.retryPayment(reference);
+            @Parameter(description = "Referencia del intento de pago", example = "MB-AB12CD34EF56") @NonNull @PathVariable String reference,
+            @RequestBody(required = false) RetryPaymentRequestDTO newDelivery) {
+        return paymentService.retryPayment(reference, newDelivery);
     }
 
     //GET /api/payments/{reference}

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,6 +30,7 @@ public class ImageStorageService implements IImageStorageService {
     );
 
     private static final int MAX_BASE_NAME_LENGTH = 50;
+    private static final Pattern SAFE_SEGMENT = Pattern.compile("^[a-z0-9-]{1,30}$");
 
     private final ImageProperties imageProperties;
 
@@ -38,18 +40,44 @@ public class ImageStorageService implements IImageStorageService {
 
     @Override
     public String store(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new InvalidImageException("Image file is required");
-        }
-
+        validatePresent(file);
         String extension = resolveExtension(file);
         String fileName = buildFileName(file.getOriginalFilename(), extension);
 
+        write(file, imagesDirectory(), fileName);
+        return fileName;
+    }
+
+    @Override
+    public String store(MultipartFile file, String subdirectory, String baseName) {
+        validatePresent(file);
+        if (!SAFE_SEGMENT.matcher(subdirectory).matches() || !SAFE_SEGMENT.matcher(baseName).matches()) {
+            throw new InvalidImageException("Invalid image location");
+        }
+
+        String extension = resolveExtension(file);
+        // The customer's original file name is never kept: it may contain personal data
+        String fileName = baseName + "-" + UUID.randomUUID().toString().replace("-", "") + "." + extension;
+
+        write(file, imagesDirectory().resolve(subdirectory).normalize(), fileName);
+        return subdirectory + "/" + fileName;
+    }
+
+    private void validatePresent(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new InvalidImageException("Image file is required");
+        }
+    }
+
+    private Path imagesDirectory() {
+        return Paths.get(imageProperties.getPath()).toAbsolutePath().normalize();
+    }
+
+    private void write(MultipartFile file, Path directory, String fileName) {
         try {
-            Path directory = Paths.get(imageProperties.getPath()).toAbsolutePath().normalize();
             Path target = directory.resolve(fileName).normalize();
 
-            if (!target.getParent().equals(directory)) {
+            if (!target.getParent().equals(directory) || !directory.startsWith(imagesDirectory())) {
                 throw new InvalidImageException("Invalid image file name");
             }
 
@@ -61,8 +89,6 @@ public class ImageStorageService implements IImageStorageService {
         } catch (IOException ex) {
             throw new ImageStorageException("Could not store image file", ex);
         }
-
-        return fileName;
     }
 
     private String resolveExtension(MultipartFile file) {

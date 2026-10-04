@@ -1,6 +1,6 @@
 ---
 name: Melik Bakery
-description: Postres de autor horneados con amor. Warm, personal storefront for a one-person artisan bakery in Bogotá.
+description: Postres de autor horneados con amor. Crea tu torta perfecta para cumpleaños, bodas, comuniones y cualquier ocasión especial. Warm, personal storefront for a one-person artisan bakery in Bogotá.
 colors:
   roasted-cacao: "#5a2d0c"
   caramel-glaze: "#c68642"
@@ -213,6 +213,15 @@ Soft, warm and tactile.
 
 ### Order Detail Card (signature)
 The confirmation pattern: a Toffee check-mark seal (52px circle, white 2.25 stroke, lift shadow; 44px on mobile) beside the headline → full-width reassurance paragraph → auto-fit grid of label/value tiles with the order number on its own full row in large tracked tabular digits, then customer and email → itemised summary panel with tabular amounts (product, quantity × unit price, line total, then subtotal, shipping and a bold "Total pagado") → two actions (primary + secondary).
+
+### Cake Builder (signature)
+The personalization page ("Diseña tu torta", `/personalizar`) is the site's main attraction and the hero's primary action. Title block and a three-step stepper share the top row; below, a two-column stage: the live 3D cake on the left (sticky, 24px card on a cream radial glow, a pill caption with size · tiers · flavour) and the options panel on the right (cream gradient card).
+- **Stepper:** numbered 40px circles joined by a 2px Toffee-tint line. Current step is a solid Toffee circle with a soft halo; completed steps turn into a check and stay clickable; the line fills Toffee as the customer advances.
+- **Option fields:** stacked accordion rows (translucent white, 16px) showing the field name and current choice; only one is open at a time. Options are white 14px cards with a 1px Toffee-tint border; the selected one gets a Toffee border, a faint caramel wash and a 3px Toffee halo. Cards carry small drawn glyphs (diameter to scale, sponge cross-section, stacked tiers) instead of icons.
+- **Cake glyphs:** size and tier cards carry a tiny side view of the cake drawn to scale (one bar per tier, cream with a Toffee edge); decorative (fake) tiers are drawn dashed, with a legend, so it's clear they only add height.
+- **Dietary question:** a compact always-visible row above the size ("¿Alguna restricción alimentaria?" with No/Sí pills, Toffee when selected); "Sí" reveals a text field. Continuing without an answer outlines the row in Error Red with a plain-language message. In the admin order view a restriction is shown first, on a red-tinted strip.
+- **Colours on the cake** stay soft and kitchen-made (cream, vanilla, strawberry pink, caramel, chocolate, pistachio, lavender) even though the product itself is colourful.
+- **3D scene:** warm studio light (no remote HDR), brown-tinted contact shadow, glazed ceramic stand, and a served slice on a plate that shows the chosen sponge and filling. Changes ease in (no snapping); the cake slowly turns until the customer drags it, and stops for reduced motion.
 
 ## Do's and Don'ts
 

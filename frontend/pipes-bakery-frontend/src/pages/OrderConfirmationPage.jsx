@@ -3,6 +3,8 @@ import { useLocation, useNavigate, useParams, useSearchParams } from "react-rout
 import { getPaymentStatus } from "../services/paymentService";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { formatCOP } from "../utils/formatPrice";
+import { describeCustomCake, isCustomCake } from "../utils/customCake";
+import { formatDeliveryDate, slotLabel, slotPhrase } from "../utils/delivery";
 import "../styles/global.css";
 import "../styles/orderConfirmationPage.css";
 
@@ -62,7 +64,9 @@ const OrderConfirmationPage = () => {
           <h1>Tu pedido ha sido completado con éxito</h1>
         </div>
         <p className="order-confirmation-text">
-          Ya recibimos tu pago y comenzaremos a preparar tu pedido lo antes posible.
+          {order?.deliveryDate
+            ? `Ya recibimos tu pago. Prepararemos tu pedido para entregarlo el ${formatDeliveryDate(order.deliveryDate)} ${slotPhrase(order.deliverySlot)}.`
+            : "Ya recibimos tu pago y comenzaremos a preparar tu pedido."}
         </p>
 
         <div className="order-confirmation-details">
@@ -84,6 +88,15 @@ const OrderConfirmationPage = () => {
                 <span className="order-confirmation-label">Email</span>
                 <strong className="order-confirmation-email">{order.clientEmail}</strong>
               </div>
+
+              {order.deliveryDate && (
+                <div>
+                  <span className="order-confirmation-label">Entrega</span>
+                  <strong>
+                    {formatDeliveryDate(order.deliveryDate, { withYear: false })} · {slotLabel(order.deliverySlot)}
+                  </strong>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -101,6 +114,9 @@ const OrderConfirmationPage = () => {
                 <li key={item.id ?? item.productId} className="order-confirmation-item">
                   <div>
                     <span className="order-confirmation-item-name">{item.productName}</span>
+                    {isCustomCake(item) && (
+                      <span className="order-confirmation-item-meta">{describeCustomCake(item.customCake)}</span>
+                    )}
                     <span className="order-confirmation-item-meta">
                       {item.quantity} × ${formatCOP(item.unitPriceAtPurchase)}
                     </span>

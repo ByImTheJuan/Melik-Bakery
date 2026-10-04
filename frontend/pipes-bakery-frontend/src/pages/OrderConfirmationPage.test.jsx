@@ -52,6 +52,19 @@ describe("OrderConfirmationPage", () => {
     expect(paymentService.getPaymentStatus).not.toHaveBeenCalled();
   });
 
+  it("tells the customer the delivery date and slot they chose", () => {
+    renderPage({
+      pathname: "/order/success/ABC123",
+      state: { order: { ...order, deliveryDate: "2026-10-10", deliverySlot: "MORNING" } },
+    });
+
+    expect(
+      screen.getByText("Ya recibimos tu pago. Prepararemos tu pedido para entregarlo el sábado, 10 de octubre de 2026 en la mañana.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("sábado, 10 de octubre · Mañana")).toBeInTheDocument();
+    expect(screen.queryByText(/lo antes posible/)).not.toBeInTheDocument();
+  });
+
   it("reloads the order from the payment reference after a page refresh", async () => {
     paymentService.getPaymentStatus.mockResolvedValue({ status: "APPROVED", orderId: "ABC123", order });
 

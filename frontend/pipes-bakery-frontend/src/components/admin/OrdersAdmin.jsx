@@ -6,6 +6,9 @@ import {
   ADMIN_NEXT_STATUS,
 } from "../../services/orderService";
 import { formatCOP } from "../../utils/formatPrice";
+import { getProductImageUrl } from "../../utils/productImage";
+import { formatDecorativeTiers, formatServings, isCustomCake } from "../../utils/customCake";
+import { formatDeliveryDate, slotLabel } from "../../utils/delivery";
 import "../../styles/ordersAdmin.css";
 
 function formatDate(dateValue) {
@@ -13,6 +16,48 @@ function formatDate(dateValue) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(dateValue));
+}
+
+// Everything the baker needs to make a personalized cake
+function CustomCakeSpec({ details }) {
+  if (!details) {
+    return null;
+  }
+
+  const rows = [
+    ["Tamaño", [details.sizeLabel, details.sizeDescription, formatServings(details.servings)].filter(Boolean).join(" · ")],
+    ["Sabor", details.flavourLabel],
+    ["Pisos", formatDecorativeTiers(details.decorativeTiers)],
+    ["Color", details.colorLabel],
+    ["Texto", details.text ? `“${details.text}”` : null],
+    ["Decoración", details.extraLabels?.length ? details.extraLabels.join(", ") : null],
+    ["Notas", details.notes],
+  ].filter(([, value]) => value);
+
+  return (
+    <div className="orders-admin-cake">
+      {/* Allergies first: the baker must not miss them */}
+      <p className={`orders-admin-dietary${details.hasDietaryRestrictions ? " has-restrictions" : ""}`}>
+        {details.hasDietaryRestrictions
+          ? `Restricción alimentaria: ${details.dietaryRestrictions}`
+          : "Sin restricciones alimentarias"}
+      </p>
+      <dl>
+        {rows.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {details.imageFile && (
+        <a href={getProductImageUrl(details.imageFile)} target="_blank" rel="noreferrer" className="orders-admin-cake-photo">
+          <img src={getProductImageUrl(details.imageFile)} alt="Foto para imprimir en la torta" />
+          <span>Ver foto para imprimir</span>
+        </a>
+      )}
+    </div>
+  );
 }
 
 export default function OrdersAdmin() {
@@ -147,7 +192,11 @@ export default function OrdersAdmin() {
                   </p>
 
                   <div className="orders-admin-list-meta">
-                    <span>{formatDate(order.createdAt)}</span>
+                    <span>
+                      {order.deliveryDate
+                        ? `Entrega: ${formatDeliveryDate(order.deliveryDate, { withYear: false })} · ${slotLabel(order.deliverySlot)}`
+                        : formatDate(order.createdAt)}
+                    </span>
                     <span>${formatCOP(order.totalAmount)}</span>
                   </div>
                 </button>
@@ -189,6 +238,15 @@ export default function OrdersAdmin() {
                 </div>
 
                 <div>
+                  <span className="orders-admin-label">Entrega</span>
+                  <strong>
+                    {selectedOrder.deliveryDate
+                      ? `${formatDeliveryDate(selectedOrder.deliveryDate)} · ${slotLabel(selectedOrder.deliverySlot)}`
+                      : "Sin fecha (pedido anterior)"}
+                  </strong>
+                </div>
+
+                <div>
                   <span className="orders-admin-label">Creado</span>
                   <strong>{formatDate(selectedOrder.createdAt)}</strong>
                 </div>
@@ -226,6 +284,7 @@ export default function OrdersAdmin() {
                       <div>
                         <strong>{item.productName}</strong>
                         <p>Cantidad: {item.quantity}</p>
+                        {isCustomCake(item) && <CustomCakeSpec details={item.customCake} />}
                       </div>
                       <span>${formatCOP(item.unitPriceAtPurchase)}</span>
                     </article>

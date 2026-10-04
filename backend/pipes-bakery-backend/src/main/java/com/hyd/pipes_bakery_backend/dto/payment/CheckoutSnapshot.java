@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
+import com.hyd.pipes_bakery_backend.model.CartItemType;
 
 /**
  * Everything needed to build an order once its payment is approved: the customer and
@@ -65,6 +67,10 @@ public class CheckoutSnapshot {
         private long productId;
         private int quantity;
         private BigDecimal unitPrice;
+        // Both null on snapshots taken before custom cakes existed: those only hold products
+        private CartItemType type;
+        private String name;
+        private CustomCakeDetails customCake;
 
         public Item() {
         }
@@ -73,6 +79,43 @@ public class CheckoutSnapshot {
             this.productId = productId;
             this.quantity = quantity;
             this.unitPrice = unitPrice;
+        }
+
+        public static Item customCake(String name, int quantity, BigDecimal unitPrice, CustomCakeDetails details) {
+            Item item = new Item(0L, quantity, unitPrice);
+            item.type = CartItemType.CUSTOM_CAKE;
+            item.name = name;
+            item.customCake = details;
+            return item;
+        }
+
+        public CartItemType getType() {
+            return type == null ? CartItemType.PRODUCT : type;
+        }
+
+        public void setType(CartItemType type) {
+            this.type = type;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public CustomCakeDetails getCustomCake() {
+            return customCake;
+        }
+
+        public void setCustomCake(CustomCakeDetails customCake) {
+            this.customCake = customCake;
+        }
+
+        @JsonIgnore
+        public boolean isCustomCakeLine() {
+            return getType() == CartItemType.CUSTOM_CAKE;
         }
 
         public long getProductId() {

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
@@ -20,6 +20,12 @@ vi.mock("react-router-dom", async () => {
 vi.mock("../hooks/useCart", () => ({
   useCart: vi.fn(),
 }));
+
+// Pin "today" (Bogota): the earliest delivery is then 8 Oct
+vi.mock("../utils/delivery", async () => {
+  const actual = await vi.importActual("../utils/delivery");
+  return { ...actual, bakeryToday: () => "2026-10-04" };
+});
 
 vi.mock("../services/paymentService", () => ({
   getPaymentStatus: vi.fn(),
@@ -104,7 +110,45 @@ describe("PaymentResultPage", () => {
     await waitFor(() => {
       expect(window.location.href).toBe("https://checkout.wompi.co/p/?reference=MB-NEW");
     });
-    expect(paymentService.retryPayment).toHaveBeenCalledWith("MB-REF");
+    expect(paymentService.retryPayment).toHaveBeenCalledWith("MB-REF", undefined);
+  });
+
+  it("asks for a new delivery date when the original one is now too close, then retries with it", async () => {
+    paymentService.getPaymentStatus.mockResolvedValue({ status: "FAILED", orderId: null });
+    paymentService.retryPayment
+      .mockRejectedValueOnce({ response: { status: 422, data: { message: "The delivery date is no longer available" } } })
+      .mockResolvedValueOnce({ checkoutUrl: "https://checkout.wompi.co/p/?reference=MB-NEW", reference: "MB-NEW" });
+
+    renderPage();
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Reintentar pago" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "¿Cuándo quieres recibir tu pedido?" });
+    expect(within(dialog).getByRole("alert")).toHaveTextContent("ya no está disponible");
+    expect(window.location.href).toBe("");
+
+    await user.click(within(dialog).getByRole("button", { name: "viernes, 9 de octubre de 2026" }));
+    await user.click(within(dialog).getByRole("button", { name: "Mañana" }));
+
+    await waitFor(() => {
+      expect(window.location.href).toBe("https://checkout.wompi.co/p/?reference=MB-NEW");
+    });
+    expect(paymentService.retryPayment).toHaveBeenLastCalledWith("MB-REF", { date: "2026-10-09", slot: "MORNING" });
+  });
+
+  it("lets the customer close the new-date window and stay on the failure page", async () => {
+    paymentService.getPaymentStatus.mockResolvedValue({ status: "FAILED", orderId: null });
+    paymentService.retryPayment.mockRejectedValue({ response: { status: 422, data: {} } });
+
+    renderPage();
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Reintentar pago" }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Cerrar" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reintentar pago" })).toBeEnabled();
   });
 
   it("shows an error if the retry cannot be started", async () => {

@@ -57,7 +57,15 @@ export default function Navbar() {
               Inicio
             </button>
 
-            <Link 
+            <Link
+              to="/personalizar"
+              onClick={closeMenu}
+              className={location.pathname.startsWith("/personalizar") ? "active" : ""}
+            >
+              Personaliza tu torta
+            </Link>
+
+            <Link
               to="/products"
               onClick={closeMenu}
               className={location.pathname.startsWith("/products") ? "active" : ""}

@@ -1,6 +1,9 @@
 package com.hyd.pipes_bakery_backend.service;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,17 +24,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.hyd.pipes_bakery_backend.dto.address.AddressSnapshotDTO;
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.OrderResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
 import com.hyd.pipes_bakery_backend.exception.CartIsEmptyException;
 import com.hyd.pipes_bakery_backend.exception.InvalidAddressException;
+import com.hyd.pipes_bakery_backend.exception.InvalidDeliveryDateException;
 import com.hyd.pipes_bakery_backend.exception.InvalidOrderStatusTransitionException;
 import com.hyd.pipes_bakery_backend.exception.ResourceNotFoundException;
 import com.hyd.pipes_bakery_backend.mapper.AddressMapper;
 import com.hyd.pipes_bakery_backend.mapper.OrderItemMapper;
 import com.hyd.pipes_bakery_backend.mapper.OrderMapper;
 import com.hyd.pipes_bakery_backend.model.CartItem;
+import com.hyd.pipes_bakery_backend.model.DeliverySlot;
 import com.hyd.pipes_bakery_backend.model.Order;
 import com.hyd.pipes_bakery_backend.model.OrderStatus;
 import com.hyd.pipes_bakery_backend.model.Product;
@@ -59,7 +65,9 @@ class OrderServiceTest {
     void setUp() {
         AddressMapper addressMapper = new AddressMapper();
         OrderMapper orderMapper = new OrderMapper(new OrderItemMapper(), addressMapper);
-        orderService = new OrderService(orderRepository, productRepository, cartStorage, orderMapper, addressMapper);
+        // 22:00 on 4 Oct in Bogota, already 5 Oct in UTC: "today" must be the Bogota date
+        Clock clock = Clock.fixed(Instant.parse("2026-10-05T03:00:00Z"), OrderService.BAKERY_ZONE);
+        orderService = new OrderService(orderRepository, productRepository, cartStorage, orderMapper, addressMapper, clock);
     }
 
     @Test
@@ -239,6 +247,115 @@ class OrderServiceTest {
     }
 
     @Test
+    void shouldCarryCustomCakeLinesIntoCheckoutSnapshot() {
+        UUID cartId = UUID.randomUUID();
+        ShoppingCart cart = new ShoppingCart(cartId);
+        cart.addItem(new CartItem(1L, "Croissant", 1, new BigDecimal("9500"), "croissant.jpg"));
+        cart.addItem(CartItem.customCake("line-1", "Torta personalizada", 1, new BigDecimal("140000"), buildCakeDetails()));
+
+        when(cartStorage.getCart(cartId)).thenReturn(cart);
+
+        CheckoutSnapshot snapshot = orderService.buildCheckoutSnapshot(cartId, buildCheckoutRequest("Bogota", "Colombia", 110111));
+
+        assertThat(snapshot.getItems()).hasSize(2);
+        CheckoutSnapshot.Item cake = snapshot.getItems().get(1);
+        assertThat(cake.isCustomCakeLine()).isTrue();
+        assertThat(cake.getName()).isEqualTo("Torta personalizada");
+        assertThat(cake.getCustomCake().getFlavourId()).isEqualTo("chocolate");
+        assertThat(snapshot.getTotalAmount()).isEqualByComparingTo(new BigDecimal("159500"));
+    }
+
+    @Test
+    void shouldCreatePaidOrderWithCustomCakeWithoutLookingUpAProduct() {
+        CheckoutSnapshot snapshot = new CheckoutSnapshot(
+                buildCheckoutRequest("Bogota", "Colombia", 110111),
+                List.of(CheckoutSnapshot.Item.customCake("Torta personalizada", 2, new BigDecimal("140000"), buildCakeDetails())),
+                new BigDecimal("10000")
+        );
+
+        when(orderRepository.existsByPublicId(anyString())).thenReturn(false);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order result = orderService.createPaidOrder(snapshot);
+
+        assertThat(result.getItems()).hasSize(1);
+        assertThat(result.getItems().get(0).getProduct()).isNull();
+        assertThat(result.getItems().get(0).getItemName()).isEqualTo("Torta personalizada");
+        assertThat(result.getItems().get(0).getCustomCakeDetails().getDecorativeTiers()).isEqualTo(2);
+        assertThat(result.getTotalAmount()).isEqualByComparingTo(new BigDecimal("290000"));
+        verify(productRepository, never()).findById(any());
+    }
+
+    private CustomCakeDetails buildCakeDetails() {
+        CustomCakeDetails details = new CustomCakeDetails();
+        details.setSizeId("M");
+        details.setSizeLabel("Mediana");
+        details.setFlavourId("chocolate");
+        details.setFlavourLabel("Chocolate");
+        details.setDecorativeTiers(2);
+        details.setColorId("fresa");
+        details.setColorLabel("Rosa fresa");
+        return details;
+    }
+
+    @Test
+    void shouldAcceptDeliveriesFromFourDaysAfterTodayInBogota() {
+        UUID cartId = UUID.randomUUID();
+        ShoppingCart cart = new ShoppingCart(cartId);
+        cart.addItem(new CartItem(1L, "Croissant", 1, new BigDecimal("9500"), "croissant.jpg"));
+        when(cartStorage.getCart(cartId)).thenReturn(cart);
+
+        CheckoutOrderRequestDTO request = buildCheckoutRequest("Bogota", "Colombia", 110111);
+        request.setDeliveryDate(LocalDate.of(2026, 10, 8));
+
+        CheckoutSnapshot snapshot = orderService.buildCheckoutSnapshot(cartId, request);
+
+        assertThat(snapshot.getRequest().getDeliveryDate()).isEqualTo(LocalDate.of(2026, 10, 8));
+    }
+
+    @Test
+    void shouldRejectDeliveriesLessThanFourDaysAway() {
+        CheckoutOrderRequestDTO request = buildCheckoutRequest("Bogota", "Colombia", 110111);
+        request.setDeliveryDate(LocalDate.of(2026, 10, 7));
+
+        assertThatThrownBy(() -> orderService.buildCheckoutSnapshot(UUID.randomUUID(), request))
+                .isInstanceOf(InvalidDeliveryDateException.class)
+                .hasMessage("Delivery date must be at least 4 days from today");
+        verify(cartStorage, never()).getCart(any());
+    }
+
+    @Test
+    void shouldRejectMissingOrTooDistantDeliveryDates() {
+        CheckoutOrderRequestDTO missing = buildCheckoutRequest("Bogota", "Colombia", 110111);
+        missing.setDeliveryDate(null);
+        assertThatThrownBy(() -> orderService.buildCheckoutSnapshot(UUID.randomUUID(), missing))
+                .isInstanceOf(InvalidDeliveryDateException.class)
+                .hasMessage("Delivery date is required");
+
+        CheckoutOrderRequestDTO tooFar = buildCheckoutRequest("Bogota", "Colombia", 110111);
+        tooFar.setDeliveryDate(LocalDate.of(2026, 10, 4).plusDays(91));
+        assertThatThrownBy(() -> orderService.buildCheckoutSnapshot(UUID.randomUUID(), tooFar))
+                .isInstanceOf(InvalidDeliveryDateException.class)
+                .hasMessage("Delivery date must be within the next 90 days");
+    }
+
+    @Test
+    void shouldSaveTheDeliveryDateAndSlotOnThePaidOrder() {
+        CheckoutSnapshot snapshot = new CheckoutSnapshot(
+                buildCheckoutRequest("Bogota", "Colombia", 110111),
+                List.of(CheckoutSnapshot.Item.customCake("Torta personalizada", 1, new BigDecimal("140000"), buildCakeDetails())),
+                new BigDecimal("10000")
+        );
+        when(orderRepository.existsByPublicId(anyString())).thenReturn(false);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order order = orderService.createPaidOrder(snapshot);
+
+        assertThat(order.getDeliveryDate()).isEqualTo(LocalDate.of(2026, 10, 9));
+        assertThat(order.getDeliverySlot()).isEqualTo(DeliverySlot.AFTERNOON);
+    }
+
+    @Test
     void shouldThrowWhenCheckoutCartIsEmpty() {
         UUID cartId = UUID.randomUUID();
         ShoppingCart cart = new ShoppingCart(cartId);
@@ -271,6 +388,8 @@ class OrderServiceTest {
         request.setClientEmail("felipe@melik.com");
         request.setClientPhoneNumber("3001234567");
         request.setReceiverName("Laura");
+        request.setDeliveryDate(LocalDate.of(2026, 10, 9));
+        request.setDeliverySlot(DeliverySlot.AFTERNOON);
         request.setShippingAddress(new AddressSnapshotDTO("Calle 123", "Apto 1", city, zipCode, country));
         return request;
     }

@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import com.hyd.pipes_bakery_backend.dto.customcake.AddCustomCakeRequestDTO;
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.ShoppingCartResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.UpdateCartItemQuantityRequestDTO;
@@ -20,14 +22,19 @@ import com.hyd.pipes_bakery_backend.storage.CartStorage;
 @Service
 public class ShoppingCartService implements IShoppingCartService {
 
+    public static final String CUSTOM_CAKE_NAME = "Torta personalizada";
+
     private final CartStorage cartStorage;
     private final ProductRepository productRepository;
+    private final ICustomCakeService customCakeService;
     private final ShoppingCartMapper shoppingCartMapper = new ShoppingCartMapper();
 
     public ShoppingCartService(CartStorage cartStorage,
-                               ProductRepository productRepository) {
+                               ProductRepository productRepository,
+                               ICustomCakeService customCakeService) {
         this.cartStorage = cartStorage;
         this.productRepository = productRepository;
+        this.customCakeService = customCakeService;
     }
 
     @Override
@@ -72,6 +79,41 @@ public class ShoppingCartService implements IShoppingCartService {
         ShoppingCart cart = cartStorage.getCart(cartId);
         cart.removeItem(productId);
         cartStorage.saveCart(cartId, cart);
+    }
+
+    @Override
+    public ShoppingCartResponseDTO addCustomCake(UUID cartId, @NonNull AddCustomCakeRequestDTO dto) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
+
+        // The price is always computed here from the catalog, never taken from the client
+        CustomCakeDetails details = customCakeService.resolve(dto.getConfiguration());
+        CartItem item = CartItem.customCake(
+                UUID.randomUUID().toString(),
+                CUSTOM_CAKE_NAME,
+                dto.getQuantity(),
+                customCakeService.price(details),
+                details
+        );
+
+        cart.addItem(item);
+        cartStorage.saveCart(cartId, cart);
+        return shoppingCartMapper.toDto(cart);
+    }
+
+    @Override
+    public ShoppingCartResponseDTO updateCustomCakeQuantity(UUID cartId, String lineId, UpdateCartItemQuantityRequestDTO dto) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
+        cart.updateCustomCakeQuantity(lineId, dto.getQuantity());
+        cartStorage.saveCart(cartId, cart);
+        return shoppingCartMapper.toDto(cart);
+    }
+
+    @Override
+    public ShoppingCartResponseDTO removeCustomCake(UUID cartId, String lineId) {
+        ShoppingCart cart = cartStorage.getCart(cartId);
+        cart.removeCustomCake(lineId);
+        cartStorage.saveCart(cartId, cart);
+        return shoppingCartMapper.toDto(cart);
     }
 
     @Override

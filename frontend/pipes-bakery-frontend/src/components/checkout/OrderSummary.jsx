@@ -1,5 +1,6 @@
 import CartSummaryItem from "../shoppingCart/CartSummaryItem";
 import { formatCOP } from "../../utils/formatPrice.js";
+import { getCartItemKey } from "../../utils/customCake.js";
 
 const OrderSummary = ({ cart, onCheckout, loading, errors = [] }) => {
   const itemsTotal = cart.itemsTotal || 0;
@@ -12,7 +13,7 @@ const OrderSummary = ({ cart, onCheckout, loading, errors = [] }) => {
 
       <div className="summary-items">
         {cart.items.map((item) => (
-          <CartSummaryItem key={item.productId} item={item} />
+          <CartSummaryItem key={getCartItemKey(item)} item={item} />
         ))}
       </div>
 

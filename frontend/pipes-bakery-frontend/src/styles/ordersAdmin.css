@@ -204,6 +204,70 @@
   margin: 0.3rem 0 0;
 }
 
+.orders-admin-cake {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.orders-admin-dietary {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.92rem;
+  color: color-mix(in srgb, var(--color-text) 68%, white);
+}
+
+/* Allergies stand out so they can't be missed when preparing the cake */
+.orders-admin-dietary.has-restrictions {
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  background: rgba(176, 0, 32, 0.08);
+  color: #8a0019;
+  font-weight: 700;
+}
+
+.orders-admin-cake dd {
+  white-space: pre-line;
+}
+
+.orders-admin-cake dl {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.orders-admin-cake dl div {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.5rem;
+}
+
+.orders-admin-cake dt {
+  color: color-mix(in srgb, var(--color-text) 68%, white);
+}
+
+.orders-admin-cake dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.orders-admin-cake-photo {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.orders-admin-cake-photo img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
 .orders-admin-status-form {
   display: flex;
   gap: 1rem;

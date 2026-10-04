@@ -62,6 +62,24 @@ class ImageStorageServiceTest {
     }
 
     @Test
+    void shouldStoreInSubdirectoryWithoutKeepingTheOriginalName() throws IOException {
+        String path = imageStorageService.store(
+                new MockMultipartFile("file", "Foto de Ana.png", "image/png", PNG_BYTES), "custom-cakes", "cake");
+
+        assertThat(path).matches("custom-cakes/cake-[0-9a-f]{32}\\.png");
+        assertThat(path).doesNotContain("Ana");
+        assertThat(Files.readAllBytes(imageDirectory.resolve(path))).isEqualTo(PNG_BYTES);
+    }
+
+    @Test
+    void shouldRejectUnsafeSubdirectories() {
+        MockMultipartFile file = new MockMultipartFile("file", "cake.png", "image/png", PNG_BYTES);
+
+        assertThatThrownBy(() -> imageStorageService.store(file, "../outside", "cake"))
+                .isInstanceOf(InvalidImageException.class);
+    }
+
+    @Test
     void shouldGenerateDifferentNamesForSameOriginalFile() {
         MockMultipartFile file = new MockMultipartFile("file", "cake.png", "image/png", PNG_BYTES);
 

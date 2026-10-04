@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hyd.pipes_bakery_backend.dto.customcake.AddCustomCakeRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.shoppingCart.AddCartItemRequestDTO;
@@ -141,6 +142,62 @@ public class ShoppingCartController {
             @Parameter(description = "ID del producto", example = "3") @PathVariable Long productId) {
 
         cartService.removeItem(cartId, productId);
+    }
+
+    //POST /api/cart/{cartId}/custom-cakes
+    @PostMapping("/{cartId}/custom-cakes")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Anadir torta personalizada", description = "Valida la configuracion contra el catalogo, calcula su precio en el servidor y la anade como una nueva linea del carrito.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = ShoppingCartResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Configuracion de torta no valida",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Carrito no encontrado",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ShoppingCartResponseDTO addCustomCake(
+            @Parameter(description = "UUID del carrito", example = "f4a9b6de-0c5d-4cb2-9a47-8dc413951f0f") @PathVariable UUID cartId,
+            @NonNull @RequestBody @Valid AddCustomCakeRequestDTO request) {
+
+        return cartService.addCustomCake(cartId, request);
+    }
+
+    //PUT /api/cart/{cartId}/custom-cakes/{lineId}
+    @PutMapping("/{cartId}/custom-cakes/{lineId}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Actualizar cantidad de torta personalizada", description = "Cambia la cantidad de una linea de torta personalizada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = ShoppingCartResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada no validos",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Carrito o linea no encontrada",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ShoppingCartResponseDTO updateCustomCakeQuantity(
+            @Parameter(description = "UUID del carrito", example = "f4a9b6de-0c5d-4cb2-9a47-8dc413951f0f") @PathVariable UUID cartId,
+            @Parameter(description = "Identificador de la linea", example = "8c0f2c1e-3d5b-4f43-9a51-2a3f8b7e6d10") @PathVariable String lineId,
+            @Valid @RequestBody UpdateCartItemQuantityRequestDTO quantity) {
+
+        return cartService.updateCustomCakeQuantity(cartId, lineId, quantity);
+    }
+
+    //DELETE /api/cart/{cartId}/custom-cakes/{lineId}
+    @DeleteMapping("/{cartId}/custom-cakes/{lineId}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Eliminar torta personalizada", description = "Quita una linea de torta personalizada del carrito.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = ShoppingCartResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Carrito o linea no encontrada",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ShoppingCartResponseDTO removeCustomCake(
+            @Parameter(description = "UUID del carrito", example = "f4a9b6de-0c5d-4cb2-9a47-8dc413951f0f") @PathVariable UUID cartId,
+            @Parameter(description = "Identificador de la linea", example = "8c0f2c1e-3d5b-4f43-9a51-2a3f8b7e6d10") @PathVariable String lineId) {
+
+        return cartService.removeCustomCake(cartId, lineId);
     }
 
     //DELETE /api/cart/{cartId}

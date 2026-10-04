@@ -48,3 +48,16 @@ describe("paymentService", () => {
     expect(apiClient.get).toHaveBeenCalledWith("/payments/MB-REF", { params: undefined });
   });
 });
+
+describe("retryPayment with a new delivery date", () => {
+  it("sends the new date and slot when the original date has expired", async () => {
+    apiClient.post.mockResolvedValue({ data: { checkoutUrl: "url", reference: "MB-NEW" } });
+
+    await retryPayment("MB-OLD", { date: "2026-10-12", slot: "AFTERNOON" });
+
+    expect(apiClient.post).toHaveBeenCalledWith("/payments/MB-OLD/retry", {
+      deliveryDate: "2026-10-12",
+      deliverySlot: "AFTERNOON",
+    });
+  });
+});

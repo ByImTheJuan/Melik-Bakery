@@ -41,6 +41,13 @@ public class ShoppingCart {
     }
 
     public void addItem(CartItem newItem) {
+        // Every personalized cake is its own line, even if two are configured the same way
+        if (newItem.isCustomCakeLine()) {
+            items.add(newItem);
+            recalculateTotals();
+            return;
+        }
+
         CartItem existingItem = getItemByProductId(newItem.getProductId());
         if (existingItem != null) {
             existingItem.increaseQuantity(newItem.getQuantity());
@@ -53,7 +60,7 @@ public class ShoppingCart {
     public CartItem getItemByProductId(long productId) {
         if (!items.isEmpty()) {
             for (CartItem item : items) {
-                if (item.getProductId() == productId) {
+                if (!item.isCustomCakeLine() && item.getProductId() == productId) {
                     return item;
                 }
             }
@@ -76,6 +83,33 @@ public class ShoppingCart {
         if (item != null) {
             item.setQuantity(quantity);
         }
+        recalculateTotals();
+    }
+
+    public CartItem getItemByLineId(String lineId) {
+        for (CartItem item : items) {
+            if (item.isCustomCakeLine() && item.getLineId() != null && item.getLineId().equals(lineId)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public void removeCustomCake(String lineId) {
+        CartItem itemToRemove = getItemByLineId(lineId);
+        if (itemToRemove == null) {
+            throw new ResourceNotFoundException("Custom cake " + lineId + " not found in cart");
+        }
+        items.remove(itemToRemove);
+        recalculateTotals();
+    }
+
+    public void updateCustomCakeQuantity(String lineId, int quantity) {
+        CartItem item = getItemByLineId(lineId);
+        if (item == null) {
+            throw new ResourceNotFoundException("Custom cake " + lineId + " not found in cart");
+        }
+        item.setQuantity(quantity);
         recalculateTotals();
     }
 

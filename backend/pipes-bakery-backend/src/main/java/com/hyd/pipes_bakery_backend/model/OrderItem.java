@@ -3,7 +3,10 @@ package com.hyd.pipes_bakery_backend.model;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyd.pipes_bakery_backend.dto.customcake.CustomCakeDetails;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +31,24 @@ public class OrderItem {
 
     private BigDecimal unitPriceAtPurchase;
 
+    // Name at purchase time; the only name a personalized cake has (it has no product)
+    @Column(name = "item_name", length = 120)
+    private String itemName;
+
+    @Convert(converter = CustomCakeDetailsConverter.class)
+    @Column(name = "custom_cake_details", columnDefinition = "TEXT")
+    private CustomCakeDetails customCakeDetails;
+
     public OrderItem() {
+    }
+
+    public static OrderItem customCake(String name, int quantity, BigDecimal unitPriceAtPurchase, CustomCakeDetails details) {
+        OrderItem item = new OrderItem();
+        item.itemName = name;
+        item.quantity = quantity;
+        item.unitPriceAtPurchase = unitPriceAtPurchase;
+        item.customCakeDetails = details;
+        return item;
     }
 
     public OrderItem(Product product, int quantity) {
@@ -65,6 +85,27 @@ public class OrderItem {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public CustomCakeDetails getCustomCakeDetails() {
+        return customCakeDetails;
+    }
+
+    public void setCustomCakeDetails(CustomCakeDetails customCakeDetails) {
+        this.customCakeDetails = customCakeDetails;
+    }
+
+    @JsonIgnore
+    public boolean isCustomCake() {
+        return customCakeDetails != null;
     }
 
     @JsonIgnore

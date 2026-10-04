@@ -1,5 +1,12 @@
 package com.hyd.pipes_bakery_backend.service;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import java.time.LocalDate;
+import com.hyd.pipes_bakery_backend.model.DeliverySlot;
+import com.hyd.pipes_bakery_backend.exception.InvalidDeliveryDateException;
+import com.hyd.pipes_bakery_backend.exception.DeliveryDateExpiredException;
+import com.hyd.pipes_bakery_backend.dto.payment.RetryPaymentRequestDTO;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +68,7 @@ class PaymentServiceTest {
     private OrderMapper orderMapper;
 
     private PaymentService paymentService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @BeforeEach
     void setUp() {
@@ -101,7 +108,7 @@ class PaymentServiceTest {
         when(wompiClient.buildCheckoutUrl(anyString(), eq(2900000L), eq("COP")))
                 .thenReturn("https://checkout.wompi.co/p/?reference=MB-NEW");
 
-        PaymentSessionResponseDTO result = paymentService.retryPayment("MB-FAILED00001");
+        PaymentSessionResponseDTO result = paymentService.retryPayment("MB-FAILED00001", null);
 
         assertThat(result.getReference()).isNotEqualTo("MB-FAILED00001");
         ArgumentCaptor<PaymentTransaction> saved = ArgumentCaptor.forClass(PaymentTransaction.class);
@@ -112,11 +119,66 @@ class PaymentServiceTest {
     }
 
     @Test
+    void shouldRefuseToRetryWithADeliveryDateThatNoLongerMeetsTheRule() throws Exception {
+        PaymentTransaction failed = buildTransaction("MB-FAILED00001");
+        failed.setStatus(PaymentTransactionStatus.DECLINED);
+        when(paymentTransactionRepository.findByWompiReference("MB-FAILED00001")).thenReturn(Optional.of(failed));
+        doThrow(new InvalidDeliveryDateException("Delivery date must be at least 4 days from today"))
+                .when(orderService).validateDeliveryDate(any());
+
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-FAILED00001", null))
+                .isInstanceOf(DeliveryDateExpiredException.class);
+        verify(paymentTransactionRepository, never()).save(any());
+        verify(wompiClient, never()).buildCheckoutUrl(anyString(), anyLong(), anyString());
+    }
+
+    @Test
+    void shouldRetryWithANewDeliveryDateAndSaveItInTheNewAttempt() throws Exception {
+        PaymentTransaction failed = buildTransaction("MB-FAILED00001");
+        failed.setStatus(PaymentTransactionStatus.DECLINED);
+        when(paymentTransactionRepository.findByWompiReference("MB-FAILED00001")).thenReturn(Optional.of(failed));
+        when(paymentTransactionRepository.existsByWompiReference(anyString())).thenReturn(false);
+        when(wompiClient.buildCheckoutUrl(anyString(), eq(2900000L), eq("COP")))
+                .thenReturn("https://checkout.wompi.co/p/?reference=MB-NEW");
+
+        paymentService.retryPayment("MB-FAILED00001",
+                new RetryPaymentRequestDTO(LocalDate.of(2026, 10, 20), DeliverySlot.AFTERNOON));
+
+        verify(orderService).validateDeliveryDate(LocalDate.of(2026, 10, 20));
+        ArgumentCaptor<PaymentTransaction> saved = ArgumentCaptor.forClass(PaymentTransaction.class);
+        verify(paymentTransactionRepository).save(saved.capture());
+        CheckoutSnapshot snapshot = objectMapper.readValue(saved.getValue().getCheckoutData(), CheckoutSnapshot.class);
+        assertThat(snapshot.getRequest().getDeliveryDate()).isEqualTo(LocalDate.of(2026, 10, 20));
+        assertThat(snapshot.getRequest().getDeliverySlot()).isEqualTo(DeliverySlot.AFTERNOON);
+        // The original failed attempt keeps its own data
+        assertThat(objectMapper.readValue(failed.getCheckoutData(), CheckoutSnapshot.class).getRequest().getDeliveryDate())
+                .isEqualTo(LocalDate.of(2026, 10, 10));
+    }
+
+    @Test
+    void shouldRejectAnInvalidNewDeliveryDateOnRetry() throws Exception {
+        PaymentTransaction failed = buildTransaction("MB-FAILED00001");
+        failed.setStatus(PaymentTransactionStatus.DECLINED);
+        when(paymentTransactionRepository.findByWompiReference("MB-FAILED00001")).thenReturn(Optional.of(failed));
+        doThrow(new InvalidDeliveryDateException("Delivery date must be at least 4 days from today"))
+                .when(orderService).validateDeliveryDate(LocalDate.of(2026, 10, 5));
+
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-FAILED00001",
+                new RetryPaymentRequestDTO(LocalDate.of(2026, 10, 5), DeliverySlot.MORNING)))
+                .isInstanceOf(InvalidDeliveryDateException.class);
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-FAILED00001",
+                new RetryPaymentRequestDTO(LocalDate.of(2026, 10, 20), null)))
+                .isInstanceOf(InvalidDeliveryDateException.class)
+                .hasMessage("Both a delivery date and a time slot are required");
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
+    @Test
     void shouldRejectRetryOfPendingPayment() throws Exception {
         PaymentTransaction pending = buildTransaction("MB-PENDING0001");
         when(paymentTransactionRepository.findByWompiReference("MB-PENDING0001")).thenReturn(Optional.of(pending));
 
-        assertThatThrownBy(() -> paymentService.retryPayment("MB-PENDING0001"))
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-PENDING0001", null))
                 .isInstanceOf(PaymentNotRetryableException.class);
         verify(paymentTransactionRepository, never()).save(any());
     }
@@ -125,7 +187,7 @@ class PaymentServiceTest {
     void shouldThrowWhenRetryingUnknownPayment() {
         when(paymentTransactionRepository.findByWompiReference("MB-MISSING")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> paymentService.retryPayment("MB-MISSING"))
+        assertThatThrownBy(() -> paymentService.retryPayment("MB-MISSING", null))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
@@ -290,6 +352,8 @@ class PaymentServiceTest {
         request.setClientEmail("felipe@melik.com");
         request.setClientPhoneNumber("3001234567");
         request.setReceiverName("Laura");
+        request.setDeliveryDate(java.time.LocalDate.of(2026, 10, 10));
+        request.setDeliverySlot(com.hyd.pipes_bakery_backend.model.DeliverySlot.MORNING);
         request.setShippingAddress(new AddressSnapshotDTO("Calle 123", "Apto 1", "Bogota", 110111, "Colombia"));
         return request;
     }

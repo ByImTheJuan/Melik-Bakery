@@ -34,9 +34,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiError);
     }
 
-    // ADDRESS VALIDATION ERRORS (400)
-    @ExceptionHandler(InvalidAddressException.class)
-    public ResponseEntity<ApiError> handleAddressValidationErrors(InvalidAddressException ex) {
+    // ADDRESS AND DELIVERY DATE VALIDATION ERRORS (400)
+    @ExceptionHandler({InvalidAddressException.class, InvalidDeliveryDateException.class})
+    public ResponseEntity<ApiError> handleAddressValidationErrors(RuntimeException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -50,6 +50,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidProductOrderException.class)
     public ResponseEntity<ApiError> handleProductOrderValidationErrors(InvalidProductOrderException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    // CUSTOM CAKE VALIDATION ERRORS (400)
+    @ExceptionHandler(InvalidCustomCakeException.class)
+    public ResponseEntity<ApiError> handleInvalidCustomCake(InvalidCustomCakeException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -85,6 +99,20 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    // ORIGINAL DELIVERY DATE NO LONGER VALID ON RETRY (422)
+    @ExceptionHandler(DeliveryDateExpiredException.class)
+    public ResponseEntity<ApiError> handleDeliveryDateExpired(DeliveryDateExpiredException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(apiError);
     }
 
     @ExceptionHandler(InvalidWebhookSignatureException.class)
@@ -159,8 +187,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
-    @ExceptionHandler(LoginRateLimitException.class)
-    public ResponseEntity<ApiError> handleLoginRateLimit(LoginRateLimitException ex) {
+    @ExceptionHandler({LoginRateLimitException.class, UploadRateLimitException.class})
+    public ResponseEntity<ApiError> handleRateLimit(RuntimeException ex) {
 
         ApiError apiError = new ApiError(
                 HttpStatus.TOO_MANY_REQUESTS.value(),

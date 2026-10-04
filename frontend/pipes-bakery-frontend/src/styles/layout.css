@@ -448,3 +448,11 @@
   }
 
 }
+/* Fallback while a lazy-loaded page (e.g. the 3D cake builder) downloads */
+.route-loading {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}

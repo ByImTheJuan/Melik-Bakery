@@ -17,6 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyd.pipes_bakery_backend.dto.order.CheckoutOrderRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.CheckoutSnapshot;
+import com.hyd.pipes_bakery_backend.exception.InvalidDeliveryDateException;
+import com.hyd.pipes_bakery_backend.exception.DeliveryDateExpiredException;
+import com.hyd.pipes_bakery_backend.dto.payment.RetryPaymentRequestDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentSessionResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.PaymentStatusResponseDTO;
 import com.hyd.pipes_bakery_backend.dto.payment.WompiTransactionDTO;
@@ -78,7 +81,7 @@ public class PaymentService implements IPaymentService {
 
     @Override
     @Transactional
-    public PaymentSessionResponseDTO retryPayment(@NonNull String reference) {
+    public PaymentSessionResponseDTO retryPayment(@NonNull String reference, RetryPaymentRequestDTO newDelivery) {
         PaymentTransaction previous = findByReference(reference);
 
         if (!FAILED_STATUSES.contains(previous.getStatus())) {
@@ -86,7 +89,31 @@ public class PaymentService implements IPaymentService {
         }
 
         CheckoutSnapshot snapshot = fromJson(previous.getCheckoutData());
-        return createAttempt(previous.getCartId(), snapshot, previous.getCheckoutData());
+        CheckoutOrderRequestDTO request = snapshot.getRequest();
+
+        if (newDelivery != null && (newDelivery.getDeliveryDate() != null || newDelivery.getDeliverySlot() != null)) {
+            if (newDelivery.getDeliveryDate() == null || newDelivery.getDeliverySlot() == null) {
+                throw new InvalidDeliveryDateException("Both a delivery date and a time slot are required");
+            }
+            orderService.validateDeliveryDate(newDelivery.getDeliveryDate());
+            request.setDeliveryDate(newDelivery.getDeliveryDate());
+            request.setDeliverySlot(newDelivery.getDeliverySlot());
+        } else {
+            // Days may have passed since checkout: the preparation-time rule applies to every new attempt
+            boolean stillValid;
+            try {
+                orderService.validateDeliveryDate(request.getDeliveryDate());
+                stillValid = request.getDeliverySlot() != null;
+            } catch (InvalidDeliveryDateException ex) {
+                stillValid = false;
+            }
+            if (!stillValid) {
+                throw new DeliveryDateExpiredException(
+                        "The delivery date is no longer available. Please choose a new one");
+            }
+        }
+
+        return createAttempt(previous.getCartId(), snapshot, toJson(snapshot));
     }
 
     @Override

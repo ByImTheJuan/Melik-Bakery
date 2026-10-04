@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useCart } from "../hooks/useCart";
 import CheckoutForm from "../components/checkout/CheckoutForm";
 import OrderSummary from "../components/checkout/OrderSummary";
+import DeliveryDialog from "../components/checkout/DeliveryDialog";
+import DeliveryField from "../components/checkout/DeliveryField";
+import { bakeryToday, isDeliveryComplete } from "../utils/delivery";
 import { checkoutCart } from "../services/cartService";
 import { useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -35,6 +38,17 @@ const CheckoutPage = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+  // Delivery date and time slot: asked for as soon as the customer arrives at checkout
+  const [delivery, setDelivery] = useState({ date: null, slot: null });
+  const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(true);
+  const [today] = useState(bakeryToday);
+  const deliveryReady = isDeliveryComplete(delivery, today);
+
+  const handleDeliveryConfirm = (chosen) => {
+    setDelivery(chosen);
+    setDeliveryDialogOpen(false);
+    setErrors([]);
+  };
 
   const handleChange = (section, fieldOrValue, maybeValue) => {
     if (typeof maybeValue === "undefined") {
@@ -62,6 +76,8 @@ const CheckoutPage = () => {
     clientEmail: formData.clientEmail.trim(),
     clientPhoneNumber: formData.clientPhoneNumber.trim(),
     receiverName: formData.receiverName.trim() || null,
+    deliveryDate: delivery.date,
+    deliverySlot: delivery.slot,
     shippingAddress: {
       street: formData.shippingAddress.street.trim(),
       additionalInformation:
@@ -78,6 +94,10 @@ const CheckoutPage = () => {
   const validateCheckoutForm = () => {
     const validationErrors = [];
     const payload = buildCheckoutPayload();
+
+    if (!deliveryReady) {
+      validationErrors.push("Elige la fecha y la franja de entrega.");
+    }
 
     if (!payload.clientFirstName) {
       validationErrors.push("El nombre es obligatorio.");
@@ -141,6 +161,7 @@ const CheckoutPage = () => {
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
+      if (!deliveryReady) setDeliveryDialogOpen(true);
       return;
     }
 
@@ -171,6 +192,11 @@ const CheckoutPage = () => {
 
       <div className="order-container">
         <div className="order-form">
+          <DeliveryField
+            delivery={delivery}
+            missing={!deliveryReady && errors.length > 0}
+            onOpen={() => setDeliveryDialogOpen(true)}
+          />
           <CheckoutForm
             formData={formData}
             onChange={handleChange}
@@ -186,6 +212,16 @@ const CheckoutPage = () => {
           />
         </div>
       </div>
+
+      {deliveryDialogOpen && (
+        <DeliveryDialog
+          current={delivery}
+          today={today}
+          onConfirm={handleDeliveryConfirm}
+          onClose={() => setDeliveryDialogOpen(false)}
+          onBackToCart={() => navigate(`/cart/${cartId}`)}
+        />
+      )}
     </div>
   );
 };

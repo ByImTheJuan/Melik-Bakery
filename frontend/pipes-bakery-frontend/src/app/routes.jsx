@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import HomePage from "../pages/HomePage";
@@ -11,6 +12,9 @@ import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminMainPage from "../pages/AdminMainPage";
 import ScrollToTop from "../components/layout/ScrollToTop";
 
+// The 3D cake builder pulls in three.js: load it only when the route is visited
+const PersonalizationPage = lazy(() => import("../pages/PersonalizationPage"));
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -18,6 +22,14 @@ export default function AppRoutes() {
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route
+            path="/personalizar"
+            element={
+              <Suspense fallback={<div className="route-loading">Preparando tu torta...</div>}>
+                <PersonalizationPage />
+              </Suspense>
+            }
+          />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<ShoppingCartPage />} />

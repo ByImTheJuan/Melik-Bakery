@@ -10,8 +10,10 @@ export function getProductImageUrl(fileName) {
   const baseUrl = import.meta.env.VITE_IMAGES_BASE_URL ?? "";
   const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   const normalizedFile = fileName.replace(/^\/+/, "");
+  // Custom cake photos live in a subfolder ("custom-cakes/x.jpg"): encode each segment, keep the "/"
+  const encodedPath = normalizedFile.split("/").map(encodeURIComponent).join("/");
 
-  return `${normalizedBase}${encodeURIComponent(normalizedFile)}`;
+  return `${normalizedBase}${encodedPath}`;
 }
 
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
