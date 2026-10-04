@@ -90,7 +90,29 @@ class OrderControllerIntegrationTest {
         assertThat(orderRepository.findByPublicId("XYZ999").orElseThrow().getStatus()).isEqualTo(OrderStatus.PAID);
     }
 
+    @Test
+    void shouldListTheMostRecentOrdersFirst() throws Exception {
+        // Saved out of chronological order on purpose
+        saveOrderCreatedAt("MID111", java.time.LocalDateTime.of(2026, 10, 2, 12, 0));
+        saveOrderCreatedAt("NEW111", java.time.LocalDateTime.of(2026, 10, 3, 9, 30));
+        saveOrderCreatedAt("OLD111", java.time.LocalDateTime.of(2026, 9, 28, 18, 0));
+
+        mockMvc.perform(get("/api/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("NEW111"))
+                .andExpect(jsonPath("$[1].id").value("MID111"))
+                .andExpect(jsonPath("$[2].id").value("OLD111"));
+    }
+
+    private Order saveOrderCreatedAt(String publicId, java.time.LocalDateTime createdAt) {
+        return saveOrder(publicId, OrderStatus.PAID, createdAt);
+    }
+
     private Order saveOrder(String publicId, OrderStatus status) {
+        return saveOrder(publicId, status, null);
+    }
+
+    private Order saveOrder(String publicId, OrderStatus status, java.time.LocalDateTime createdAt) {
         Product product = new Product();
         product.setName("Croissant");
         product.setDescription("Mantequilla");
@@ -110,6 +132,10 @@ class OrderControllerIntegrationTest {
         order.setPublicId(publicId);
         order.setItems(new ArrayList<>(List.of(new OrderItem(savedProduct, 2))));
         order.setStatus(status);
+        if (createdAt != null) {
+            // createdAt is set by the constructor, has no setter and can't be updated after the insert
+            org.springframework.test.util.ReflectionTestUtils.setField(order, "createdAt", createdAt);
+        }
 
         return orderRepository.save(order);
     }

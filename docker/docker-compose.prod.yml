@@ -55,6 +55,10 @@ services:
       WOMPI_API_BASE_URL: ${WOMPI_API_BASE_URL}
       WOMPI_CHECKOUT_BASE_URL: ${WOMPI_CHECKOUT_BASE_URL:-https://checkout.wompi.co/p/}
       WOMPI_REDIRECT_URL: ${WOMPI_REDIRECT_URL}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-log}
+      EMAIL_FROM: ${EMAIL_FROM:-Melik Bakery <no-reply@melikbakery.com>}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
     volumes:
       - ./data/images:/app/images
 

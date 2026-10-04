@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  Customer email for every order status. The headline and message per status live in
+  notification/OrderEmailType.java. Tables and inline styles because email clients ignore most CSS.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${type.subject(order.publicId)}">Tu pedido</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f8f4ef; font-family:Tahoma, Verdana, Arial, sans-serif; color:#5a2d0c;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f8f4ef;">
+    <tr>
+        <td align="center" style="padding:24px 12px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                   style="max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden;">
+
+                <!-- Header -->
+                <tr>
+                    <td style="background-color:#5a2d0c; padding:24px; text-align:center;">
+                        <span style="font-size:26px; font-weight:bold; color:#f5e6d3; letter-spacing:1px;">Melik Bakery</span>
+                    </td>
+                </tr>
+
+                <!-- Status message -->
+                <tr>
+                    <td style="padding:32px 32px 8px 32px;">
+                        <p style="margin:0 0 8px 0; font-size:16px;">Hola <span th:text="${order.customerFirstName}">Laura</span>,</p>
+                        <h1 style="margin:0 0 12px 0; font-size:24px; color:#5a2d0c;" th:text="${type.headline}">¡Recibimos tu pedido!</h1>
+                        <p style="margin:0; font-size:15px; line-height:1.5;" th:text="${type.message}">Mensaje</p>
+                    </td>
+                </tr>
+
+                <!-- Order summary -->
+                <tr>
+                    <td style="padding:24px 32px 8px 32px;">
+                        <p style="margin:0 0 12px 0; font-size:13px; text-transform:uppercase; letter-spacing:1px; color:#A87B51;">
+                            Pedido <strong style="color:#5a2d0c;" th:text="'#' + ${order.publicId}">#ABC123</strong>
+                        </p>
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;">
+                            <tr th:each="line : ${order.lines}">
+                                <td style="padding:10px 0; border-bottom:1px solid #f1e3d3; vertical-align:top;">
+                                    <strong th:text="${line.quantity} + ' × ' + ${line.name}">1 × Torta</strong>
+                                    <div th:each="detail : ${line.details}" th:text="${detail}"
+                                         style="font-size:12px; color:#A87B51; padding-top:2px;">Sabor: Chocolate</div>
+                                </td>
+                                <td style="padding:10px 0 10px 12px; border-bottom:1px solid #f1e3d3; text-align:right; vertical-align:top; white-space:nowrap;"
+                                    th:text="${line.lineTotal}">$0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 0 4px 0;">Envío</td>
+                                <td style="padding:10px 0 4px 12px; text-align:right;" th:text="${order.shippingCost}">$0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 0; font-size:16px;"><strong>Total</strong></td>
+                                <td style="padding:4px 0 4px 12px; text-align:right; font-size:16px;"><strong th:text="${order.total}">$0</strong></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Delivery -->
+                <tr>
+                    <td style="padding:16px 32px 32px 32px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#f5e6d3; border-radius:8px; font-size:14px;">
+                            <tr>
+                                <td style="padding:16px 20px; line-height:1.6;">
+                                    <div th:if="${order.deliveryDate != null}">
+                                        <strong>Entrega:</strong>
+                                        <span th:text="${order.deliveryDate}">sábado 10 de octubre de 2026</span><span
+                                            th:if="${order.deliverySlot != null}" th:text="' (' + ${order.deliverySlot} + ')'"> (Tarde)</span>
+                                    </div>
+                                    <div th:if="${order.receiverName != null}">
+                                        <strong>Recibe:</strong> <span th:text="${order.receiverName}">Laura</span>
+                                    </div>
+                                    <div th:if="${order.address != null}">
+                                        <strong>Dirección:</strong> <span th:text="${order.address}">Calle 123, Bogotá</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="background-color:#f1e3d3; padding:16px 32px; text-align:center; font-size:12px; color:#A87B51;">
+                        Melik Bakery · Bogotá, Colombia
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
