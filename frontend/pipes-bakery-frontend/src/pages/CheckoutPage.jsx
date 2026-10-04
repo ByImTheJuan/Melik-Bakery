@@ -38,6 +38,8 @@ const CheckoutPage = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+  // Prior, express authorization required by Ley 1581 de 2012 before processing personal data
+  const [dataConsent, setDataConsent] = useState(false);
   // Delivery date and time slot: asked for as soon as the customer arrives at checkout
   const [delivery, setDelivery] = useState({ date: null, slot: null });
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(true);
@@ -139,6 +141,10 @@ const CheckoutPage = () => {
       validationErrors.push("Por ahora solo aceptamos envíos dentro de Colombia.");
     }
 
+    if (!dataConsent) {
+      validationErrors.push("Debes autorizar el tratamiento de tus datos personales para continuar.");
+    }
+
     return validationErrors;
   };
 
@@ -209,6 +215,11 @@ const CheckoutPage = () => {
             onCheckout={handleCheckout}
             loading={loading}
             errors={errors}
+            dataConsent={dataConsent}
+            onDataConsentChange={(checked) => {
+              setDataConsent(checked);
+              setErrors([]);
+            }}
           />
         </div>
       </div>

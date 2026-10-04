@@ -10,6 +10,8 @@ import OrderConfirmationPage from "../pages/OrderConfirmationPage";
 import PaymentResultPage from "../pages/PaymentResultPage";
 import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminMainPage from "../pages/AdminMainPage";
+import PrivacyPolicyPage from "../pages/PrivacyPolicyPage";
+import CookiePolicyPage from "../pages/CookiePolicyPage";
 import ScrollToTop from "../components/layout/ScrollToTop";
 
 // The 3D cake builder pulls in three.js: load it only when the route is visited
@@ -39,6 +41,8 @@ export default function AppRoutes() {
           <Route path="/payment/result/:reference" element={<PaymentResultPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminMainPage />} />
+          <Route path="/politica-de-privacidad" element={<PrivacyPolicyPage />} />
+          <Route path="/politica-de-cookies" element={<CookiePolicyPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

@@ -1,5 +1,6 @@
 package com.hyd.pipes_bakery_backend.email.resend;
 
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,16 @@ public class ResendEmailSender implements EmailSender {
         String replyTo = emailProperties.getReplyTo();
         if (replyTo != null && !replyTo.isBlank()) {
             body.put("reply_to", replyTo);
+        }
+        if (!message.inlineImages().isEmpty()) {
+            // Resend embeds an attachment inline when it has a content_id matching a cid: in the HTML
+            body.put("attachments", message.inlineImages().stream()
+                    .map(image -> Map.of(
+                            "filename", image.filename(),
+                            "content", Base64.getEncoder().encodeToString(image.content()),
+                            "content_type", image.contentType(),
+                            "content_id", image.contentId()))
+                    .toList());
         }
 
         try {

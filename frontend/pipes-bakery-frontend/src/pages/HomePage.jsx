@@ -6,6 +6,8 @@ import HeroSection from "../components/home/HeroSection";
 import PhotoCarousel from "../components/home/PhotoCarousel";
 import AboutSection from "../components/home/AboutSection";
 import FinalCTASection from "../components/home/FinalCTASection";
+import FaqSection from "../components/faq/FaqSection";
+import { HOME_FAQ } from "../components/faq/faqContent";
 
 import "../styles/global.css";
 import "../styles/homePage.css";
@@ -38,6 +40,7 @@ export default function HomePage() {
       </section>
 
       <AboutSection />
+      <FaqSection id="faq" title="Preguntas frecuentes" items={HOME_FAQ} className="faq-home" />
       <FinalCTASection />
 
     </>

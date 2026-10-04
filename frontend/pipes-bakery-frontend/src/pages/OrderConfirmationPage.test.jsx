@@ -59,7 +59,7 @@ describe("OrderConfirmationPage", () => {
     });
 
     expect(
-      screen.getByText("Ya recibimos tu pago. Prepararemos tu pedido para entregarlo el sábado, 10 de octubre de 2026 en la mañana.")
+      screen.getByText("Ya recibimos tu pago y te enviamos un email de confirmación. Prepararemos tu pedido para entregarlo el sábado, 10 de octubre de 2026 en la mañana.")
     ).toBeInTheDocument();
     expect(screen.getByText("sábado, 10 de octubre · Mañana")).toBeInTheDocument();
     expect(screen.queryByText(/lo antes posible/)).not.toBeInTheDocument();

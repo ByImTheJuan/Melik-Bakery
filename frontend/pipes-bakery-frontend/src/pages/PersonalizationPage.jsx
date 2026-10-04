@@ -19,6 +19,8 @@ import PhaseStepper from "../components/personalization/PhaseStepper";
 import BasePhase from "../components/personalization/BasePhase";
 import DecorationPhase from "../components/personalization/DecorationPhase";
 import CakeSummary from "../components/personalization/CakeSummary";
+import FaqSection from "../components/faq/FaqSection";
+import { CAKE_FAQ } from "../components/faq/faqContent";
 
 import "../styles/global.css";
 import "../styles/personalizationPage.css";
@@ -265,6 +267,8 @@ export default function PersonalizationPage() {
           )}
         </section>
       </div>
+
+      <FaqSection id="cake-faq" title="Preguntas sobre tu torta" items={CAKE_FAQ} className="faq-cake" />
     </div>
   );
 }

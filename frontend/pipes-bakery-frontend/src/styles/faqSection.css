@@ -1,0 +1,249 @@
+/* ==================================================
+   FAQ (home page + cake builder)
+================================================== */
+
+.faq {
+  --faq-line: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  --faq-muted: color-mix(in srgb, var(--color-primary) 80%, var(--color-bg));
+  --faq-gold: #d4ad5c;
+  --faq-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color: var(--color-primary);
+  interpolate-size: allow-keywords;
+}
+
+.faq-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: 2.5rem 5rem;
+  align-items: start;
+
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ---------- intro column ---------- */
+
+.faq-intro {
+  position: sticky;
+  top: 7rem;
+}
+
+.faq-intro h2 {
+  margin: 0 0 1rem;
+
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.faq-intro p {
+  margin: 0;
+  color: var(--faq-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.faq-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--faq-gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.faq-contact:hover {
+  text-decoration-color: var(--color-primary);
+}
+
+/* ---------- accordion ---------- */
+
+.faq-list {
+  border-top: 1px solid var(--faq-line);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--faq-line);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+
+  padding: 1.35rem 0.25rem;
+
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+
+  list-style: none;
+  cursor: pointer;
+  border-radius: 8px;
+
+  transition: color 0.25s var(--faq-ease);
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary:hover {
+  color: color-mix(in srgb, var(--color-primary) 75%, var(--color-secondary));
+}
+
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+
+  width: 2rem;
+  height: 2rem;
+  padding: 0.45rem;
+
+  border: 1px solid var(--faq-line);
+  border-radius: 50%;
+
+  transition: transform 0.4s var(--faq-ease), background-color 0.3s var(--faq-ease),
+    color 0.3s var(--faq-ease), border-color 0.3s var(--faq-ease);
+}
+
+.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-bg);
+}
+
+/* Height animation where ::details-content is supported; elsewhere it simply opens */
+.faq-item::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 0.45s var(--faq-ease), content-visibility 0.45s allow-discrete;
+}
+
+.faq-item[open]::details-content {
+  block-size: auto;
+}
+
+.faq-answer {
+  max-width: 68ch;
+  padding: 0 3.5rem 1.5rem 0.25rem;
+
+  color: #4a3326;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.faq-answer p {
+  margin: 0 0 0.75rem;
+}
+
+.faq-answer p:last-child,
+.faq-answer ul:last-child {
+  margin-bottom: 0;
+}
+
+.faq-answer ul {
+  margin: 0 0 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.faq-answer li {
+  margin-bottom: 0.3rem;
+}
+
+.faq-answer li::marker {
+  color: var(--color-secondary-2);
+}
+
+.faq-answer a {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration-color: var(--faq-gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* ---------- placements ---------- */
+
+/* Home: its own band between "Quiénes somos" and the closing call to action,
+   with the same diagonal cream wash and toffee hairline as the other home sections */
+.faq-home {
+  padding: 1rem 6% 6rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-2),
+    var(--color-bg)
+  );
+}
+
+.faq-home::before {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 2px;
+  margin: 0 auto 4rem;
+  background-color: var(--color-secondary-2);
+  opacity: 0.6;
+}
+
+/* Cake builder: below the builder, inside the page column */
+.faq-cake {
+  margin-top: 5rem;
+  padding-top: 4rem;
+  border-top: 1px solid var(--faq-line);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 860px) {
+  .faq-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .faq-intro {
+    position: static;
+  }
+
+  .faq-home {
+    padding: 1rem 1.25rem 4rem;
+  }
+
+  .faq-home::before {
+    margin-bottom: 2.75rem;
+  }
+
+  .faq-cake {
+    margin-top: 3.5rem;
+    padding-top: 3rem;
+  }
+
+  .faq-item summary {
+    font-size: 1rem;
+    padding: 1.15rem 0;
+  }
+
+  .faq-answer {
+    padding: 0 0 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-item::details-content,
+  .faq-icon {
+    transition: none;
+  }
+}
