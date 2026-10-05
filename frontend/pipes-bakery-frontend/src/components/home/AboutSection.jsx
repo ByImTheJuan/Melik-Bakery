@@ -30,7 +30,17 @@ export default function AboutSection() {
             <div className="about-container">
 
                 <div className={`about-image ${isVisible ? "show" : ""}`}>
-                    <img ref={imageRef} src="/images/aboutSection.jpg" alt="Nuestra panadería" />
+                    <img
+                        ref={imageRef}
+                        src="/images/about-lg.webp"
+                        srcSet="/images/about-sm.webp 480w, /images/about-lg.webp 849w"
+                        sizes="(max-width: 992px) 90vw, 36vw"
+                        alt="Nuestra panadería"
+                        width="849"
+                        height="1132"
+                        loading="lazy"
+                        decoding="async"
+                    />
                 </div>
 
                 <div className={`about-content ${isVisible ? "show" : ""}`}>

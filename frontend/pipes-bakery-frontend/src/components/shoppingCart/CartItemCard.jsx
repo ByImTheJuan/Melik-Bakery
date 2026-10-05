@@ -23,7 +23,7 @@ function CartItemCard({ cartItem }) {
             </div>
             <div className="cart-item-image">
                 {cartItem.productImage ? (
-                    <img src={getProductImageUrl(cartItem.productImage)} alt={cartItem.productName} />
+                    <img src={getProductImageUrl(cartItem.productImage)} alt={cartItem.productName} loading="lazy" decoding="async" />
                 ) : (
                     <div className="cart-item-cake-icon" aria-hidden="true">
                         <LuCakeSlice />

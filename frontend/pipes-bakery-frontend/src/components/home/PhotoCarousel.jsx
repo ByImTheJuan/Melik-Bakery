@@ -1,26 +1,47 @@
 import { useState, useEffect } from "react";
 
+// lgWidth is the real pixel width of the -lg file (scripts/optimize-images.mjs never upscales)
 const images = [
-  "/images/homePageCarousel1.webp",
-  "/images/homePageCarousel2.png",
-  "/images/homePageCarousel3.jfif",
-  "/images/homePageCarousel4.png",
-  "/images/homePageCarousel5.jpeg",
-  "/images/homePageCarousel6.jfif",
-  "/images/homePageCarousel7.jfif",
-  "/images/homePageCarousel8.png"/*,
-  "/images/homePageCarousel9.png",
-  "/images/homePageCarousel10.jpeg",
-  "/images/homePageCarousel11.png",
-  "/images/homePageCarousel12.png",
-  "/images/homePageCarousel13.jpeg",
-  "/images/homePageCarousel14.jpeg",
-  "/images/homePageCarousel15.png",
-  "/images/homePageCarousel16.jpeg"*/
+  { name: "carousel-1", lgWidth: 1280 },
+  { name: "carousel-2", lgWidth: 1024 },
+  { name: "carousel-3", lgWidth: 1024 },
+  { name: "carousel-4", lgWidth: 1024 },
+  { name: "carousel-5", lgWidth: 1024 },
+  { name: "carousel-6", lgWidth: 1024 },
+  { name: "carousel-7", lgWidth: 1024 },
+  { name: "carousel-8", lgWidth: 1024 },
 ];
+
+const SIZES = "(max-width: 1024px) 100vw, 60vw";
 
 export default function PhotoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Slides get their image only once visited (plus the next one), so the first
+  // slide, the page's LCP element, doesn't compete with the other seven on load
+  const [visited, setVisited] = useState(() => new Set([0]));
+
+  useEffect(() => {
+    setVisited((prev) => (prev.has(currentIndex) ? prev : new Set(prev).add(currentIndex)));
+  }, [currentIndex]);
+
+  // The neighbour is fetched after the page has loaded, ready for the first slide change
+  const [preloadNext, setPreloadNext] = useState(false);
+
+  useEffect(() => {
+    if (document.readyState === "complete") {
+      setPreloadNext(true);
+      return undefined;
+    }
+
+    const onLoad = () => setPreloadNext(true);
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
+  function shouldLoad(index) {
+    if (visited.has(index)) return true;
+    return preloadNext && index === (currentIndex + 1) % images.length;
+  }
 
   function nextImage() {
     setCurrentIndex((prev) =>
@@ -55,9 +76,21 @@ export default function PhotoCarousel() {
                     transform: `translateX(-${currentIndex * 100}%)`
              }}
             >
-                {images.map((img, index) => (
-                    <img key={index} src={img} alt="Bakery" />
-                ))}
+                {images.map((img, index) => {
+                    const load = shouldLoad(index);
+
+                    return (
+                        <img
+                            key={img.name}
+                            src={load ? `/images/${img.name}-lg.webp` : undefined}
+                            srcSet={load ? `/images/${img.name}-sm.webp 800w, /images/${img.name}-lg.webp ${img.lgWidth}w` : undefined}
+                            sizes={SIZES}
+                            alt={load ? "Bakery" : ""}
+                            decoding="async"
+                            fetchPriority={index === 0 ? "high" : "auto"}
+                        />
+                    );
+                })}
             </div>
             <button className="carousel-btn left" onClick={prevImage}>◀</button>
 
@@ -72,7 +105,7 @@ export default function PhotoCarousel() {
                     />
                 ))}
             </div>
-            
+
         </div>
     </section>
   );

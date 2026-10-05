@@ -34,7 +34,7 @@ describe("Footer", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("img", { name: "Melik Bakery" })).toHaveAttribute("src", "/images/logo.webp");
+    expect(screen.getByRole("img", { name: "Melik Bakery" })).toHaveAttribute("src", "/images/logo-320.webp");
 
     const contact = screen.getByRole("region", { name: "Contáctanos" });
     expect(within(contact).getByRole("link", { name: /\+57 319 383 0446/ })).toHaveAttribute(

@@ -2,24 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useInView from "../../hooks/useInView";
 
-const images = [
-  "/images/homePageCarousel16.jpeg",
-  "/images/homePageCarousel15.png",
-  "/images/homePageCarousel14.jpeg",
-  "/images/homePageCarousel13.jpeg",
-  "/images/homePageCarousel12.png",
-  "/images/homePageCarousel11.png",
-  "/images/homePageCarousel10.jpeg",
-  "/images/homePageCarousel9.png",
-  "/images/homePageCarousel8.png",
-  "/images/homePageCarousel7.jfif",
-  "/images/homePageCarousel6.jfif",
-  "/images/homePageCarousel5.jpeg",
-  "/images/homePageCarousel4.png",
-  "/images/homePageCarousel3.jfif",
-  "/images/homePageCarousel2.png",
-  "/images/homePageCarousel1.jpg",
-];
+const images = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(
+  (n) => `/images/carousel-${n}-lg.webp`
+);
 
 export default function FinalCTASection() {
   const [index, setIndex] = useState(0);
@@ -29,6 +14,10 @@ export default function FinalCTASection() {
   index === 0
     ? images.length - 1
     : index - 1;
+
+  // Below the fold: no image is requested until the section scrolls into view
+  const backgroundFor = (i) =>
+    isVisible ? { backgroundImage: `url(${images[i]})` } : undefined;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,12 +39,12 @@ export default function FinalCTASection() {
       >
         <div
           className="final-cta-bg prev"
-          style={{ backgroundImage: `url(${images[prevIndex]})` }}
+          style={backgroundFor(prevIndex)}
         />
 
         <div
           className="final-cta-bg current"
-          style={{ backgroundImage: `url(${images[index]})` }}
+          style={backgroundFor(index)}
         />
 
         <div className="final-cta-overlay" />

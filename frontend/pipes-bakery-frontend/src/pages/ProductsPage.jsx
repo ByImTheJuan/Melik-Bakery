@@ -5,6 +5,9 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "../styles/global.css";
 import "../styles/productsPage.css";
 
+// Cards likely to be above the fold load their image right away; the rest are lazy
+const PRIORITY_CARDS = 4;
+
 function ProductsPage() {
   const { products, status, errorMessage } = useProducts();
   useDocumentTitle("Productos");
@@ -39,8 +42,8 @@ function ProductsPage() {
     <div className="products-container">
       <h1>Nuestros productos</h1>
       <div className="products-grid">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {products.map((product, index) => (
+          <ProductCard key={product.id} product={product} priority={index < PRIORITY_CARDS} />
         ))}
       </div>
       <div className="products-note">

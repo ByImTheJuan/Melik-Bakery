@@ -2,6 +2,7 @@ package com.hyd.pipes_bakery_backend.config;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ class StaticResourceConfigIntegrationTest {
     @BeforeAll
     static void createProductImage() throws IOException {
         Files.write(imageDirectory.resolve("sample.jpg"), new byte[] {1, 2, 3});
+        Files.createDirectories(imageDirectory.resolve("custom-cakes"));
+        Files.write(imageDirectory.resolve("custom-cakes").resolve("photo.jpg"), new byte[] {4, 5, 6});
     }
 
     @Test
@@ -45,5 +48,20 @@ class StaticResourceConfigIntegrationTest {
         mockMvc.perform(get("/images/sample.jpg"))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes(new byte[] {1, 2, 3}));
+    }
+
+    @Test
+    void shouldLetBrowsersAndTheCdnCacheProductImages() throws Exception {
+        mockMvc.perform(get("/images/sample.jpg"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=31536000, public, immutable"));
+    }
+
+    @Test
+    void shouldKeepCustomCakePhotosOutOfSharedCaches() throws Exception {
+        mockMvc.perform(get("/images/custom-cakes/photo.jpg"))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(new byte[] {4, 5, 6}))
+                .andExpect(header().string("Cache-Control", "max-age=86400, private"));
     }
 }

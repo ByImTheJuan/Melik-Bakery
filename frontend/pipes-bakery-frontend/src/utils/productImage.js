@@ -31,3 +31,39 @@ export function validateImageFile(file) {
 
   return null;
 }
+
+const UPLOAD_MAX_DIMENSION = 1200;
+const UPLOAD_WEBP_QUALITY = 0.8;
+
+// Downscales and re-encodes a product photo as WebP before it is uploaded, so the
+// catalog serves ~100 KB images instead of multi-megabyte camera files. Falls back to
+// the original file whenever the browser can't do it or the result isn't smaller.
+export async function compressImageForUpload(file) {
+  if (typeof createImageBitmap !== "function") {
+    return file;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, UPLOAD_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/webp", UPLOAD_WEBP_QUALITY)
+    );
+
+    // Browsers without WebP encoding hand back a PNG instead
+    if (!blob || blob.type !== "image/webp" || blob.size >= file.size) {
+      return file;
+    }
+
+    const baseName = file.name.replace(/\.[^.]+$/, "");
+    return new File([blob], `${baseName}.webp`, { type: "image/webp" });
+  } catch {
+    return file;
+  }
+}
