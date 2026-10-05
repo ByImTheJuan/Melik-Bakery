@@ -5,6 +5,7 @@ import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-
 import { LuRotate3D } from "react-icons/lu";
 import CakeModel from "./CakeModel";
 import { STAND_HEIGHT, TIER_HEIGHT } from "./cakeGeometry";
+import "./threeConsole";
 
 // Keeps a taller cake in frame: when the tier count changes the camera eases back and re-centres,
 // then hands control back to the customer (it never fights their own zoom or rotation).
@@ -61,7 +62,8 @@ export default function CakeViewer({ cake, caption }) {
     <div className="cake-viewer" aria-label={`Vista 3D de tu torta: ${caption}`} role="img">
       {webGL ? (
         <Canvas
-          shadows
+          // PCF: three removed PCFSoftShadowMap (R3F's `shadows` default) and falls back to it anyway
+          shadows="percentage"
           dpr={[1, 1.75]}
           camera={{ position: [0.6, 4.6, 7.6], fov: 33 }}
           gl={{ antialias: true, preserveDrawingBuffer: false }}
