@@ -79,7 +79,7 @@ function ProductDetailPage() {
       <div className="product-back" onClick={() => navigate("/products")}>← Volver al catálogo</div>
       <div className="product-details-container">
         <div className="product-details-img">
-          <img src={getProductImageUrl(product.imageFile)} alt={product.name} />
+          <img src={getProductImageUrl(product.imageFile)} alt={product.name} fetchPriority="high" />
         </div>
         <div className="product-details-info">
           <div className="product-details-header">

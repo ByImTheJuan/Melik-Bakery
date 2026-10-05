@@ -42,7 +42,7 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
         <div className="nav-logo" alt="Pipes Bakery" onClick={handleHomeClick}>
-            <img src="/images/logo_2.webp" alt="Pipe's Bakery" />
+            <img src="/images/logo-nav.webp" alt="Pipe's Bakery" width="400" height="108" />
         </div>
 
         <div className="nav-right">

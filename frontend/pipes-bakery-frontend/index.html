@@ -2,9 +2,24 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/images/favicon.webp" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/images/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/images/favicon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Melik Bakery</title>
+    <!-- Home page LCP image (first carousel slide, on desktop and mobile): requested alongside
+         the JS bundle instead of after React renders. Keep in sync with PhotoCarousel.jsx -->
+    <script>
+      if (location.pathname === "/") {
+        var lcp = document.createElement("link");
+        lcp.rel = "preload";
+        lcp.as = "image";
+        lcp.fetchPriority = "high";
+        lcp.href = "/images/carousel-1-lg.webp";
+        lcp.imageSrcset = "/images/carousel-1-sm.webp 800w, /images/carousel-1-lg.webp 1280w";
+        lcp.imageSizes = "(max-width: 1024px) 100vw, 60vw";
+        document.head.appendChild(lcp);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

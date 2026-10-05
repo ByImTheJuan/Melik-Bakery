@@ -59,7 +59,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    animation: fadeInUp 0.8s ease-out;
+    animation: riseIn 0.8s ease-out;
 }
 
 @media (max-width: 1024px) {
@@ -67,6 +67,16 @@
         width: 100%;
         max-width: 600px;
     }
+}
+
+/* Hero entrance: movement only. Starting at opacity 0 would delay the LCP paint */
+@keyframes riseIn {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInUp {
@@ -193,7 +203,7 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    animation: fadeInUp 0.8s ease-out;
+    animation: riseIn 0.8s ease-out;
 }
 
 .carousel-inner {
@@ -375,6 +385,7 @@
 
 .about-image img {
     width: 100%;
+    height: auto;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.08);
     transition: transform 0.2s ease-out;

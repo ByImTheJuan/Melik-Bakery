@@ -8,7 +8,7 @@ import {
   uploadProductImage,
 } from "../../services/productService";
 import { formatCOP } from "../../utils/formatPrice";
-import { getProductImageUrl } from "../../utils/productImage";
+import { compressImageForUpload, getProductImageUrl } from "../../utils/productImage";
 import ImageDropzone from "./ImageDropzone";
 import "../../styles/productsAdmin.css";
 
@@ -230,7 +230,7 @@ export default function ProductsAdmin() {
 
       // Upload only on submit so cancelled edits don't leave orphan files on the server.
       if (formData.pendingImage) {
-        const uploadedImage = await uploadProductImage(formData.pendingImage);
+        const uploadedImage = await uploadProductImage(await compressImageForUpload(formData.pendingImage));
         imageFile = uploadedImage.imageFile;
         setFormData((current) => ({
           ...current,

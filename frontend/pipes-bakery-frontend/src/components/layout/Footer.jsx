@@ -87,11 +87,11 @@ export default function Footer() {
 
         <div className="footer-brand">
           <img
-            src="/images/logo.webp"
+            src="/images/logo-320.webp"
             alt="Melik Bakery"
             className="footer-logo"
-            width="688"
-            height="658"
+            width="320"
+            height="306"
             loading="lazy"
           />
           <p className="footer-location">
